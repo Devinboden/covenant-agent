@@ -29,7 +29,7 @@ redo only what failed. What can't be resolved goes to a person.
 6. **Sign-off**: draft -> verified -> signed off. Every flag and review item must be decided, the signer must differ
    from the verifier, and any later change drops the abstract back to draft.
 
-## Results (spec v1.1, five deals with answer keys)
+## Results (spec v1.1, five development deals with answer keys)
 | | Score |
 |---|---|
 | Covenant schedules, every quarter 2022-2030 | 350 / 351 test dates |
@@ -42,6 +42,7 @@ redo only what failed. What can't be resolved goes to a person.
 Deals: TriMas, Cars.com, Construction Partners, Westrock Coffee, Mayville Engineering; holdouts Quad/Graphics,
 Stoneridge; new deals Crane NXT and Ultra Clean. All inputs are public SEC EDGAR filings (`data/manifest.csv`).
 The single schedule miss is a gap in the agreement itself (a first test date its levels don't cover), sent to review.
+These are scores on the deals the rules were developed against, not a holdout accuracy.
 
 ## Run it
 ```bash
@@ -53,6 +54,22 @@ pytest -q                    # fast regression tests on the stored abstracts (no
 pytest -m live               # end-to-end rebuild against the keys (calls models)
 ```
 Model calls use the local `claude -p` CLI today (`covenant_engine/model.py`); Bedrock comes at deployment.
+
+## MCP server
+The engine's tools over MCP (Python SDK 2.x), local first:
+```bash
+pip install -e ".[mcp]"
+COVENANT_USER="Reviewer 1" covenant-mcp            # stdio; --http for streamable HTTP on 127.0.0.1:8000/mcp
+```
+| Tool | Does |
+|---|---|
+| `list_deals`, `get_abstract`, `list_review_items`, `signoff_status` | read (abstract summary, any section, open items with evidence) |
+| `start_deal`, `run_status` | abstract a PDF under `data/pdf/<TICKER>/` in the background and follow progress |
+| `resolve_item`, `verify`, `sign_off` | the person answers a form (MCP elicitation); the model can only propose |
+
+Who is acting comes from the connection (the authenticated principal, or `COVENANT_USER` locally), never from a tool
+argument, so four eyes holds through the agent. With no person to answer (a headless client), the form is cancelled
+and nothing is recorded.
 
 ## Layout
 - `src/covenant_engine/` ingest, abstract (steps, checks, scorers, sign-off), core (shared library parts), config,

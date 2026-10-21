@@ -46,9 +46,9 @@ def gpt_check(borrower, out_dir="data/gpt_review"):
     return tally
 
 
-def review_file(borrower, abs_dir=ABSTRACT_DIR):
+def review_data(borrower, abs_dir=ABSTRACT_DIR):
     """Everything a reviewer needs, one row per item: key (stable, for the sign-off record), kind, where, what code /
-    GPT says, the evidence quote, plus the abstract's headline facts."""
+    GPT says, the evidence quote, plus the abstract's headline facts. Reads only."""
     ab, rec, h = load(borrower, abs_dir)
     its = items(ab)
     rows = []
@@ -83,6 +83,12 @@ def review_file(borrower, abs_dir=ABSTRACT_DIR):
            "loan": ab.get("loan"), "covenants": cov, "regimes": reg, "terms": terms,
            "pricing_grid": ab.get("pricing_grid"), "reported": ab.get("reported", []),
            "second_model": ab.get("second_model_review"), "items": rows, "open": sum(1 for r in rows if not r["resolution"])}
+    return out
+
+
+def review_file(borrower, abs_dir=ABSTRACT_DIR):
+    """review_data written to <B>.review.json for the review page."""
+    out = review_data(borrower, abs_dir)
     st = store(abs_dir)
     st.save(borrower, "review", out)
     return st._p(borrower, "review"), out

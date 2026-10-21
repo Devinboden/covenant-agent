@@ -13,7 +13,11 @@ dependencies = ["pymupdf>=1.24", "jsonschema>=4.20", "pyyaml>=6.0"]
 [project.optional-dependencies]
 render = ["playwright>=1.45"]          # EDGAR HTML -> PDF (scripts/fetch_filings.py)
 dev = ["pytest>=8"]
-aws = ["boto3>=1.34"]                 # S3-triggered intake handler (ingest/handler.py)
+aws = ["boto3>=1.34"]
+mcp = ["mcp>=2.3,<3"]                # MCP server (covenant_engine.mcp_server)                 # S3-triggered intake handler (ingest/handler.py)
+
+[project.scripts]
+covenant-mcp = "covenant_engine.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
