@@ -1,0 +1,64 @@
+# Covenant Agent
+
+Turns a commercial credit agreement (PDF) into a covenant abstract a bank can rely on: every financial covenant, its
+threshold schedule and the regimes that change it (relief periods, step-ups, elections), every defined term the test
+depends on broken into parts with caps and quotes, plus the loan facts, events from the borrower's filings,
+calculation rules and the pricing grid. Every value carries the exact words it came from, and nothing is final until
+a person signs it off.
+
+Status: the abstraction engine is built and measured. Next: the MCP server and MCP App interface, then the AgentCore
+agent, then deployment on Bedrock / AgentCore.
+
+## How it works
+The model fills fixed structures; code decides everything deterministic, checks everything, and asks the model to
+redo only what failed. What can't be resolved goes to a person.
+
+1. **Ingest** (`covenant_engine.ingest`): live text from the PDF (struck text in blacklines dropped), sections,
+   definitions, cross-references; repairs common filing quirks; a reading packet of the covenant sections and every
+   definition they use. If no financial covenant section is found, the run stops for a person.
+2. **Covenants and regimes**: metric, direction, frequency and event tests; dated schedules; relief periods,
+   step-ups, elections. Code checks quotes, dates (first test dates, relative dates resolved from the Closing Date)
+   and overlaps.
+3. **Defined terms**: ratio, EBITDA, debt, cash and interest definitions decomposed into parts (clause, category,
+   sign, references, caps, data source). Code enumerates every clause and every unnumbered proviso and requires each
+   to be covered; checks quotes, references and cap shapes; up to two repair rounds.
+4. **Loan, events, calculation rules, pricing** (in parallel); events come from the 10-Q / 10-K / 8-Ks and are
+   cross-checked against the thresholds.
+5. **Second-model check** (optional): GPT verifies each claim against the agreement; only disagreements backed by a
+   verbatim quote count.
+6. **Sign-off**: draft -> verified -> signed off. Every flag and review item must be decided, the signer must differ
+   from the verifier, and any later change drops the abstract back to draft.
+
+## Results (spec v1.1, five deals with answer keys)
+| | Score |
+|---|---|
+| Covenant schedules, every quarter 2022-2030 | 350 / 351 test dates |
+| Regime fields | 27 / 27 |
+| Loan facts | 51 / 51 |
+| Events and reported results | 15 / 15 |
+| Calculation rules / deemed values | 9 / 9, 5 / 5 |
+| Pricing grids | 36 / 36 |
+
+Deals: TriMas, Cars.com, Construction Partners, Westrock Coffee, Mayville Engineering; holdouts Quad/Graphics,
+Stoneridge; new deals Crane NXT and Ultra Clean. All inputs are public SEC EDGAR filings (`data/manifest.csv`).
+The single schedule miss is a gap in the agreement itself (a first test date its levels don't cover), sent to review.
+
+## Run it
+```bash
+pip install -e ".[dev,render]" && playwright install chromium
+SEC_USER_AGENT="Your Name you@example.com" python scripts/fetch_filings.py TRS   # download, render, ingest
+python -m covenant_engine.abstract.new_deal TRS data/pdf/TRS/amendment_10th-amendment-2026-03-conformed.pdf
+python -m covenant_engine.abstract.signoff status TRS
+pytest -q                    # fast regression tests on the stored abstracts (no model calls)
+pytest -m live               # end-to-end rebuild against the keys (calls models)
+```
+Model calls use the local `claude -p` CLI today (`covenant_engine/model.py`); Bedrock comes at deployment.
+
+## Layout
+- `src/covenant_engine/` ingest, abstract (steps, checks, scorers, sign-off), core (shared library parts), config,
+  model gate, store
+- `data/` answer keys (`keys_v1/`, `abstracts/`), filing manifest, stored abstracts used by the tests
+- `docs/` spec design and the measured build history
+- `tests/` regression and rule tests
+
+Not affiliated with any lender, borrower or loan-system vendor. Public data only.

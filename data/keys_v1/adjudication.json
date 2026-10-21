@@ -1,0 +1,266 @@
+[
+ {
+  "deal": "WEST",
+  "term": "Secured Net Leverage Ratio",
+  "diff": "Secured Net Leverage Ratio (i)(y): sign key '+' model '+/-'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "Clause (i)(y) is one of two items in 'the sum of' forming numerator component (i); it is strictly additive. The only subtraction in the numerator is clause (ii) (Unrestricted Cash Amount). Nothing in (y) supports a bidirectional '+/-' reading; principal amount of other secured Consolidated Debt can only increase the numerator. Material because a '+/-' sign would let the engine net or reduce the numerator by Collateral-secured debt, changing the ratio."
+ },
+ {
+  "deal": "WEST",
+  "term": "Consolidated Interest Expense",
+  "diff": "Consolidated Interest Expense (a): sign key '+/-' model '+'",
+  "verdict": "model_correct",
+  "material": false,
+  "reason": "Clause (a) is an additive component of 'the sum of' \u2014 its sign is '+'. The 'net of cash interest income' language is a netting inside the component (or a separate interest_income part with '-' sign), not a reason to give the clause an ambiguous '+/-' sign. Either way the engine adds the same net figure, so no change to the computed amount."
+ },
+ {
+  "deal": "WEST",
+  "term": "Consolidated Interest Expense",
+  "diff": "Consolidated Interest Expense (c): category key 'cash_interest_expense' model 'custom'",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "Clause (c) adds dividends/distributions made to fund interest on Permitted Convertible Notes \u2014 a distribution-based proxy for interest (typically on parent-level notes), not interest expense of the Borrower under GAAP or cash interest already captured in (a). It fits no fixed category, so 'custom' is right. Tagging it cash_interest_expense would merge it with clause (a)'s data source and either double count (a) or drop the dividend amount."
+ },
+ {
+  "deal": "WEST",
+  "term": "Consolidated Interest Expense",
+  "diff": "Consolidated Interest Expense (d)(iv): category key 'excluded_other' model 'receivables_financing_costs'",
+  "verdict": "model_correct",
+  "material": false,
+  "reason": "(d)(iv) excludes commissions, discounts, yield and fees under Qualified Receivables Facilities (but not interest expense) \u2014 exactly what the dedicated receivables_financing_costs category exists for. Dumping it in excluded_other is imprecise but same sign and same scope, so a correctly fed engine excludes the same amount."
+ },
+ {
+  "deal": "WEST",
+  "term": "Consolidated Interest Expense",
+  "diff": "Consolidated Interest Expense (d)(vii): category key 'excluded_other' model 'excluded_hedge_breakage_and_costs'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "(d)(vii) excludes make-whole premiums and breakage costs of Indebtedness \u2014 debt breakage, not hedge breakage. Hedge breakage is separately covered by (d)(iii). Mapping (vii) to excluded_hedge_breakage_and_costs would point the engine at hedge-termination costs and leave debt make-whole/prepayment premiums inside interest expense, overstating Consolidated Interest Expense."
+ },
+ {
+  "deal": "WEST",
+  "term": "Consolidated Debt",
+  "diff": "Consolidated Debt (x): ref key Indebtedness(a) model Indebtedness",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "The text says 'Indebtedness for borrowed money' \u2014 it invokes the defined term 'Indebtedness' as a whole and narrows it with a descriptive qualifier ('for borrowed money'); it does not cite any sub-clause of the Indebtedness definition. A's '(a)' is an assumption about the structure of a definition we are not shown. 'For borrowed money' is commonly read to cover loans and also notes/bonds/debentures (typically separate clauses of an Indebtedness definition), so pinning to clause (a) alone risks understating the numerator. Ref should be 'Indebtedness' with the borrowed-money limitation carried as the category/qualifier."
+ },
+ {
+  "deal": "WEST",
+  "term": "Consolidated Debt",
+  "diff": "Consolidated Debt (y): ref key Indebtedness(e) model ",
+  "verdict": "both_wrong",
+  "material": true,
+  "reason": "Clause (y) is 'guarantees ... of Indebtedness for borrowed money'. The defined term referenced is 'Indebtedness' (describing the underlying obligation guaranteed), narrowed by 'for borrowed money'; the lowercase 'guarantees' is not itself a cross-reference to any sub-clause. A's 'Indebtedness(e)' invents a sub-clause citation absent from the text and, if (e) is a generic guarantee limb, would sweep in guarantees of non-borrowed-money Indebtedness (overcount). B's blank ref drops the link to the defined term entirely, leaving the engine with no basis for what 'Indebtedness' means for the guaranteed obligation. Correct ref is 'Indebtedness' (unqualified), category guarantees, with the borrowed-money qualifier."
+ },
+ {
+  "deal": "WEST",
+  "term": "Indebtedness",
+  "diff": "Indebtedness (k): cap key lesser_of aggregate_unpaid_amount|fair_market_value_of_encumbered_property model none ",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "The sentence immediately following clause (l) expressly deems the clause (k) amount (for non-assumed, non-recourse debt) to be the lesser of the aggregate unpaid amount and the Fair Market Value of the encumbered property. Omitting the cap overstates Indebtedness whenever FMV of the collateral is below the secured debt, which changes the ratio."
+ },
+ {
+  "deal": "WEST",
+  "term": "Indebtedness",
+  "diff": "Indebtedness convertible sentence: category key 'calculation_rule' model 'convertible_notes'",
+  "verdict": "model_correct",
+  "material": false,
+  "reason": "The 'for the avoidance of doubt' sentence is the definition's convertible-debt provision: value convertibles at full stated principal, ignoring conversion-value changes. The library has a dedicated convertible_notes category for exactly this; calculation_rule is the generic fallback. Either label yields the same computed amount so long as the full-principal valuation rule is captured, hence not material."
+ },
+ {
+  "deal": "WEST",
+  "term": "Indebtedness",
+  "diff": "Indebtedness (l)(vii): category key 'calculation_rule' model 'excluded_debt'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "Item (vii) is not an excluded class of debt like (i)-(vi); it directs that Indebtedness be 'calculated without giving effect to' ASC 825 embedded-derivative accounting effects that would 'increase or decrease' the amount. That is a measurement/neutralization rule. Tagging it excluded_debt forces a one-directional subtraction and cannot represent the add-back of fair-value decreases, so the computed amount can differ."
+ },
+ {
+  "deal": "WEST",
+  "term": "Indebtedness",
+  "diff": "Indebtedness (l)(vii): sign key '+/-' model '-'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "The text neutralizes ASC 825 effects 'to the extent such effects would otherwise increase or decrease an amount of Indebtedness.' The adjustment is bidirectional: strip fair-value increases and reverse fair-value decreases, restoring stated principal. A '-' only sign would understate Indebtedness where embedded-derivative accounting reduced carrying value, changing the ratio."
+ },
+ {
+  "deal": "WEST",
+  "term": "Unrestricted Cash Amount",
+  "diff": "Unrestricted Cash Amount (i): sign key '+' model '-'",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "Clause (A)(i) counts only the 'excess ... over $20 million' \u2014 the first $20M is carved out of countable cash (a minimum_retained_amount deduction). Sign must be '-'. A '+' would add $20M to countable cash, swinging Consolidated Total Net Debt by $40M versus the correct figure and misstating the Secured Net Leverage Ratio."
+ },
+ {
+  "deal": "WEST",
+  "term": "Unrestricted Cash Amount",
+  "diff": "Unrestricted Cash Amount (i): cap key greater_of  model other 20000000",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "$20M is not a cap on clause (i); it is a threshold deducted before the greater-of test. Clause (i) is one leg of the 'greater of (i) and (ii)' ceiling that applies for the first 24 months post-Closing. Tagging it 'other 20000000' would make the engine cap unrestricted cash at a flat $20M \u2014 grossly understating netted cash and overstating leverage."
+ },
+ {
+  "deal": "WEST",
+  "term": "Unrestricted Cash Amount",
+  "diff": "Unrestricted Cash Amount (ii): sign key '+' model '-'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "100% of Adjusted Consolidated EBITDA is a ceiling on the amount of cash that may be netted (cap_on_total), not a deduction. Its sign is '+' (it limits a positive cash figure). A '-' would subtract EBITDA from cash, producing a nonsensical and badly wrong net debt."
+ },
+ {
+  "deal": "WEST",
+  "term": "Unrestricted Cash Amount",
+  "diff": "Unrestricted Cash Amount (ii): cap key greater_of  model pct_of_ebitda 1.0",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "Clause (ii) is computably 'pct_of_ebitda 1.0' (100% of Adjusted Consolidated EBITDA for the most recent Test Period). That is also the sole cap under limb (B) after month 24, so it must be encoded on its own terms. 'greater_of' with no parameter describes only the 24\u2011month combinator and gives the engine nothing to compute, so the EBITDA ceiling would be lost and the ratio misstated."
+ },
+ {
+  "deal": "WEST",
+  "term": "Liquidity",
+  "diff": "Liquidity (y)(i): category key 'excluded_earmarked_proceeds' model 'custom'",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "Prong (y)(i) is not an exclusion of earmarked cash proceeds held by the Borrower; it is a forward-looking deduction of the 'remaining amount of planned capital expenditures' for the Conway facility, subtracted from the entire (x) sum (cash plus Revolving Facility Availability). It is a budgeted-commitment deduction that can exceed cash on hand and is not tied to any identified proceeds. 'excluded_earmarked_proceeds' implies a carve-out from the cash bucket (typically bounded by cash actually held); modelling it that way could cap or mis-locate the deduction. 'custom' is the correct bucket, and must match the treatment of (y)(ii), which is structurally identical."
+ },
+ {
+  "deal": "WEST",
+  "term": "Liquidity",
+  "diff": "Liquidity (y)(ii): category key 'excluded_earmarked_proceeds' model 'custom'",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "Prong (y)(ii) ('Select Milk JV Investments') is the same construct as (y)(i): a deduction of the remaining amount of planned Investments, applied against the whole (x) total including revolver availability, not an exclusion of earmarked cash proceeds. It belongs in 'custom', consistent with (y)(i). Classifying it as 'excluded_earmarked_proceeds' would treat it as a reduction of the Unrestricted Cash Amount only (and potentially floor it at zero cash), which changes the computed Liquidity figure whenever planned JV Investments exceed cash or when the engine applies the exclusion before adding Revolving Facility Availability."
+ },
+ {
+  "deal": "TRS",
+  "term": "Total Net Leverage Ratio",
+  "diff": "Total Net Leverage Ratio (a)(ii): cap key other 240000000 model other 150000000",
+  "verdict": "both_wrong",
+  "material": true,
+  "reason": "The cap is dual, not single: $150,000,000 generally, but $240,000,000 'solely with respect to the financial covenants set forth in Section 6.13'. Neither a flat $150M nor a flat $240M captures this. A understates netting for the Section 6.13 maintenance test (the core use of a compliance engine); B overstates netting for every other use of the ratio (incurrence baskets, pricing grid, etc.). Correct decomposition is a conditional cap / calculation_rule keyed to purpose (6.13 \u2192 $240M; otherwise \u2192 $150M). Material: whenever Freely Transferable unrestricted cash exceeds $160M, the two caps diverge by up to $90M of net debt, directly moving the ratio. If forced to pick one for a 6.13-only engine, B is the operationally closer number, but as a library value it is still wrong without the scope condition."
+ },
+ {
+  "deal": "TRS",
+  "term": "Consolidated Cash Interest Expense",
+  "diff": "Consolidated Cash Interest Expense (b)(iii): category key 'oid_pik_interest' model 'excluded_non_cash_interest'",
+  "verdict": "key_correct",
+  "material": false,
+  "reason": "Clause (b)(iii) deducts exactly two things: noncash amortization of debt discounts (OID) and accrued interest payable in kind (PIK). The library has a purpose-built category for precisely that pairing, 'oid_pik_interest', so the specific category governs over the generic 'excluded_non_cash_interest' catch-all. The specific mapping also matters structurally: clause (a)(iii) adds back cash payments on 'obligations referred to in clause (b)(iii)', so the engine needs (b)(iii) tagged as the OID/PIK bucket for that cross-reference to resolve cleanly. B's generic tag is not wrong in direction (it is still a subtraction of noncash interest) and would deduct the same dollar amount, so the ratio is unaffected; but it loses the OID/PIK identity and the linkage to (a)(iii), and risks blurring with (b)(ii) financing-cost amortization, which has its own category."
+ },
+ {
+  "deal": "TRS",
+  "term": "Total Indebtedness",
+  "diff": "Total Indebtedness (a): category key 'term_reference' model 'off_balance_sheet'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "Clause (a) is the on-balance-sheet component: principal amount of defined-term 'Indebtedness' that 'would be reflected on a balance sheet ... in accordance with GAAP.' It is a reference to the defined term Indebtedness, not off-balance-sheet debt \u2014 that is clause (c). Tagging (a) as off_balance_sheet inverts the structure and risks the engine applying the clause (c)-only proviso carve-outs (LC contingent obligations, 6.01(a)(xi) debt) to clause (a) or sourcing the amount from the wrong population, changing the numerator."
+ },
+ {
+  "deal": "TRS",
+  "term": "Total Indebtedness",
+  "diff": "Total Indebtedness (c): category key 'off_balance_sheet' model 'scope_entities'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "Clause (c) adds Indebtedness 'not required to be reflected on a balance sheet in accordance with GAAP' \u2014 squarely off-balance-sheet debt. The entity list (Holdings, Parent Borrower, Subsidiaries) is merely the scope qualifier repeated from clause (a), not the operative content. Classified as scope_entities, the engine would treat (c) as a perimeter rule and fail to add the off-balance-sheet principal, understating Total Indebtedness."
+ },
+ {
+  "deal": "TRS",
+  "term": "Total Indebtedness",
+  "diff": "Total Indebtedness (c): ref key Indebtedness model ",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "Clause (c) expressly uses the defined term 'Indebtedness' and the proviso modifies that term specifically 'for purposes of clause (c).' The ref must point to Indebtedness so the engine resolves the base definition and then applies the two carve-outs. A blank ref leaves clause (c) unresolvable or resolved to an unmodified concept, so the computed amount would differ."
+ },
+ {
+  "deal": "MEC",
+  "term": "Consolidated Total Leverage Ratio",
+  "diff": "Consolidated Total Leverage Ratio (a)(ii): cap key other 25000000 model fixed_amount_per_period 25000000",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "The $25,000,000 is a hard dollar cap on cash netting measured as of the date of determination, with the amount varying by regime ($10,000,000 during the Covenant Adjustment Period). That is a fixed-amount cap that an engine can apply mechanically, and the period-dependent step-down is exactly what a fixed_amount_per_period type exists to carry. Tagging it 'other' dumps a computable cap into a catch-all, so the engine either ignores the cap (over-netting cash and understating leverage) or stops. Note: whichever type is used, the $10,000,000 Covenant Adjustment Period step-down still needs its own calculation_rule/custom part; neither reviewer captured it here."
+ },
+ {
+  "deal": "MEC",
+  "term": "Consolidated Total Leverage Ratio",
+  "diff": "Consolidated Total Leverage Ratio (b): sign key '+' model '+/-'",
+  "verdict": "key_correct",
+  "material": false,
+  "reason": "Clause (b) is the sole denominator term: Consolidated EBITDA for the trailing four fiscal quarters, added as-is. Its operative sign is '+'. '+/-' is a tag for net adjustment items that can cut either way; there is nothing in the text making EBITDA an add-or-subtract item. That said, because EBITDA is the only denominator term, the arithmetic result is identical under either tag (a negative EBITDA value flows through regardless of sign tag), so the error is classificatory, not computational."
+ },
+ {
+  "deal": "MEC",
+  "term": "Consolidated Interest Coverage Ratio",
+  "diff": "Consolidated Interest Coverage Ratio (a)(iv): category key 'custom' model 'numerator_less_term'",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "Clause (a)(iv) is a plain subtraction from the numerator: 'minus (iv) income tax expense for such period, net of tax refunds.' The 'net of tax refunds' language merely defines how the deducted amount is measured (gross tax expense less refunds); it does not change the operation, which is a straight deduction from the (a) amount. That is exactly what numerator_less_term is for. Classifying it as 'custom' would leave the engine without a defined arithmetic role for the item, risking the tax deduction being omitted or mis-applied, which would overstate the numerator and the ratio. Any netting nuance belongs in the term's amount definition, not in a change of category."
+ },
+ {
+  "deal": "MEC",
+  "term": "Consolidated Total Indebtedness",
+  "diff": "Consolidated Total Indebtedness parenthetical: ref key Indebtedness(h) model Hedge Agreement",
+  "verdict": "model_correct",
+  "material": true,
+  "reason": "The parenthetical carves out 'net obligations under any Hedge Agreements' \u2014 it points at the defined term Hedge Agreements, not at any lettered clause of the Indebtedness definition. Nothing in the text given identifies clause (h) of Indebtedness as the hedge-obligations limb; A's ref is an unverified inference about a different definition's internal structure. The ref should be the defined term the text actually invokes (B). Material: if the engine wires the exclusion to a clause pointer that does not correspond exactly to net Hedge Agreement obligations (wrong limb, or a limb measured on a gross/termination-value basis rather than 'net obligations'), the carve-out will remove the wrong amount from Consolidated Total Indebtedness and shift the leverage ratio."
+ },
+ {
+  "deal": "MEC",
+  "term": "Indebtedness",
+  "diff": "Indebtedness valuation (h) [calculation_rule +]: NOT FOUND in model",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "The final sentence of the definition is an express valuation rule for clause (h): the amount of any net obligation under a Hedge Agreement is deemed to be the Hedge Termination Value on the date of determination. That is a distinct calculation_rule part \u2014 it overrides whatever an engine might otherwise use (notional, book mark-to-market, accrued settlement amounts) and ties the amount to a defined term with its own mechanics. Omitting it leaves the engine with no instruction on how to quantify clause (h), so B's decomposition is incomplete. Material: the number counted for hedge exposure (and therefore any Indebtedness-based ratio) turns on which valuation measure is applied."
+ },
+ {
+  "deal": "MEC",
+  "term": "Unrestricted Cash and Cash Equivalents",
+  "diff": "Unrestricted Cash and Cash Equivalents base [unrestricted_cash +]: NOT FOUND in model",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "The operative inclusion is '100% of all cash ... of the Borrower and its Domestic Subsidiaries ... that are unrestricted'. That is the core unrestricted_cash component; omitting it leaves the engine with nothing to count."
+ },
+ {
+  "deal": "MEC",
+  "term": "Unrestricted Cash and Cash Equivalents",
+  "diff": "Unrestricted Cash and Cash Equivalents base [cash_equivalents +]: NOT FOUND in model",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "'cash and Cash Equivalents' are both expressly included. Dropping Cash Equivalents understates the amount counted (and overstates net leverage)."
+ },
+ {
+  "deal": "MEC",
+  "term": "Unrestricted Cash and Cash Equivalents",
+  "diff": "Unrestricted Cash and Cash Equivalents base [location_or_account_requirement +]: NOT FOUND in model",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "'held in bank accounts or securities accounts located in the United States' is an express situs/account condition. Cash held offshore or outside qualifying accounts must be excluded, so this is a real filter on the amount."
+ },
+ {
+  "deal": "MEC",
+  "term": "Unrestricted Cash and Cash Equivalents",
+  "diff": "Unrestricted Cash and Cash Equivalents base: category key 'excluded_restricted_cash' model 'excluded_cash_subject_to_liens'",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "The base clause imposes two distinct conditions: 'unrestricted' and 'not subject to any Liens (other than Liens permitted under Section 9.2(a) and (k))'. The first is a restricted-cash exclusion in its own right (cash can be contractually or regulatorily restricted without a lien). B collapses both into a single lien category and loses the restriction test; A's label for the restriction condition is correct, with the lien condition carried separately (see d4)."
+ },
+ {
+  "deal": "MEC",
+  "term": "Unrestricted Cash and Cash Equivalents",
+  "diff": "Unrestricted Cash and Cash Equivalents base [excluded_cash_subject_to_liens -]: NOT FOUND in model",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "The lien condition with its carve-out for Section 9.2(a) and (k) permitted Liens is a separate, engine-relevant exclusion: cash subject to a non-carved-out Lien is excluded even if otherwise unrestricted. B's omission (having merged everything into one part) loses the permitted-Lien carve-out logic and changes the counted amount."
+ },
+ {
+  "deal": "MEC",
+  "term": "Unrestricted Cash and Cash Equivalents",
+  "diff": "Unrestricted Cash and Cash Equivalents proviso [excluded_earmarked_proceeds -]: NOT FOUND in model",
+  "verdict": "key_correct",
+  "material": true,
+  "reason": "The proviso excludes 'the proceeds of any Indebtedness incurred substantially concurrently with the determination'. This is the standard anti-netting exclusion for same-day debt proceeds; it directly reduces the cash netted against debt and thus the ratio. excluded_earmarked_proceeds is the best-fit library category; A's 'no such part' ignores an express exclusion."
+ }
+]

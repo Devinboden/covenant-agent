@@ -1,0 +1,27 @@
+# Large or rebuilt data: fetched from EDGAR and rebuilt by the pipeline (scripts/fetch_filings.py)
+data/filings/
+data/pdf/
+data/intake/
+data/gpt_review/
+data/abstract/*/*.run.json
+data/abstract/*/*.signoff.json
+data/abstract/*/*.review.json
+data/abstract/*/*.failed.json
+data/abstract/*/summary.txt
+data/abstract/integrated/
+data/abstract/loan/
+data/abstract/events/
+data/abstract/calc/
+data/abstract/pricing/
+data/spike/
+recordings/
+# Local only
+notes/
+.env
+.codex/
+*.log
+# Python
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.venv/

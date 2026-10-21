@@ -1,0 +1,685 @@
+# Cars.com covenant abstract (agent-built draft, not yet human-reviewed)
+# Same shape as WEST.yaml. Every quote is checked verbatim against its source by engine/verify_abstract.py.
+# Amounts in the replay are USD thousands. Ratios are x:1.00.
+#
+# SOURCE WARNING: the "conformed" Fifth Amendment file is a BLACKLINE, not a clean conformed copy.
+# Deleted text (red strike-through) is still in the HTML, so tag-stripped text runs old and new
+# side by side (e.g. RP gate reads "1.75 2.00 to 1.00"). Every `ca` quote below was also checked
+# against a clean copy with struck spans removed, so it is current text. Quotes labelled
+# `superseded_quote` are deliberately struck text, kept only for history. The checker itself cannot
+# tell struck from live text (see flag F1).
+
+schema_version: 0.1
+abstract_id: CARS-2026-06-30
+status: draft            # draft -> verified (code checks pass) -> signed_off (human)
+as_of: 2026-06-30        # text current through the Fifth Amendment (May 6 2024); no later amendment found through the Q2 2026 10-Q
+built_by: agent (Claude, for Devin), 2026-10-10
+
+sources:
+  ca:
+    file: data/filings/CARS/amendment_5th-amendment-2024-05-conformed.htm
+    what: Fifth Amendment (May 6 2024) with Exhibit A = Credit Agreement marked to show the Fifth Amendment changes (blackline; struck text still present in the file)
+  orig:
+    file: data/filings/CARS/credit_agreement_2017-credit-agreement.htm
+    what: Original Credit Agreement dated May 31 2017 (history only)
+  q2:
+    file: data/filings/CARS/10-Q_2026-06-30.htm
+    what: Cars.com Inc. 10-Q for Q2 2026 (reported covenant ratios, used for the replay)
+  q1:
+    file: data/filings/CARS/10-Q_2026-03-31.htm
+    what: Cars.com Inc. 10-Q for Q1 2026 (reported ratios incl. senior secured net debt amount)
+  k:
+    file: data/filings/CARS/10-K_2025-12-31.htm
+    what: Cars.com Inc. 10-K FY2025 (exhibit index listing all credit agreement amendments; Fifth Amendment summary)
+
+# ---------------------------------------------------------------- agreement
+agreement:
+  borrower: Cars.com Inc.
+  guarantors: Subsidiary Guarantors (listed on signature pages; not mapped here)
+  agent: JPMorgan Chase Bank, N.A.
+  quote: "among CARS.COM INC. (the “Borrower”), the SUBSIDIARY GUARANTORS party thereto, the lenders party thereto (the “Lenders”) and JPMORGAN CHASE BANK, N.A., as administrative agent"
+  agreement_date:
+    value: 2017-05-31
+    quote: "CREDIT AGREEMENT, dated as of May 31, 2017 (this “Agreement”), among CARS.COM INC."
+  closing_date:
+    value: unknown
+    inferred: "2017-05-31 or shortly after (Spin-Off from TEGNA); the definition is conditions-based, no date in the text"
+    quote: "“Closing Date” means the date on which the conditions specified in Section 5.01 are satisfied (or waived in accordance with Section 10.02)."
+  fiscal_year_end: 12-31
+  fiscal_year_quote: "The Borrower will not permit the fiscal year of the Borrower to end on a day other than December 31"
+
+  facility:
+    type: revolver only (term loans repaid/rolled into the revolver at the Fifth Amendment)
+    commitments: 350000000
+    commitments_quote: "Total: $350,000,000.00"
+    blackline_quote: "On the Third Fifth Amendment Effective Date, the aggregate amount of the Revolving Credit Commitments is $230,000,000 350,000,000"
+    blackline_struck: ["Third", "$230,000,000"]
+    maturity:
+      stated: 2029-05-06
+      springing: "91 days before the Senior Unsecured Notes maturity if any notes are still outstanding then"
+      springing_date: unknown     # notes due 2028; exact maturity date not in the folder (see flag F6)
+      quote: "the earlier of (i) May 6, 2029 and (ii) if any Senior Unsecured Notes remain outstanding on the date that is 91 days prior to the maturity date of the Senior Unsecured Notes"
+    fifth_amendment_effect:
+      src: k
+      quote: "the Fifth Amendment, among other things, removed the Secured Overnight Financing Rate (SOFR) floor and replaced the financial covenant leverage test to Senior Secured Net Leverage from Senior Secured Leverage"
+
+  amendments:
+    - {no: 1, date: 2019-10-04, quote: "First Amendment to Credit Agreement, dated as of October 4, 2019"}
+    - {no: 2, date: 2020-06-15, quote: "Second Amendment to Credit Agreement, dated as of June 15, 2020"}
+    - {no: 3, date: 2020-10-30, note: "issued the $400M 6.375% Senior Unsecured Notes due 2028 alongside", quote: "Third Amendment to Credit Agreement, date as of October 30, 2020"}
+    - {no: 4, date: 2023-06-23, quote: "Fourth Amendment to Credit Agreement, dated as of June 23, 2023"}
+    - {no: 5, date: 2024-05-06, note: "new $350M revolver due 2029; leverage test changed to Senior Secured NET Leverage; blackline copy used here", quote: "Fifth Amendment, dated as of May 6, 2024 (this “Amendment”), to the Credit Agreement dated as of May 31, 2017"}
+  later_amendments:
+    status: none_found
+    checked: "10-K FY2025 exhibit index (lists 10.1-10.6, ends at Fifth Amendment); exhibit indexes of 10-Qs Q2'25, Q3'25, Q1'26, Q2'26 list no credit agreement exhibit"
+    evidence:
+      src: k
+      quote: "10.6** Fifth Amendment to Credit Agreement dated as of May 6, 2024 among Cars.com Inc."
+    gap: "8-Ks after Aug 6 2026 (Q2 10-Q date) not checked; nothing in the folder after that"
+
+  reporting:
+    annual_financials:
+      due: "120 days after fiscal year end"
+      ref: "6.01(a)"
+      quote: "within 120 days after the end of each fiscal year of the Borrower, the audited consolidated balance sheet"
+    quarterly_financials:
+      due: "60 days after Q1, Q2, Q3"
+      ref: "6.01(b)"
+      quote: "within 60 days after the end of the first three fiscal quarters of each fiscal year of the Borrower"
+    compliance_certificate:
+      due: "concurrently with each 6.01(a)/(b) delivery"
+      ref: "6.01(d)"
+      quote: "concurrently with any delivery of financial statements under clause (a) or (b) of this Section, (X) a certificate of a Responsible Officer"
+      calc_quote: "setting forth reasonably detailed calculations demonstrating compliance with Sections 7.11(a) and 7.11(b)"
+      form: "no Compliance Certificate exhibit in the agreement's exhibit list; form not public"
+    unrestricted_sub_consolidating:
+      due: "with each 6.01(a)/(b) delivery, only if an Unrestricted Subsidiary exists"
+      ref: "6.01(c)"
+      quote: "if any Person has been designated as an Unrestricted Subsidiary, concurrently with any delivery of financial statements under clauses (a) or (b) above"
+
+  test_period:
+    meaning: "Reference Period = four consecutive fiscal quarters for which statements were or should have been delivered"
+    quote: "“Reference Period” means any period of four consecutive fiscal quarters of the Borrower for which financial statements have been or are required to have been delivered."
+    covenant_pro_forma_cutoff:
+      rule: "for actual 7.11 compliance (and pricing) no post-period transactions are pro-formed in; the test date is the last day of the Reference Period"
+      quote: "solely for purposes of (x) calculating actual compliance with Section 7.11 and (y) calculating the Senior Secured Net Leverage Ratio for purposes of the definition of “Applicable Rate”, the date of the required calculation shall be the last day of the Reference Period"
+
+  equity_cure:
+    present: false
+    note: "no equity cure / Specified Equity Contribution / cure right language found in the current text (searched 'cure', 'Specified Equity', 'equity contribution')"
+    covenant_breach_is_immediate_eod:
+      ref: "VIII(d)"
+      quote: "any Loan Party shall fail to observe or perform any covenant, condition or agreement contained in Sections 6.02(a), 6.03 (with respect to the existence of the Borrower), 6.09, 6.13, 6.14 or in Article VII"
+
+  elections:
+    acquisition_step_up:
+      what: "Required SSNLR may be raised for a Material Permitted Acquisition: effective at closing, lasts 12 months, max +0.50x per Reference Period, never above 4.00x"
+      trigger: material_permitted_acquisition
+      how: "elected in the Compliance Certificate or an earlier notice/certificate"
+      limit: "none stated on number of elections; each acquisition counts toward only one trailing-12-month MPA"
+      used: unknown            # not disclosed; ask the borrower / agent
+      ref: "7.11(a)"
+      quote: "the then-applicable Required Ratio may be increased to accommodate a Material Permitted Acquisition at the election of the Borrower as designated in the Compliance Certificate or an earlier notice or certificate delivered by the Borrower in connection with such Material Permitted Acquisition"
+      duration_quote: "such increase shall only apply for a period of twelve months from and after the closing of such Material Permitted Acquisition"
+      ceiling_quote: "in no event shall the maximum Senior Secured Net Leverage Ratio after giving effect to any such step-up exceed 4.00 to 1.00"
+      increment_quote: "the maximum amount that any Senior Secured Net Leverage Ratio covenant level may step-up during any Reference Period is 0.50 to 1.00"
+    limited_condition_transaction:
+      what: "for LCTs, restricted payments and restricted debt payments, ratio conditions may be tested at signing/notice date instead of closing"
+      ref: "1.04"
+      quote: "the determination of whether the relevant condition is satisfied may be made, at the election of the Borrower"
+
+# ---------------------------------------------------------------- covenants
+covenants:
+
+  - id: senior_secured_net_leverage
+    name: Senior Secured Net Leverage Ratio
+    kind: ratio
+    ref: "7.11(a)"
+    direction: max
+    tested: quarterly, as of the end of each Reference Period
+    formula: {numerator: senior_secured_net_debt, denominator: consolidated_ebitda}
+    thresholds:
+      - {from: 2024-05-06, to: null, value: 3.50, regime: standard, note: "flat; no step-downs"}
+    elections:
+      - id: mpa_step_up
+        regime: election
+        value_max: 4.00
+        increment_max: 0.50
+        duration_months: 12
+        starts: closing of the Material Permitted Acquisition
+        applies_when: "Borrower elects after a Material Permitted Acquisition (>= $75M aggregate cash consideration over trailing 12 months)"
+    effective_cap:
+      2026-06-30: 3.50       # no step-up disclosed; 10-Q states 3.5x
+    history:
+      - {to: 2024-05-05, note: "before the Fifth Amendment the test was Senior Secured (gross) Leverage; old levels not abstracted"}
+    quotes:
+      covenant: "The Borrower will not permit the Senior Secured Net Leverage Ratio to exceed 3.50 to 1.00 as of the end of each Reference Period"
+      cap_confirmed:
+        src: q2
+        quote: "Senior Secured Net Leverage Ratio (as defined in the Credit Agreement) not to exceed 3.5 x"
+
+  - id: interest_coverage
+    name: Consolidated Interest Coverage Ratio
+    kind: ratio
+    ref: "7.11(b)"
+    direction: min
+    tested: quarterly, as of the last day of each fiscal quarter (trailing Reference Period)
+    formula: {numerator: consolidated_ebitda, denominator: consolidated_interest_expense}
+    thresholds:
+      - {from: 2024-05-06, to: null, value: 3.00, regime: standard}
+    history:
+      - {to: 2023-03-31, value: 2.75, regime: superseded, note: "struck by the Fifth Amendment; already moot"}
+      - {from: 2023-06-30, to: 2024-05-05, value: 3.00, regime: superseded}
+    quote: "The Borrower will not permit the Consolidated Interest Coverage Ratio to be less than"
+    level_quote: "3.00 to 1.00, as of the last day of any fiscal quarter"
+    superseded_quote: "(i) 2.75 to 1.00, as of the last day of any fiscal quarter ending on or before March 31, 2023 and (ii)"
+    cap_confirmed:
+      src: q2
+      quote: "Consolidated Interest Coverage Ratio (as defined in the Credit Agreement) not to be below 3.0 x"
+
+  # ---- incurrence / permission tests (tested only when an action is taken, on a Pro Forma Basis)
+  - id: rp_unlimited_tnlr_gate
+    name: Unlimited restricted payments - Total Net Leverage gate
+    kind: incurrence
+    ref: "7.07(g)"
+    direction: max
+    tested: at the time of each Restricted Payment, pro forma, on the last day of the most recent Reference Period
+    formula: {numerator: total_net_debt, denominator: consolidated_ebitda}
+    conditions: ["no Default or Event of Default", "pro forma TNLR <= 2.00x"]
+    thresholds:
+      - {from: 2024-05-06, to: null, value: 2.00, regime: standard, note: "raised from 1.75x by the Fifth Amendment"}
+    quote: "(g) the Borrower may make Restricted Payments after the Closing Date; provided that, (i) at the time of any such Restricted Payment and immediately after giving effect thereto, no Default or Event of Default shall have occurred and be continuing"
+    level_quote: "2.00 to 1.00 on the last day of such period; and (h) the Borrower may make Restricted Payments"
+    note: "In the blackline the clause reads '1.75 2.00 to 1.00'; 1.75 is struck, 2.00 is inserted. Live level = 2.00."
+    reported_tnlr_2026_06_30:
+      src: q2
+      quote: "As of June 30, 2026, the Company's Total Net Leverage Ratio (as defined in the Credit Agreement) was 1.95 x."
+
+  - id: rp_available_amount_tnlr_gate
+    name: Available Amount restricted payments - Total Net Leverage gate
+    kind: incurrence
+    ref: "7.07(h)"
+    direction: max
+    formula: {numerator: total_net_debt, denominator: consolidated_ebitda}
+    conditions: ["no Default or Event of Default", "RP <= Available Amount (builder basket: $100M + 50% cumulative CNI + equity proceeds ...)", "pro forma TNLR <= 4.25x"]
+    thresholds:
+      - {from: 2024-05-06, to: null, value: 4.25, regime: standard}
+    quote: "(h) the Borrower may make Restricted Payments in an aggregate amount not to exceed the Available Amount"
+    blackline_quote: "the Total Net Leverage Ratio is less than or equal to (x) at any time on or before December 31, 2021, 4.25 to 1.00 and (y) at any time after December 31, 2021, 3.75 to 1.00, in each case, recomputed as of the last day of such period"
+    blackline_struck: ["(x) at any time on or before December 31, 2021,", "and (y) at any time after December 31, 2021, 3.75 to 1.00, in each case"]
+    live_reading: "the Total Net Leverage Ratio is less than or equal to 4.25 to 1.00, recomputed as of the last day of such period"
+    note: "live level 4.25x read from the strike-removed copy; the old dated 4.25x/3.75x schedule was struck by the Fifth Amendment"
+    basket_quote: "(a) $100,000,000, plus (b) 50% of the cumulative Consolidated Net Income of the Borrower and its Subsidiaries"
+
+  - id: rp_general_basket
+    name: General restricted payments basket
+    kind: other
+    ref: "7.07(e)"
+    rule: "$25M aggregate, no leverage test (the Fifth Amendment struck the old TNLR condition), no Event of Default"
+    value: 25000000
+    quote: "(e) other Restricted Payments made pursuant to this Section 7.07(e) in an amount not to exceed $25,000,000 in the aggregate"
+
+  - id: permitted_acquisition_tnlr
+    name: Permitted Acquisition - Total Net Leverage condition
+    kind: incurrence
+    ref: "7.06(f)(iii)"
+    direction: max
+    formula: {numerator: total_net_debt, denominator: consolidated_ebitda}
+    thresholds:
+      - {from: 2024-05-06, to: null, value: 5.00, regime: standard}
+    quote: "after giving Pro Forma Effect to such Acquisition, the Borrower shall be in compliance with a Total Net Leverage Ratio of less than or equal to 5.00:1.00 on the last day of such period"
+
+  - id: general_investments_tnlr
+    name: General investments - Total Net Leverage condition
+    kind: incurrence
+    ref: "7.06(l)"
+    direction: max
+    formula: {numerator: total_net_debt, denominator: consolidated_ebitda}
+    thresholds:
+      - {from: 2024-05-06, to: null, value: 4.25, regime: standard}
+    quote: "(l) other Investments (including Acquisitions) after the Closing Date; provided that after giving effect to such Investment on a Pro Forma Basis, the Total Net Leverage Ratio is less than or equal to 4.25:1.00"
+
+  - id: incremental_debt
+    name: Incremental facilities / Incremental Equivalent Debt (ratio-based capacity)
+    kind: incurrence
+    ref: "Available Incremental Amount (definition)"
+    rule: "$100M free-and-clear plus unlimited if: secured -> pro forma SSNLR <= 3.50x assuming the revolver fully drawn; unsecured -> pro forma TNLR <= 5.00x without netting the new proceeds"
+    thresholds_by_lien:
+      secured: {measure: senior_secured_net_leverage, direction: max, value: 3.50, assumption: "all revolving commitments fully drawn"}
+      unsecured: {measure: total_net_leverage, direction: max, value: 5.00, assumption: "no netting of the new debt's cash proceeds"}
+    quote: "(a) $100,000,000 plus (b) an unlimited amount so long as (i) after giving Pro Forma Effect to the relevant Incremental Term Loans"
+    secured_quote: "the Senior Secured Net Leverage Ratio is less than or equal to 3.50 to 1.00 or (ii) with respect to any unsecured Incremental Equivalent Debt"
+    unsecured_quote: "after giving Pro Forma Effect thereto (without netting the cash proceeds therefrom) and to the use of proceeds thereof, the Total Net Leverage Ratio is less than or equal to 5.00:1.00"
+
+  - id: ratio_debt
+    name: Acquired / ratio debt (7.01(k) and 7.01(r))
+    kind: incurrence
+    ref: "7.01(k), 7.01(r)"
+    rule: "secured -> SSNLR <= 3.50x; unsecured -> TNLR <= 5.00x (7.01(k)); 7.01(r) TNLR <= 5.00x"
+    thresholds_by_lien:
+      secured: {measure: senior_secured_net_leverage, direction: max, value: 3.50}
+      unsecured: {measure: total_net_leverage, direction: max, value: 5.00}
+    quote: "if such Indebtedness is (or is intended to be) secured by Liens on Collateral, (x) the Senior Secured Net Leverage Ratio is equal to or less than 3.50 to 1.00"
+    unsecured_quote: "if such Indebtedness is unsecured, the Total Net Leverage Ratio is less than or equal to 5.00:1.00"
+    r_quote: "the Borrower shall be in compliance with a Total Net Leverage Ratio of less than or equal to 5.00:1.00 on the last day of such period and (ii) any Permitted Refinancing Indebtedness incurred pursuant to this Section 7.01(r)"
+
+  - id: unrestricted_sub_designation
+    name: Unrestricted Subsidiary designation conditions
+    kind: incurrence
+    ref: "6.12"
+    direction: max
+    rule: "pro forma compliance with 7.11(a) and 7.11(b), and pro forma TNLR <= 4.50x"
+    thresholds:
+      - {from: 2024-05-06, to: null, value: 4.50, regime: standard}
+    quote: "after giving effect to such designation on a Pro Forma Basis, the Total Net Leverage Ratio is less than or equal to 4.50 to 1.00"
+    maintenance_quote: "after giving effect to such designation on a Pro Forma Basis, the Borrower is in compliance with the financial covenants set forth in Sections 7.11(a) and 7.11(b)"
+
+  - id: pricing_grid
+    name: Applicable Rate grid (SSNLR-based pricing)
+    kind: other
+    ref: "Applicable Rate (definition)"
+    measure: senior_secured_net_leverage
+    tested: quarterly; effective 3 Business Days after statements + compliance certificate are delivered
+    grid:
+      - {category: 1, ssnlr: "> 3.00", term_sofr_spread: 0.0275, abr_spread: 0.0175, commitment_fee: 0.0040}
+      - {category: 2, ssnlr: "> 2.00 and <= 3.00", term_sofr_spread: 0.0250, abr_spread: 0.0150, commitment_fee: 0.0035}
+      - {category: 3, ssnlr: "> 1.00 and <= 2.00", term_sofr_spread: 0.0225, abr_spread: 0.0125, commitment_fee: 0.0030}
+      - {category: 4, ssnlr: "<= 1.00", term_sofr_spread: 0.0200, abr_spread: 0.0100, commitment_fee: 0.0025}
+    penalty: "Category 1 if statements / certificate are late"
+    quote: "based upon the Senior Secured Net Leverage Ratio as of the most recent determination date"
+    blackline_quote: "Category 1 Greater than 3.00:1.00 1.75% 2.75% 2.75% 0.45 0.40% Category 2 Greater than 2.00:1.00 but less than or equal to 3.00:1.00 1.50% 2.50% 2.50% 0.40 0.35% Category 3 Greater than 1.00:1.00 but less than or equal to 2.00:1.00 1.25% 2.25% 2.25% 0.35 0.30% Category 4 Less than or equal to 1.00:1.00 1.00% 2.00% 2.00% 0.30 0.25%"
+    blackline_struck: ["0.45 (Cat 1 old fee)", "0.40 (Cat 2 old fee)", "0.35 (Cat 3 old fee)", "0.30 (Cat 4 old fee)"]   # each struck value sits just before the live fee
+    note: "spreads unchanged by the Fifth Amendment; commitment fees cut 5 bp per category"
+    penalty_quote: "the Senior Secured Net Leverage Ratio shall be deemed to be in Category 1 if the Borrower fails to deliver the consolidated financial statements"
+
+  - id: sale_leaseback_cap
+    name: Sale-leaseback cap
+    kind: level
+    ref: "7.12"
+    direction: max
+    rule: "aggregate sales price <= greater of $12.5M and 5.0% of Consolidated EBITDA for the most recent Reference Period, measured when the transaction occurs"
+    value_fixed: 12500000
+    value_pct: 0.05
+    note: "extracted text reads '(y) 95 5.0%': '95' is the page number of the next page (page break), not struck text"
+    quote: "with an aggregate sales price not exceeding the greater of (x) $12,500,000 and (y)"
+    pct_quote: "5.0% of Consolidated EBITDA for the most recently ended Reference Period (measured at the time such Sale/Leaseback Transaction has occurred)"
+
+# ---------------------------------------------------------------- terms
+# type: standard = everyday meaning / GAAP, nothing to map
+#       lookup   = points at a list, schedule or another defined term you have to fetch
+#       custom   = deal-specific formula; decompose into components
+terms:
+
+  - id: senior_secured_net_debt
+    name: Senior secured net debt (numerator of SSNLR)
+    type: custom
+    defined_in: "Senior Secured Net Leverage Ratio, clause (a)"
+    formula: "secured_indebtedness - unrestricted_cash"
+    measured: "on the test date (point in time)"
+    components:
+      - id: ssnd.secured_indebtedness
+        what: "all Indebtedness of Borrower + Subsidiaries secured by a Lien on their property, GAAP consolidated"
+        sign: +
+        input: balance_sheet_debt_schedule
+        includes_today: "Revolving Credit Loans (secured by the Collateral)"
+        excludes_today: "6.375% Senior Unsecured Notes due 2028 ($400M) - unsecured"
+      - id: ssnd.less.unrestricted_cash
+        what: "Unrestricted Cash (domestic only, capped at $125M; see term)"
+        sign: "-"
+        input: balance_sheet
+    quote: "all Indebtedness of the Borrower and its Subsidiaries on such date that is secured by a Lien on property of the Borrower and its Subsidiaries, determined on a consolidated basis in accordance with GAAP, minus Unrestricted Cash of the Borrower and its Subsidiaries on such date"
+    can_be_negative: true
+    negative_evidence:
+      src: q1
+      quote: "As of March 31, 2026, the Company's Senior Secured Net Leverage Ratio was (0.05)x, due to its senior secured net debt balance being $(9.6) million"
+
+  - id: total_net_debt
+    name: Total net debt (numerator of TNLR)
+    type: custom
+    defined_in: "Total Net Leverage Ratio, clause (a)"
+    formula: "indebtedness (all, Borrower + Subsidiaries) - unrestricted_cash"
+    components:
+      - {id: tnd.indebtedness, what: "all Indebtedness incl. Senior Unsecured Notes and revolver", sign: +, input: balance_sheet_debt_schedule}
+      - {id: tnd.less.unrestricted_cash, what: "Unrestricted Cash (capped $125M, domestic)", sign: "-", input: balance_sheet}
+    quote: "“Total Net Leverage Ratio” means, at any date, the ratio of (a) all Indebtedness of the Borrower and its Subsidiaries on such date, determined on a consolidated basis in accordance with GAAP, minus Unrestricted Cash"
+
+  - id: unrestricted_cash
+    name: Unrestricted Cash
+    type: custom
+    base: "unrestricted domestic cash and Cash Equivalents of the Borrower and its Domestic Subsidiaries"
+    cap: {type: fixed, value: 125000000}
+    filters: [domestic_only, domestic_subsidiaries_only, unrestricted]
+    input: balance_sheet (plus domestic/foreign cash split from the borrower)
+    quote: "“Unrestricted Cash” means unrestricted domestic cash and Cash Equivalents of the Borrower and its Domestic Subsidiaries in an amount not to exceed $125,000,000 in the aggregate."
+    domestic_sub_quote: "“Domestic Subsidiary” means any Subsidiary of the Borrower organized or incorporated under the laws of any jurisdiction within the United States of America."
+    cash_equivalents: "capitalized but NOT defined in the agreement text (flag F5)"
+
+  - id: indebtedness
+    name: Indebtedness
+    type: lookup
+    kind: list
+    items: [a borrowed money / deposits / advances, b bonds notes debentures, c obligations on which interest is customarily paid, d conditional sale / title retention, e deferred purchase price (excl. trade payables <= 90 days past due), f others' debt secured by own property (lesser of debt and FMV), g guarantees, h Capital Lease Obligations, i letters of credit (contingent), j bankers' acceptances]
+    quote: "“Indebtedness” of any Person means, without duplication, (a) all obligations of such Person for borrowed money or with respect to deposits or advances of any kind"
+    lc_item_quote: "(i) all obligations, contingent or otherwise, of such Person as an account party in respect of letters of credit and letters of guaranty"
+    capital_lease_item_quote: "(h) all Capital Lease Obligations of such Person"
+    note: "unlike WEST there is no 'for borrowed money' filter on the leverage numerators, so undrawn LCs and capital leases count; a capital lease is itself a Lien (lessor interest), so it would also be secured debt"
+    lien_capital_lease_quote: "the interest of a vendor or a lessor under any conditional sale agreement, capital lease or title retention agreement"
+
+  - id: subsidiaries
+    name: Subsidiary (excludes Unrestricted Subsidiaries)
+    type: lookup
+    points_to: schedule_4_16
+    quote: "references to “Subsidiary” will not include, or be a reference to, any Unrestricted Subsidiary"
+    unrestricted_quote: "any subsidiary of the Borrower that is identified on Schedule 4.16 as an Unrestricted Subsidiary"
+
+  - id: consolidated_ebitda
+    name: Consolidated EBITDA
+    type: custom
+    starts_from: consolidated_net_income
+    defined_in: "Section 1.01"
+    measured: "for the Reference Period (TTM)"
+    quote: "“Consolidated EBITDA” means, for any period, Consolidated Net Income for such period plus, without duplication"
+    addback_gate: "only to the extent reflected as a charge in CNI; no duplication with the CNI second-proviso adjustments"
+    addback_gate_quote: "to the extent reflected as a charge in the statement of such Consolidated Net Income for such period"
+    components:
+      # addbacks --------------------------------------------------------
+      - {id: ebitda.a, category: taxes, sign: +, input: income_statement, quote: "(a) income tax expense"}
+      - {id: ebitda.b, category: interest_and_debt_costs, sign: +, input: income_statement, quote: "(b) Consolidated Interest Expense, amortization or writeoff of debt discount and debt issuance costs and commissions, discounts and other fees and charges associated with Indebtedness"}
+      - {id: ebitda.c, category: depreciation_amortization, sign: +, input: cash_flow_statement, quote: "(c) depreciation and amortization expense"}
+      - {id: ebitda.d, category: intangibles_amortization, sign: +, input: cash_flow_statement, quote: "(d) amortization of intangibles (including, but not limited to, goodwill) and organization costs"}
+      - id: ebitda.e
+        category: spin_off_costs
+        sign: +
+        input: borrower_schedule
+        cap: {type: unlimited}
+        trigger: "Spin-Off costs incurred before or within 6 months after it (2017); moot today"
+        quote: "(e) unlimited reasonable and documented non-recurring expenses related to the closing of the Spin-Off incurred prior to the consummation thereof or within 6 months thereafter"
+      - id: ebitda.f
+        category: restructuring_integration
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        cap:
+          type: pct_of_ebitda
+          value: 0.20
+          shared_with: [ebitda.r]
+          basis: "Consolidated EBITDA for the applicable Reference Period (circular; solve as (f)+(r) <= 20% x final EBITDA)"
+        quote: "(f) restructuring costs, reorganization costs, integration costs and other related one-time charges"
+        cap_quote: "the aggregate amount added pursuant to clause (r) and this clause (f) shall not exceed 20% of Consolidated EBITDA for the applicable Reference Period"
+      - {id: ebitda.g, category: transaction_costs, sign: +, input: borrower_schedule, cap: {type: unlimited}, note: "consummated or not", quote: "(g) costs arising from or related to mergers, acquisitions, divestitures, dispositions, spin-offs or significant actual or potential transactions"}
+      - {id: ebitda.h, category: extraordinary_unusual_nonrecurring, sign: +, input: borrower_schedule, review: human_signoff, cap: {type: unlimited}, quote: "(h) all extraordinary, unusual and/or non-recurring charges, costs, credits or items of loss"}
+      - id: ebitda.i
+        category: litigation
+        sign: +
+        input: borrower_schedule
+        cap: {type: fixed_per_test_period, value: 2000000, period: "trailing twelve months"}
+        note: "text says 'charges, expenses and gains' (gains in an add-back list); read as net litigation items (flag F9)"
+        quote: "(i) litigation and dispute settlement charges, expenses and gains, subject to an aggregate cap of $2,000,000 for any trailing twelve-month period"
+      - {id: ebitda.j, category: accounting_changes, sign: +, input: footnotes, quote: "(j) the cumulative effect for the applicable reporting period of a change in accounting principles"}
+      - {id: ebitda.k, category: impairments, sign: +, input: income_statement, quote: "(k) non-cash asset write-downs, including impairment of goodwill and intangible assets"}
+      - {id: ebitda.l, category: mtm_hedge_fx_losses, sign: +, input: income_statement, quote: "(l) any unrealized losses for the applicable reporting period attributable to the application of “mark to market” accounting"}
+      - {id: ebitda.m, category: discontinued_ops_cash_expenses, sign: +, input: footnotes, quote: "(m) cash expenses actually incurred in connection with discontinued operations"}
+      - {id: ebitda.n, category: financing_equity_rp_costs, sign: +, input: borrower_schedule, quote: "(n) any expenses or charges related to any equity offering, investment, indebtedness or restricted payment"}
+      - {id: ebitda.o, category: debt_extinguishment, sign: +, input: income_statement, quote: "(o) all expenses or charges (including deferred financing costs written off and premiums paid) in connection with any early extinguishment of debt"}
+      - {id: ebitda.p, category: stock_comp, sign: +, input: cash_flow_statement, quote: "(p) non-cash stock based compensation"}
+      - {id: ebitda.q, category: affiliate_revenue_amortization, sign: +, input: borrower_schedule, lookup: schedule_1_01b, quote: "(q) revenue amortization in respect of applicable affiliate or other similar agreements in effect on the Closing Date and listed on Schedule 1.01(b)"}
+      - id: ebitda.r
+        category: projected_synergies
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        condition: "realizable within 18 months of the closing of the Acquisition they relate to"
+        cap:
+          type: pct_of_ebitda
+          value: 0.20
+          shared_with: [ebitda.f]
+          basis: "Consolidated EBITDA for the applicable Reference Period"
+        quote: "(r) pro forma cost savings and synergies realizable within eighteen months of the closing of the applicable Acquisition to which such add-backs relate"
+      - id: ebitda.s
+        category: business_interruption_insurance
+        sign: +
+        input: borrower_schedule
+        cap: {type: formula, rule: "not more than the earnings the proceeds replace"}
+        quote: "(s) cash proceeds of business interruption insurance, in an amount not to exceed the earnings for the applicable reporting period that such proceeds are intended to replace"
+      - id: ebitda.t
+        category: indemnified_insured_expenses
+        sign: +
+        input: borrower_schedule
+        trigger: "indemnity/policy in force, counterparty solvent and not disputing, insurance received within 12 months"
+        quote: "(t) cash expenses/charges to the extent fully indemnified by a third party or covered by insurance"
+      - {id: ebitda.u, category: other_non_cash_charges, sign: +, input: borrower_schedule, quote: "(u) the amount of all other non-cash charges, losses or expenses for such period"}
+      # deductions -------------------------------------------------------
+      - {id: ebitda.minus.i, category: extraordinary_gains, sign: "-", input: income_statement, quote: "(i) any extraordinary gains for the applicable reporting period"}
+      - {id: ebitda.minus.ii, category: non_cash_gains, sign: "-", input: income_statement, quote: "(ii) any non-cash gains for the applicable reporting period, including with respect to write-ups of assets or goodwill"}
+      - {id: ebitda.minus.iii, category: debt_extinguishment_gains, sign: "-", input: income_statement, quote: "(iii) any gains attributable to the early extinguishment of indebtedness or obligations under any Hedging Agreement"}
+      - {id: ebitda.minus.iv, category: accounting_changes, sign: "-", input: footnotes, quote: "(iv) the cumulative effect for such period of a change in accounting principles"}
+      - {id: ebitda.minus.v, category: mtm_hedge_fx_gains, sign: "-", input: income_statement, quote: "(v) any unrealized gains for such period attributable to the application of “mark to market” accounting"}
+      - {id: ebitda.minus.vi, category: discontinued_ops_cash_income, sign: "-", input: footnotes, quote: "(vi) any cash income received from discontinued operations"}
+      - {id: ebitda.minus.vii, category: other_unusual_or_non_cash_income, sign: "-", input: borrower_schedule, quote: "(A) any other extraordinary, unusual or non-recurring income and (B) any other non-cash income other than ordinary course items that are expected to become cash"}
+      # pro forma provisos ----------------------------------------------
+      - id: ebitda.pf.x.asset_sale
+        category: disposed_ebitda
+        sign: "-"
+        input: borrower_schedule
+        trigger: "Asset Sale during the Reference Period (reduce by positive EBITDA / add back negative)"
+        quote: "if at any time during such Reference Period the Borrower or any Subsidiary shall have made any Asset Sale, the Consolidated EBITDA for such Reference Period shall be reduced by an amount equal to the Consolidated EBITDA (if positive) attributable to the property that is the subject of such Asset Sale"
+      - id: ebitda.pf.y.acquisition
+        category: acquired_ebitda
+        sign: +
+        input: borrower_schedule
+        trigger: "Acquisition during the Reference Period; Pro Forma Basis"
+        quote: "if during such Reference Period the Borrower or any Subsidiary shall have made an Acquisition, Consolidated EBITDA for such Reference Period shall be calculated after giving effect thereto on a Pro Forma Basis."
+    historical_deemed_values:
+      note: "Schedule 1.01(c) fixes EBITDA for early (2016-2017) periods; schedule not in the public filing; irrelevant after 2018"
+      lookup: schedule_1_01c
+      quote: "“Consolidated EBITDA” for any period set forth on Schedule 1.01(c) shall be deemed equal to the amount for such period set forth on Schedule 1.01(c)."
+
+  - id: consolidated_net_income
+    name: Consolidated Net Income
+    type: custom
+    starts_from: "GAAP consolidated net income (loss), Borrower + Subsidiaries (Unrestricted Subsidiaries excluded via the Subsidiary definition)"
+    quote: "“Consolidated Net Income” means, for any period, the consolidated net income (or loss) of the Borrower and its Subsidiaries, determined on a consolidated basis in accordance with GAAP"
+    exclusions:
+      - {id: cni.a, what: "income of non-subsidiary investees except cash dividends received", sign: "-", quote: "(a) the income (or loss) of any Person (other than a Subsidiary of the Borrower) in which the Borrower or any of its Subsidiaries has an ownership interest, except to the extent that any such income is actually received"}
+      - {id: cni.b, what: "undistributed earnings of non-Loan-Party subs that cannot pay dividends", sign: "-", quote: "(b) the undistributed earnings of any Subsidiary of the Borrower (other than a Loan Party)"}
+    not_deducted:   # second proviso: these are never deducted in CNI, i.e. effectively added back at the CNI level
+      - {id: cni.x, what: "non-cash asset write-downs / impairments", sign: +, quote: "(x) non-cash asset write-downs, including impairment of goodwill and intangible assets"}
+      - {id: cni.y, what: "equity-based compensation", sign: +, quote: "(y) any equity-based compensation charge or expense"}
+      - {id: cni.z, what: "non-cash amortization of acquired intangibles", sign: +, quote: "(z) any non-cash amortization expense relating to the acquisitions of intangible assets before or after the Closing Date"}
+    double_count_guard_quote: "including in respect of adjustments provided in the second proviso to the definition of “Consolidated Net Income”"
+    inclusions:
+      - {id: cni.unrestricted_dividends, what: "cash dividends from Unrestricted Subsidiaries out of earned income", sign: +, quote: "the amount of any cash dividends, distributions or other amounts in each case resulting from earned income paid by any Unrestricted Subsidiary and received by the Borrower or the Subsidiaries"}
+
+  - id: pro_forma_basis
+    name: Pro Forma Basis
+    type: custom
+    rule: "Subject Transactions in the Reference Period are pushed to day one; debt incurred/repaid at day one; cash acquired/disposed at period end. For actual 7.11 tests and pricing, post-period events are ignored."
+    events: ["dispositions of a subsidiary/division and Unrestricted Sub designations (exclude)", "Permitted Acquisitions, Investments, re-designations (include)", "debt retirement / incurrence (excl. normal revolver working-capital fluctuation)"]
+    quote: "the events described in the immediately preceding paragraph that occurred subsequent to the end of the applicable Reference Period shall not be given pro forma effect"
+    no_cost_savings_note: "unlike WEST, no separate Pro Forma Adjustments cap; run-rate synergies live only in EBITDA clause (r) under the shared 20% cap"
+
+  - id: consolidated_interest_expense
+    name: Consolidated Interest Expense
+    type: custom
+    net_of_interest_income: true
+    components:
+      - {id: cie.a, what: "total interest expense incl. capital leases, LC/BA commissions and fees, net interest-rate hedge costs", sign: +, input: income_statement}
+      - {id: cie.b, what: "interest income", sign: "-", input: income_statement}
+      - {id: cie.x, what: "exclude the Dec 31 2018 Bank of America interest-rate hedge", sign: "0", input: footnotes}
+    quote: "total interest expense (including that attributable to Capital Lease Obligations) of the Borrower and its Subsidiaries for such period with respect to all outstanding Indebtedness of the Borrower and its Subsidiaries"
+    netting_quote: "minus interest income of the Borrower and its Subsidiaries for such period, determined on a consolidated basis in accordance with GAAP"
+    exclusion_quote: "Consolidated Interest Expense shall exclude the impact of the Hedging Agreement in respect of interest rates that was entered into by the Borrower and Bank of America, N.A. on December 31, 2018"
+    note: "debt issuance cost amortization is not carved out of CIE (contrast WEST); whether the GAAP 'Interest expense, net' line maps 1:1 is unknown"
+    historical_annualization:
+      note: "Reference Periods ending Jun 30 2017 - Mar 31 2018 used annualized interest; moot"
+      quote: "for (a) the Reference Period ending June 30, 2017, shall equal Consolidated Interest Expense during the period from June 1, 2017 through June 30, 2017 multiplied by 12.0"
+
+  - id: material_permitted_acquisition
+    name: Material Permitted Acquisition
+    type: custom
+    rule: "Permitted Acquisitions + other permitted Acquisitions in the trailing 12 months with aggregate cash consideration >= $75M; each acquisition counts toward only one window"
+    threshold: 75000000
+    quote: "consummated during the trailing twelve-month period as of such date of determination for aggregate cash consideration of at least $75,000,000"
+    one_window_quote: "it shall not constitute a Material Permitted Acquisition with respect to any subsequent trailing twelve-month period"
+
+  - id: available_amount
+    name: Available Amount (RP / investment builder basket)
+    type: custom
+    formula: "$100M + 50% cumulative CNI since the Closing Date quarter + equity contributions + equity issuance proceeds + ... (rest of definition not decomposed)"
+    quote: "“Available Amount” means the amount, not less than zero in the aggregate, determined on a cumulative basis"
+    used_to_date: unknown
+
+  # standard terms: everyday / GAAP meaning, nothing to decompose
+  - {id: gaap, name: GAAP, type: standard}
+  - {id: lien, name: Lien, type: standard, note: "includes lessor interest under a capital lease"}
+  - {id: collateral, name: Collateral, type: standard, note: "defined by the Security Documents"}
+  - {id: reference_period, name: Reference Period, type: standard, note: "see agreement.test_period"}
+  - {id: cash_equivalents, name: Cash Equivalents, type: standard, note: "undefined in the agreement text; GAAP meaning assumed (flag F5)", inferred: true}
+
+# ---------------------------------------------------------------- lookups
+lookups:
+  - id: schedule_4_16
+    name: Schedule 4.16 Subsidiaries (identifies Unrestricted Subsidiaries)
+    status: missing
+    why: "schedules are not filed publicly"
+    working_assumption: "no Unrestricted Subsidiaries; the 10-Q reports covenant ratios off consolidated figures and gives no consolidating data. Unconfirmed."
+  - id: schedule_1_01b
+    name: Schedule 1.01(b) Closing Date Affiliate Agreements (EBITDA clause (q))
+    status: missing
+  - id: schedule_1_01c
+    name: Schedule 1.01(c) deemed Consolidated EBITDA
+    status: missing
+    why: "historical only (pre-2018 periods)"
+  - id: compliance_certificate_form
+    name: Compliance certificate form
+    status: missing
+    note: "no exhibit form listed in the agreement; 6.01(d) only requires 'reasonably detailed calculations'"
+  - id: senior_notes_indenture
+    name: Indenture for 6.375% Senior Unsecured Notes due 2028
+    status: missing
+    why: "needed for the exact note maturity date (drives the springing revolver maturity)"
+
+# ---------------------------------------------------------------- replay test
+# The Q2 2026 10-Q reports the ratios but not Consolidated EBITDA or Consolidated Interest Expense,
+# so no ratio can be rebuilt from disclosed components. Entries are kept so the checker records the
+# reported numbers (quotes verified) and skips the math.
+replay:
+  - covenant: senior_secured_net_leverage
+    test_date: 2026-06-30
+    status: not_disclosed
+    units: usd_thousands
+    note: "Ratio reported; numerator inputs are on the balance sheet but the denominator (Consolidated EBITDA) is not disclosed (flag F3)."
+    reported:
+      ratio: 0.08
+      cap: 3.50
+      direction: max
+      src: q2
+      quote: "As of June 30, 2026, the Company's Senior Secured Net Leverage Ratio was 0.08 x and its Consolidated Interest Coverage Ratio was 7.20 x."
+    numerator_inputs:      # disclosed, not summed by the checker
+      - id: in.revolver
+        value: 50000
+        maps_to: ssnd.secured_indebtedness
+        src: q2
+        quote: "the Company had $50.0 million of outstanding borrowings"
+      - id: in.cash
+        value: -33287
+        maps_to: ssnd.less.unrestricted_cash
+        caveat: "consolidated cash; domestic share not disclosed (flag F4)"
+        src: q2
+        quote: "Cash and cash equivalents $33,287 $56,236"
+      - id: in.letters_of_credit
+        value: 0
+        inferred: "revolver $350.0M - $50.0M drawn = $300.0M available, so no LCs reduce availability"
+        src: q2
+        quote: "As of June 30, 2026, $300.0 million was available to borrow under the revolving loan due in 2029"
+    excluded_on_purpose:
+      - {item: "6.375% Senior Unsecured Notes due 2028, $400.0M", why: "unsecured; counts only in Total Net Leverage"}
+  - covenant: interest_coverage
+    test_date: 2026-06-30
+    status: not_disclosed
+    note: "Only the ratio is reported. GAAP 'Interest expense, net' is disclosed but CIE (net of interest income, incl. fees) and Consolidated EBITDA are not."
+    reported:
+      ratio: 7.20
+      cap: 3.00
+      direction: min
+      src: q2
+      quote: "Consolidated Interest Coverage Ratio (as defined in the Credit Agreement) not to be below 3.0 x. As of June 30, 2026, the Company's Senior Secured Net Leverage Ratio was 0.08 x and its Consolidated Interest Coverage Ratio was 7.20 x."
+  - covenant: rp_unlimited_tnlr_gate
+    test_date: 2026-06-30
+    status: not_disclosed
+    note: "TNLR reported (1.95x) vs the 2.00x unlimited-RP gate; Consolidated EBITDA not disclosed."
+    reported:
+      ratio: 1.95
+      cap: 2.00
+      direction: max
+      src: q2
+      quote: "As of June 30, 2026, the Company's Total Net Leverage Ratio (as defined in the Credit Agreement) was 1.95 x."
+    numerator_inputs:
+      - id: in.debt_principal
+        value: 450000
+        maps_to: tnd.indebtedness
+        note: "$400.0M notes + $50.0M revolver = carrying value $450.0M (in millions in the source)"
+        src: q2
+        quote: "Fair value $445.2 $454.1 Carrying value 450.0 455.0"
+      - id: in.cash
+        value: -33287
+        maps_to: tnd.less.unrestricted_cash
+        src: q2
+        quote: "Cash and cash equivalents $33,287 $56,236"
+
+# ---------------------------------------------------------------- judgment flags
+flags:
+  - id: F1
+    topic: Source is a blackline, not a clean conformed copy
+    issue: "Struck (deleted) text is still in the HTML, so tag-stripped text interleaves old and new (e.g. 7.07(g) '1.75 2.00 to 1.00'; struck ICR 2.75x step; old commitment fees in the pricing grid). Separately, page numbers fall inside sentences at page breaks (e.g. 7.12 '(y) 95 5.0%', 'Transaction 10 Costs'); they are not struck text and must be ignored, not read as deletions. The checker would accept a quote of deleted text. This abstract was cross-checked against a strike-removed copy, but the pipeline needs a strike-aware loader or a clean conformed copy."
+    owner: engine (loader) + human sign-off
+  - id: F2
+    topic: Restricted payments vs the 2.00x unlimited-RP gate
+    issue: "TNLR is 1.95x at Jun 30 2026 against a 2.00x pro forma gate for unlimited RPs under 7.07(g), while the company bought back $57.3M of stock in H1 2026. Which basket each buyback used ((e) $25M, (g) unlimited, (h) Available Amount at 4.25x) is not disclosed."
+    evidence:
+      src: q2
+      quote: "During the six months ended June 30, 2026, we repurchased and subsequently retired 6.2 million shares for $57.3 million"
+    impact: "checker (reported-only): 1.95x vs 2.00x, headroom 2.5% on the reported ratio; dollar headroom not computable (no EBITDA disclosed); TNLR rose from 1.84x (Mar 31) to 1.95x (Jun 30) per the 10-Qs"
+    owner: credit_officer (request RP basket usage + Available Amount calc)
+  - id: F3
+    topic: No replayable components
+    issue: "Neither Consolidated EBITDA nor Consolidated Interest Expense is disclosed, so no ratio can be rebuilt. The company also does not publish a non-GAAP Adjusted EBITDA in the Q2 10-Q."
+    owner: request compliance certificate
+  - id: F4
+    topic: Domestic-only cash netting
+    issue: "Unrestricted Cash counts only domestic cash of the Borrower and Domestic Subsidiaries (cap $125M). Cars.com has foreign operations (e.g. D2C Media); the 10-Q gives only consolidated cash. Q1 2026 reported senior secured net debt of $(9.6)M matches $55.0M revolver less all $64.6M consolidated cash, which suggests the borrower netted all cash (inferred, arithmetic not run by the checker)."
+    evidence:
+      src: q1
+      quote: "Cash and cash equivalents $64,598 $56,236"
+    owner: credit_officer
+  - id: F5
+    topic: Cash Equivalents undefined
+    issue: "'Cash Equivalents' is capitalized but not defined anywhere in the conformed text (nor in the 2017 original). Treat as GAAP cash equivalents unless the agent says otherwise."
+    owner: credit_officer / agent counsel
+  - id: F6
+    topic: Springing revolver maturity
+    issue: "Revolver matures 91 days before the 2028 Senior Unsecured Notes maturity if any notes remain outstanding. Notes are 'due in 2028' with interest May 1 / Nov 1; the exact maturity date is not in the folder (Nov 1 2028 would give ~Aug 2 2028, inferred)."
+    owner: credit_officer (pull the indenture)
+  - id: F7
+    topic: Negative numerator
+    issue: "SSNLR was negative at Q1 2026 ((0.05)x). Engines must allow negative senior secured net debt and must not floor at zero; pricing grid Category 4 (<= 1.00x) applies."
+    owner: setup_agent (engine)
+  - id: F8
+    topic: MD&A date inconsistency in Q2 10-Q
+    issue: "Note 5 says TNLR 1.95x 'As of June 30, 2026'; MD&A says 'As of March 31, 2026 ... 1.95x', while the Q1 10-Q reported 1.84x at Mar 31. Treated as an MD&A typo; 1.95x is taken as the Jun 30 figure."
+    evidence:
+      src: q2
+      quote: "As of March 31, 2026, our Total Net Leverage Ratio (as defined in the Credit Agreement) was 1.95x."
+    owner: credit_officer
+  - id: F9
+    topic: Uncapped / odd add-backs
+    issue: "Add-backs (g) transaction costs, (h) extraordinary/unusual/non-recurring and (u) other non-cash charges are uncapped; only (f)+(r) share a 20% cap and (i) litigation is capped at $2M. Clause (i) reads 'charges, expenses and gains', so gains appear inside an add-back."
+    owner: credit_officer
+  - id: F10
+    topic: Step-up elections and Unrestricted Subsidiaries
+    issue: "Whether any Material Permitted Acquisition step-up is active, and whether any Unrestricted Subsidiaries exist (Schedule 4.16), is not disclosed. The Q2 10-Q states the cap as 3.5x, consistent with no active step-up."
+    owner: request from agent
+  - id: F11
+    topic: Leverage numerators use all Indebtedness, not just borrowed money
+    issue: "No 'borrowed money' filter (contrast WEST): undrawn LCs, capital leases and guarantees count. Capital leases are Liens, so would count as secured debt. None appear outstanding today (inferred from $300.0M availability and no finance-lease disclosure)."
+    owner: credit_officer

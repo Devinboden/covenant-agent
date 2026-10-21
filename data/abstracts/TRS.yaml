@@ -1,0 +1,682 @@
+# TriMas covenant abstract (agent-built draft, public filings only)
+# Every quote is checked verbatim against its source by engine/verify_abstract.py.
+# Amounts in the replay are USD thousands. Ratios are x:1.00.
+#
+# SOURCE CAVEAT: the "conformed" Tenth Amendment exhibit is a BLACKLINE. The checker strips
+# HTML, so struck-through (deleted) text and double-underlined (inserted) text both appear
+# inline in the normalized `ca` text (e.g. "in excess of $5,000,000 25,000,000"). Quotes were
+# chosen to avoid changed spans except where the change itself is the point (flag F1).
+# Changed spans were identified by reading the HTML styles (red line-through = deleted,
+# blue underline = inserted); that mapping is recorded under agreement.blackline_changes.
+
+schema_version: 0.1
+abstract_id: TRS-2026-06-30
+status: draft            # draft -> verified (code checks pass) -> signed_off (human)
+as_of: 2026-06-30        # text current through the Tenth Amendment (Mar 20 2026); Mar 4 2026 Consent not on file
+built_by: agent (Claude, Opus) for Devin, 2026-10-10
+
+sources:
+  ca:
+    file: data/filings/TRS/amendment_10th-amendment-2026-03-conformed.htm
+    what: Tenth Amendment (Mar 20 2026) with the amended Credit Agreement attached as a blackline (Exhibit A). Main current-agreement text.
+  a9:
+    file: data/filings/TRS/amendment_9th-amendment.htm
+    what: Ninth Amendment (Dec 29 2025) - Aerospace discontinued-ops carve-out in Consolidated Net Income
+  q2:
+    file: data/filings/TRS/10-Q_2026-06-30.htm
+    what: TriMas Corporation 10-Q for Q2 2026 (borrower's own covenant calc and Consolidated Bank EBITDA bridge; replay source)
+  q1:
+    file: data/filings/TRS/10-Q_2026-03-31.htm
+    what: TriMas Corporation 10-Q for Q1 2026 (exhibit list naming the Tenth Amendment)
+
+# ---------------------------------------------------------------- agreement
+agreement:
+  borrower: TriMas Company LLC (Parent Borrower) + Foreign Subsidiary Borrowers
+  holdings: TriMas Corporation
+  agent: JPMorgan Chase Bank, N.A. (Administrative Agent and Collateral Agent)
+  quote: "among TRIMAS COMPANY LLC, a Delaware limited liability company, TRIMAS CORPORATION, a Delaware corporation, the FOREIGN SUBSIDIARY BORROWERS party hereto, the LENDERS party hereto, and JPMORGAN CHASE BANK, N.A., as Administrative Agent and Collateral Agent"
+  facility:
+    what: "senior secured revolver, $250M, $125M foreign-currency sublimit; no term loan"
+    quote: "The initial aggregate amount of the Lenders' Revolving Commitments on the Third Restatement Date is $250,000,000."
+    maturity:
+      value: 2030-03-31
+      quote: "“Revolving Maturity Date” means March 31, 2030."
+  closing_date:
+    value: 2013-10-16
+    quote: "“Closing Date” means the date on which the conditions specified in Section 4.01 were satisfied, which date was October 16, 2013."
+  third_restatement_date:
+    value: 2025-03-31
+    note: "Eighth Amendment effective date; many baskets and add-backs key off it"
+    quote: "“Third Restatement Date” means the date on which the conditions precedent set forth in Section 4.04 have been satisfied, which date is March 31, 2025."
+  fiscal_year_end: 12-31      # inferred from 10-K / 10-Q period ends; the agreement does not state it in a definition
+
+  amendments:
+    - {no: 7, date: 2023-04-07, quote: "that certain Seventh Amendment, dated as of April 7, 2023"}
+    - {no: 8, date: 2025-03-31, note: "Third Restatement; maturity to Mar 31 2030; $250M revolver; current 6.12/6.13 levels", quote: "“Eighth Amendment” means that certain Eighth Amendment, dated as of March 31, 2025."}
+    - {no: 9, date: 2025-12-29, note: "Aerospace discontinued-ops stay in CNI for quarters ending before the Aerospace Closing Date", quote: "“Ninth Amendment” means that certain Ninth Amendment, dated as of December 29, 2025"}
+    - no: null
+      kind: consent
+      date: 2026-03-04
+      note: "Consent - NOT in the filings folder and not filed as an exhibit to the Q1/Q2 2026 10-Q; content unknown (flag F9)"
+      quote: "as supplemented by that certain Consent, dated as of March 4, 2026"
+    - no: 10
+      date: 2026-03-20
+      note: "cash netting cap $240M for 6.13 only; swap Indebtedness threshold $25M; new $400M-cash RP/investment baskets; conformed copy used here (blackline)"
+      quote: "This TENTH AMENDMENT, dated as of March 20, 2026"
+      exhibit_evidence:
+        src: q1
+        quote: "10.1 Tenth Amendment to the Credit Agreement, dated as of March 20, 2026"
+  amendments_after_tenth:
+    status: none_found
+    note: "Q2 2026 10-Q exhibit index lists no credit agreement amendment; MD&A mentions only the Dec 2025 and Mar 2026 amendments"
+    src: q2
+    quote: "In December 2025 and March 2026, we amended the Credit Agreement to update certain definitions used in ratio and indebtedness calculations due to the sale of the Aerospace segment."
+
+  blackline_changes:       # read from HTML styles in the Tenth Amendment exhibit (red strike = deleted, blue underline = inserted)
+    - {where: "Total Net Leverage Ratio (a)(ii)", change: "inserted: ', or, solely with respect to the financial covenants set forth in Section 6.13, not to exceed $240,000,000'"}
+    - {where: "Indebtedness (k)", change: "swap threshold $5,000,000 deleted, $25,000,000 inserted"}
+    - {where: "Consolidated EBITDA (a)(x)", change: "'this' deleted, 'the' inserted (Eighth Amendment fees reference)"}
+    - {where: "Consolidated EBITDA (b)", change: "'and' -> ','; clause (ii) consolidated interest income inserted; cross-ref (ii) -> (iii)"}
+    - {where: "6.04(w)", change: "new investment basket: no Revolving Loans outstanding and Freely Transferable cash >= $400M"}
+    - {where: "6.08(a)(xv)", change: "new Restricted Payment basket: same $400M cash / no revolver test"}
+    - {where: "Loan Documents definition", change: "adds any other amendments to this Agreement"}
+
+  reporting:
+    annual_financials:
+      due: "90 days after fiscal year end (10-K filing satisfies)"
+      ref: "5.01(a)"
+      quote: "within 90 days after the end of each fiscal year of Holdings, its audited consolidated balance sheet"
+    quarterly_financials:
+      due: "45 days after Q1, Q2, Q3 (10-Q filing satisfies)"
+      ref: "5.01(b)"
+      quote: "within 45 days after the end of each of the first three fiscal quarters of each fiscal year of Holdings"
+    compliance_certificate:
+      due: "same 90/45-day deadlines, and no later than 2 Business Days after the statements are delivered"
+      ref: "5.01(c)"
+      quote: "but in any event no later than two Business Days after any delivery of financial statements under clause (b) above), a certificate of a Financial Officer of Holdings or the Parent Borrower"
+      content_quote: "setting forth reasonably detailed calculations (x) demonstrating compliance with Sections 6.12 and 6.13 and (y) of Consolidated Net -107- Income and Consolidated EBITDA on a quarterly basis"
+      form: "no form exhibit in the agreement (exhibits list A-I has no compliance certificate); certificate content is prescribed by 5.01(c) only"
+    default_consequence:
+      ref: "Article VII(d)"
+      note: "breach of Article VI (incl. 6.12/6.13) is an immediate Event of Default, no grace period"
+      quote: "shall fail to observe or perform any covenant, condition or agreement contained in Section 5.02, 5.04(a)"
+
+  test_period:
+    meaning: "trailing four fiscal quarters ending on the test date (quarter-end); no separate 'Test Period' defined term"
+    quote: "as of the last day of any period of four consecutive fiscal quarters ending on or after December 31, 2024"
+    ebitda_period_quote: "Consolidated EBITDA for the period of four consecutive fiscal quarters of Holdings ended on such date (or, if such date is not the last day of a fiscal quarter, ended on the last day of the fiscal quarter of Holdings most recently ended prior to such date for which financial statements are available)"
+
+  equity_cure:
+    status: none_found
+    note: "searched the agreement text for cure / equity contribution language: no equity cure right. Covenant breach is an immediate EoD under VII(d)."
+
+  elections:
+    covenant_holiday:
+      what: "Parent Borrower may designate a Permitted Acquisition with >= $50M cash consideration as a Covenant Holiday Acquisition by officers' certificate; max TNLR becomes 4.50x for the four fiscal quarters starting with the quarter of closing"
+      limit: 2
+      spacing: "the two holiday periods must be separated by at least two full fiscal quarters with no holiday"
+      used: unknown            # not disclosed; 10-Q describes the holiday only hypothetically
+      ref: "Covenant Holiday Acquisition / Covenant Holiday Period definitions; 6.13 proviso"
+      quote: "“Covenant Holiday Acquisition” means a Permitted Acquisition for which (i) the cash consideration in respect of such acquisition is $50,000,000 or more and (ii) the Parent Borrower delivers to the Administrative Agent an officers' certificate designating such Permitted Acquisition as a “Covenant Holiday Acquisition”; provided that in no event shall there be more than two Covenant Holiday Acquisitions."
+      period_quote: "“Covenant Holiday Period” means the period of four consecutive fiscal quarters commencing on the first day of the fiscal quarter in which the consummation of a Covenant Holiday Acquisition occurs; provided that, if applicable, the two Covenant Holiday Periods shall be separated by a period of at least two full fiscal quarters during which no Covenant Holiday Period is in effect."
+      status_2026_06_30:
+        value: not_active
+        src: q2
+        quote: "If we were to complete an acquisition which qualifies for a Covenant Holiday Period, as defined in our Credit Agreement, then our permitted total net leverage ratio cannot exceed 4.50 to 1.00 during that period."
+    gaap_freeze:
+      what: "either side can freeze GAAP for a provision affected by a GAAP change; convertibles at full principal; no fair-value option on debt"
+      ref: "1.04"
+      quote: "all computations of amounts and ratios referred to herein shall be made, without giving effect to (i) any election under Accounting Standards Codification 825-10-25"
+
+  aerospace_sale:
+    what: "Aerospace segment (Specified Discontinued Operations) sold; closing drives the Ninth Amendment CNI carve-out"
+    closing:
+      value: 2026-03-16
+      src: q2
+      quote: "On March 16, 2026, the Company completed the previously announced sale of its Aerospace segment"
+    aerospace_closing_date_quote: "“Aerospace Closing Date” has the meaning assigned to the term “Closing Date” in the Aerospace Purchase Agreement."
+    specified_disc_ops_quote: "“Specified Discontinued Operations” means Holdings' aerospace business segment as described on Form 8-K, filed on November 5, 2024."
+
+# ---------------------------------------------------------------- covenants
+covenants:
+
+  - id: total_net_leverage
+    name: Total Net Leverage Ratio
+    ref: "6.13"
+    kind: ratio
+    direction: max
+    tested: quarterly, last day of each fiscal quarter (TTM EBITDA)
+    tested_entity: "Holdings, Parent Borrower and all Subsidiaries (consolidated; no unrestricted-subsidiary concept found)"
+    formula: {numerator: net_total_indebtedness_6_13, denominator: consolidated_ebitda}
+    thresholds:
+      - {from: 2024-12-31, to: null, value: 4.00, regime: standard, note: "fiscal quarters ending on or after Dec 31 2024"}
+    elections_overlay:
+      - {election: covenant_holiday, value: 4.50, applies: "fiscal quarters ending during a Covenant Holiday Period", status_2026_06_30: not_active}
+    regime_rule: "4.00x unless the test date falls in a Covenant Holiday Period (then 4.50x)"
+    effective_cap:
+      2026-06-30: 4.00
+      2026-09-30: 4.00     # unless a Covenant Holiday Acquisition closes in Q3 2026 (unknown)
+    quotes:
+      standard: "Neither Holdings nor the Parent Borrower will permit the Total Net Leverage Ratio as of the last day of any fiscal quarter ending on or after December 31, 2024 to exceed 4.00 to 1.00"
+      holiday: "provided that during a Covenant Holiday Period, neither Holdings nor the Parent Borrower will permit the Total Net Leverage Ratio as of the last day of any fiscal quarter ending during such Covenant Holiday Period to exceed 4.50 to 1.00"
+      cap_confirmed:
+        src: q2
+        quote: "Our permitted total net leverage ratio under the Credit Agreement is 4.00 to 1.00 as of June 30, 2026."
+
+  - id: interest_expense_coverage
+    name: Interest Expense Coverage Ratio
+    ref: "6.12"
+    kind: ratio
+    direction: min
+    tested: quarterly, last day of each four-quarter period
+    formula: {numerator: consolidated_ebitda, denominator: "consolidated_cash_interest_expense + preferred_dividends"}
+    thresholds:
+      - {from: 2024-12-31, to: null, value: 3.00}
+    quote: "Neither Holdings nor the Parent Borrower will permit the Interest Expense Coverage Ratio, in each case as of the last day of any period of four consecutive fiscal quarters ending on or after December 31, 2024, to be less than 3.00 to 1.00."
+    cap_confirmed:
+      src: q2
+      quote: "Our permitted interest expense coverage ratio under the Credit Agreement is 3.00 to 1.00 as of June 30, 2026."
+
+  # ---- incurrence tests that reuse the covenant ratios (not maintenance covenants)
+  - id: permitted_acquisition_leverage_gate
+    name: Permitted Acquisition pro forma leverage test
+    ref: "Permitted Acquisition (c)(iv)"
+    kind: incurrence
+    direction: max
+    formula: {numerator: net_total_indebtedness_6_13, denominator: consolidated_ebitda, basis: "pro forma, as of last quarter-end with statements available"}
+    thresholds:
+      - {from: 2025-03-31, to: null, value: "6.13 cap", note: "(x) acquisitions where target joins Loan Parties / assets become Collateral: pro forma compliance with 6.13"}
+    cushion_rule: "(y) all other acquisitions: TNLR at least 0.25x below the 6.13 cap (i.e. <= 3.75x, or 4.25x in a holiday)"
+    inferred: "which cash-netting cap ($150M vs $240M) applies to this gate is not clear (flag F3)"
+    quote: "is at least 0.25 less than is otherwise required pursuant to Section 6.13 at the time of such event"
+    x_quote: "be in compliance on a pro forma basis with the covenant set forth in Section 6.13 after giving effect to such acquisition"
+
+  - id: unsecured_debt_leverage_gate
+    name: Permitted Unsecured Debt incurrence test
+    ref: "6.01(a)(iv)"
+    kind: incurrence
+    direction: max
+    rule: "pro forma TNLR at least 0.25x below the 6.13 cap"
+    quote: "is at least 0.25 less than is otherwise required pursuant to Section 6.13 at the time of such event; (v) Indebtedness of the Parent Borrower to any Subsidiary"
+
+  - id: incremental_secured_leverage_gate
+    name: Incremental revolver / Incremental Equivalent Debt ratio prong
+    ref: "2.21(a); 6.01(a)(xx)"
+    kind: incurrence
+    direction: max
+    rule: "greater of $200M free-and-clear and amount keeping pro forma Senior Secured Net Leverage Ratio <= 3.00x (incrementals assumed fully drawn)"
+    value: 3.00
+    measure: senior_secured_net_leverage ($150M netting cap)
+    quote: "the Senior Secured Net Leverage Ratio, calculated on a pro forma basis, is no greater than 3.00 to 1.00"
+
+  - id: restricted_payment_leverage_grid
+    name: Restricted Payments / junior debt payments leverage grid
+    ref: "6.08(a)(viii); 6.08(b)(viii)"
+    kind: incurrence
+    direction: max
+    measure: total_net_leverage (definition with $150M netting cap; the $240M cap is 6.13-only - inferred, flag F3)
+    grid:
+      - {tnlr_max: 2.25, limit: unlimited}
+      - {tnlr_max: 2.75, limit: "greater of $100M and 7.50% of Consolidated Total Assets, rolling 12 months, shared with 6.08(b)(viii)"}
+      - {tnlr_max: 3.25, limit: "greater of $50M and 3.75% of Consolidated Total Assets, rolling 12 months, shared"}
+      - {tnlr_above: 3.25, limit: none}
+    quotes:
+      tier1: "would be (1) less than or equal to 2.25 to 1.00, there shall be no limit on the amount of Restricted Payments made pursuant to this clause (viii)"
+      tier2: "shall not exceed the greater of $100,000,000 and 7.50% of Consolidated Total Assets of Holdings (as of the date of such Restricted Payment)"
+      tier3: "shall not exceed the greater of $50,000,000 and 3.75% of Consolidated Total Assets of Holdings (as of the date of such Restricted Payment) and (4) greater than 3.25 to 1.00, no Restricted Payments may be made pursuant to this clause (viii)"
+
+  - id: rp_investment_cash_gate
+    name: $400M liquidity gate for new RP and investment baskets (Tenth Amendment)
+    ref: "6.04(w); 6.08(a)(xv)"
+    kind: incurrence
+    direction: min
+    value: 400000000
+    measure: "Freely Transferable unrestricted cash + unrestricted Permitted Investments of Parent Borrower and Subsidiaries"
+    condition: "no Revolving Loans outstanding at the time, after giving effect"
+    amount_limit: unlimited     # no dollar cap in either basket
+    applies: {from: 2026-03-20, to: null}
+    quote: "(xv) the Parent Borrower may make payments to Holdings to permit it to make, and Holdings may make, Restricted Payments; provided that, at the time of such Restricted Payment and after giving effect thereto, (i) no Revolving Loans are outstanding"
+    cash_quote: "Transferable unrestricted cash and unrestricted Permitted Investments of the Parent Borrower and its Subsidiaries are not less than $400,000,000."
+    investments_quote: "(w) additional investments; provided that, at the time of such investment and after giving effect thereto, (i) no Revolving Loans are outstanding"
+
+  - id: investment_leverage_gate
+    name: Unlimited investments leverage test
+    ref: "6.04(u)"
+    kind: incurrence
+    direction: max
+    value: 3.00
+    quote: "the Total Net Leverage Ratio at the time of the making of such investment would be less than or equal to 3.00 to 1.00"
+
+  - id: pricing_grid
+    name: Applicable Rate grid (pricing, not a covenant)
+    ref: "Applicable Rate"
+    kind: other
+    direction: none
+    measure: leverage_ratio (GROSS Total Indebtedness / Consolidated EBITDA, no cash netting)
+    grid:
+      - {category: 1, leverage_min: 3.25, rfr_spread: 0.0200, commitment_fee: 0.0030}
+      - {category: 2, leverage_min: 2.75, rfr_spread: 0.0175, commitment_fee: 0.0025}
+      - {category: 3, leverage_min: 2.25, rfr_spread: 0.01625, commitment_fee: 0.00225}
+      - {category: 4, leverage_min: 1.50, rfr_spread: 0.0150, commitment_fee: 0.0020}
+      - {category: 5, leverage_max_exclusive: 1.50, rfr_spread: 0.01375, commitment_fee: 0.00175}
+    quote: "Category 1: Greater than or equal to 3.25 to 1.00 1.00% 2.00% 2.00% 0.30%"
+    low_quote: "Category 5: Less than 1.50 to 1.00 0.375% 1.375% 1.375% 0.175%"
+    leverage_ratio_quote: "“Leverage Ratio” means, on any date, the ratio of (a) Total Indebtedness as of such date to (b) Consolidated EBITDA"
+
+# ---------------------------------------------------------------- terms
+# type: standard = everyday meaning / GAAP, nothing to map
+#       lookup   = points at a list, schedule or another defined term you have to fetch
+#       custom   = deal-specific formula; decompose into components
+terms:
+
+  - id: net_total_indebtedness_6_13
+    name: Net Total Indebtedness (numerator of TNLR, 6.13 version)
+    type: custom
+    defined_in: "Total Net Leverage Ratio, clause (a)"
+    formula: "total_indebtedness - min(max(freely_transferable_cash - 10,000,000, 0), cash_netting_cap)"
+    measured: "as of the test date"
+    components:
+      - id: tni.total_indebtedness
+        what: "Total Indebtedness (see term)"
+        sign: +
+        input: balance_sheet_debt_schedule
+      - id: tni.less.cash
+        what: "Freely Transferable unrestricted cash and unrestricted Permitted Investments in excess of $10M"
+        sign: "-"
+        input: balance_sheet
+        cap:
+          type: fixed_amount
+          floor_deduction: 10000000       # first $10M of cash never nets
+          schedule:
+            - {applies_to: "6.13 financial covenant", from: 2026-03-20, to: null, value: 240000000}
+            - {applies_to: "6.13 financial covenant", to: 2026-03-19, value: 150000000, inferred: "pre-Tenth Amendment cap read from the struck/unstruck blackline; prior text not separately verified"}
+            - {applies_to: "all other uses of TNLR (incurrence gates, RP grid)", value: 150000000}
+          shared_with: []
+        trigger: "cash must be in the US or freely transferable to the US"
+        quote: "less (ii) the aggregate amount in excess of $10,000,000 (but not to exceed $150,000,000 or, solely with respect to the financial covenants set forth in Section 6.13, not to exceed $240,000,000) of the Freely Transferable unrestricted cash and unrestricted Permitted Investments of the Parent Borrower and its Subsidiaries as of such date"
+        freely_transferable_quote: "“Freely Transferable” with respect to Permitted Investments, means that such cash and Permitted Investments are either located in the United States or freely transferable to the United States."
+    quote: "“Total Net Leverage Ratio” means, on any date, the ratio of (a) (i) Total Indebtedness as of such date less (ii) the aggregate amount in excess of $10,000,000"
+
+  - id: total_indebtedness
+    name: Total Indebtedness
+    type: custom
+    components:
+      - {id: ti.a, what: "principal of on-balance-sheet Indebtedness of Holdings, Parent Borrower and Subsidiaries (GAAP balance sheet amount)", sign: +, input: balance_sheet_debt_schedule, quote: "(a) the aggregate principal amount of Indebtedness of Holdings, the Parent Borrower and the Subsidiaries outstanding as of such date, in the amount that would be reflected on a balance sheet prepared as of such date on a consolidated basis in accordance with GAAP"}
+      - {id: ti.b, what: "receivables securitization Net Investment (Annex A to Receivables Transfer Agreement)", sign: +, input: lookup_receivables_transfer_agreement, quote: "plus (b) the aggregate “Net Investment” as defined in Annex A to the Receivables Transfer Agreement"}
+      - id: ti.c
+        what: "off-balance-sheet Indebtedness, excluding undrawn LCs that do not back Indebtedness and 6.01(a)(xi) debt"
+        sign: +
+        input: footnotes
+        quote: "plus (c) the aggregate principal amount of Indebtedness of Holdings, the Parent Borrower and the Subsidiaries outstanding as of such date that is not required to be reflected on a balance sheet in accordance with GAAP"
+        exclusion_quote: "the term “Indebtedness” shall not include (i) contingent obligations of Holdings, the Parent Borrower or any Subsidiary as an account party in respect of any letter of credit or letter of guaranty unless, without duplication, such letter of credit or letter of guaranty supports an obligation that constitutes Indebtedness"
+    convertibles_rule:
+      quote: "such Indebtedness shall at all times be valued at the full stated principal amount thereof"
+    points_to: indebtedness
+
+  - id: indebtedness
+    name: Indebtedness
+    type: lookup
+    kind: list
+    items: [a borrowed money / advances, b bonds notes debentures, c interest-bearing obligations, d conditional sale, e deferred purchase price, f others' debt secured by own property, g guarantees, h Financing Lease Obligations, i letters of credit, j bankers' acceptances, k swaps over $25M]
+    swap_threshold:
+      value: 25000000
+      changed_by: tenth_amendment (was 5,000,000)
+      blackline_quote: "obligations in respect of Swaps and Hedging Agreements in excess of $5,000,000 25,000,000 in the aggregate"
+      measure_quote: "the maximum aggregate amount (giving effect to any netting agreements) that Holdings, the Parent Borrower or the applicable Subsidiary would be required to pay if all Swaps and Hedging Agreements were terminated at such time"
+    exclusions:
+      - {what: "indemnities and purchase price adjustments", quote: "(a) agreements providing for indemnification, purchase price adjustments or similar obligations incurred or assumed in connection with the acquisition or disposition of assets or capital stock"}
+      - {what: "trade payables and accrued expenses", quote: "(b) trade payables and accrued expenses in each case arising in the ordinary course of business"}
+      - {what: "earn-outs until on balance sheet", quote: "(c) earn-out obligations until any such ob"}
+      - {what: "Non-Financing (operating) lease obligations", quote: "(g) Non-Financing Lease Obligations"}
+      - {what: "defeased debt", quote: "(h) indebtedness that has been defeased and/or discharged in accordance with its terms by the deposit of cash"}
+    quote: "“Indebtedness” of any Person means, without duplication, (a) all obligations of such Person for borrowed money or with respect to advances of any kind"
+    lc_item_quote: "(i) all obligations, contingent or otherwise, of such Person as an account party in respect of letters of credit and letters of guaranty"
+    finance_lease_quote: "(h) all Financing Lease Obligations of such Person"
+
+  - id: senior_secured_net_leverage
+    name: Senior Secured Net Leverage Ratio (incremental test only)
+    type: custom
+    formula: "(senior_secured_indebtedness - min(cash - 10M, 150M)) / consolidated_ebitda"
+    note: "no $240M uplift; only the $150M cap"
+    quote: "the ratio of (a) (i) Senior Secured Indebtedness as of such date less (ii) the aggregate amount in excess of $10,000,000 (but not to exceed $150,000,000) of the Freely Transferable unrestricted cash"
+
+  - id: consolidated_ebitda
+    name: Consolidated EBITDA
+    type: custom
+    starts_from: consolidated_net_income
+    defined_in: "Section 1.01"
+    measured: "four consecutive fiscal quarters (TTM)"
+    quote: "“Consolidated EBITDA” means, for any period, Consolidated Net Income for such period plus"
+    addback_gate: "only if deducted in CNI, no duplication (except run-rate synergies in (a)(ix))"
+    addback_gate_quote: "without duplication and to the extent deducted in determining such Consolidated Net Income (other than with respect to clause (ix) below)"
+    components:
+      # (a) addbacks ------------------------------------------------
+      - {id: ebitda.a.i, category: interest, sign: +, input: income_statement, quote: "(i) consolidated interest expense for such period"}
+      - {id: ebitda.a.ii, category: taxes, sign: +, input: income_statement, quote: "(ii) consolidated income tax expense for such period (including all single business tax expenses imposed by state law)"}
+      - {id: ebitda.a.iii, category: depreciation_amortization, sign: +, input: cash_flow_statement, quote: "(iii) all amounts attributable to depreciation and amortization for such period"}
+      - {id: ebitda.a.iv, category: receivables_financing_costs_and_preferred_dividends, sign: +, input: footnotes, quote: "(iv) interest-equivalent costs associated with any Permitted Receivables Financing or Specified Vendor Receivables Financing for such period"}
+      - {id: ebitda.a.v, category: deferred_financing_expense, sign: +, input: footnotes, quote: "(v) the aggregate amount of deferred financing expenses for such period"}
+      - id: ebitda.a.vi
+        category: other_non_cash_charges
+        sign: +
+        input: borrower_schedule
+        trigger: "excludes accruals/reserves for future cash charges"
+        quote: "(vi) all other noncash expenses or losses of Holdings, the Parent Borrower or any of the Subsidiaries for such period (excluding any such charge that constitutes an accrual of or a reserve for cash charges for any future period)"
+      - {id: ebitda.a.vii, category: legacy_lease_prepayment_losses, sign: +, input: borrower_schedule, quote: "(vii) losses associated with the prepayment of leases (whether operating leases or capital leases) outstanding on January 1, 2017 from discontinued operations"}
+      - id: ebitda.a.viii
+        category: equity_funded_comp_plan_costs
+        sign: +
+        input: borrower_schedule
+        trigger: "only if funded with new equity contributions / Holdings equity issuance proceeds, Not Otherwise Applied"
+        quote: "(viii) any costs or expense incurred pursuant to any management equity plan or stock option plan"
+      - id: ebitda.a.ix
+        category: run_rate_synergies
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        condition: "deals/initiatives after Third Restatement Date; reasonably identifiable and factually supportable; projected within 18 months; net of realized benefits; need NOT have been deducted in CNI"
+        cap:
+          type: pct_of_ebitda
+          value: 0.20
+          basis: "Consolidated EBITDA after the (a)(ix) add-back (circular)"
+          shared_with: [pro_forma_expense_reductions]     # pro forma S-X style adjustments are "subject to the provisions of clause (a)(ix)"
+        quote: "(ix) the amount of “run rate” cost savings, operating expense reductions and cost synergies"
+        condition_quote: "that are reasonably identifiable and factually supportable and projected by the Parent Borrower to result within 18 months after such merger"
+        cap_quote: "shall not exceed 20% of Consolidated EBITDA for such period (calculated after giving effect to any add-backs pursuant to this clause (ix))"
+      - id: ebitda.a.x
+        category: credit_agreement_transaction_fees
+        sign: +
+        input: borrower_schedule
+        quote: "(x) non-recurring out-of-pocket transaction fees, costs and expenses incurred in connection with this Agreement, including legal fees, advisory fees and upfront financing fees"
+      # (b) deductions -----------------------------------------------
+      - {id: ebitda.b.i, category: debt_retirement_gains, sign: "-", input: income_statement, quote: "(i) any gains realized from the retirement of Indebtedness after the Third Restatement Date"}
+      - {id: ebitda.b.ii, category: interest_income, sign: "-", input: income_statement, note: "inserted by the Tenth Amendment (blackline)", quote: ") consolidated interest income for such period and (iii) consolidated income tax benefits for such period"}
+      - {id: ebitda.b.iii, category: tax_benefits, sign: "-", input: income_statement, quote: "consolidated income tax benefits for such period (excluding, for purposes of this clause ("}
+      # pro forma -------------------------------------------------------
+      - id: ebitda.pf.acquisitions_dispositions
+        category: pro_forma_acquired_disposed
+        sign: "+/-"
+        input: borrower_schedule
+        trigger: "Permitted Acquisition, Significant Investment (pro rata to ownership), or non-ordinary-course disposition during the period; as if on day one"
+        quote: "Consolidated EBITDA for the relevant period shall be calculated only for purposes of determining the Leverage Ratio, the Total Net Leverage Ratio, the Senior Secured Net Leverage Ratio and the Interest Expense Coverage Ratio after giving pro forma effect thereto"
+        significant_investment_quote: "any pro forma adjustment made to Consolidated EBITDA shall be in proportion to the percentage ownership of the Parent Borrower or such Subsidiary"
+      - id: ebitda.pf.expense_reductions
+        category: pro_forma_expense_reductions
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        condition: "Reg S-X Article XI, or consistent with its purpose, or officer's certificate; expected within 18 months"
+        cap: {type: pct_of_ebitda, value: 0.20, shared_with: [ebitda.a.ix]}
+        quote: "calculated in accordance with and subject to the provisions of clause (a)(ix) of this definition"
+        sx_quote: "would be permitted pursuant to Article XI of Regulation S-X under the Securities Act of 1933"
+
+  - id: consolidated_net_income
+    name: Consolidated Net Income
+    type: custom
+    starts_from: "GAAP net income (loss) of Holdings, Parent Borrower and Subsidiaries incl. the Receivables Subsidiary"
+    quote: "“Consolidated Net Income” means, for any period, the net income or loss of Holdings, the Parent Borrower and the Subsidiaries (including the Receivables Subsidiary) for such period, determined on a consolidated basis in accordance with GAAP; provided that there shall be excluded"
+    exclusions:
+      - {id: cni.a, what: "income of non-wholly-owned persons except cash distributions", quote: "(a) the income of any Person (other than the Parent Borrower or a Significant Investment) in which any other Person"}
+      - {id: cni.b, what: "pre-acquisition income", quote: "(b) the income or loss of any Person accrued prior to the date it becomes a Subsidiary"}
+      - {id: cni.c, what: "accounting changes", quote: "(c) the cumulative effect of a change in accounting principles during such period"}
+      - {id: cni.d, what: "extraordinary, nonrecurring or unusual items, net of fees", quote: "(d) any net extraordinary, nonrecurring or unusual gains or losses (less all fees and expenses relating thereto)"}
+      - id: cni.e.i
+        what: "severance, restructuring, pension curtailment, facility open/close, integration, start-up, business optimization, bonuses, deal and financing costs (successful or not)"
+        review: human_signoff
+        cap:
+          type: pct_of_ebitda
+          value: 0.20
+          basis: "Consolidated EBITDA after the clause (e) exclusions (circular); covers charges/expenses/losses/costs under all of clause (e)"
+          shared_with: [cni.e.ii, cni.e.iii, cni.e.iv]
+        quote: "(e) (i) any severance expenses, relocation expenses, restructuring expenses"
+        cap_quote: "shall not exceed 20% of Consolidated EBITDA for such period (calculated after giving effect to exclusions pursuant to this clause (e))"
+      - id: cni.e.ii
+        what: "income/loss and disposal gains/losses of disposed or discontinued operations; Aerospace kept IN for quarters ending before the Aerospace Closing Date (Ninth Amendment)"
+        trigger: "Specified Discontinued Operations carve-out ends for fiscal quarters ending on/after 2026-03-16"
+        quote: "(ii) any net income or loss from disposed, abandoned, transferred, closed or discontinued operations (other than, for any fiscal quarter ending prior to the Aerospace Closing Date, the Specified Discontinued Operations)"
+        amendment:
+          src: a9
+          quote: "Clause (e)(ii) of the definition of “Consolidated Net Income” in Section 1.01 of the Credit Agreement shall be amended and restated in its entirety as follows"
+      - {id: cni.e.iii, what: "non-ordinary-course disposition gains/losses", quote: "(iii) any net gains or losses (less all fees and expenses or charges relating thereto) attributable to business dispositions or asset dispositions other than in the ordinary course of business"}
+      - {id: cni.e.iv, what: "legacy stock appreciation rights / options costs", quote: "(iv) costs or expenses realized in connection with or resulting from stock appreciation or similar rights"}
+      - {id: cni.f, what: "Transaction costs", quote: "(f) any fees, expenses, or charges related to the Transactions"}
+      - {id: cni.g, what: "purchase accounting effects", quote: "(g) effects of purchase accounting adjustments"}
+      - {id: cni.h, what: "debt / hedge extinguishment gains and losses", quote: "(h) any net gains or losses (less all fees and expenses or charges relating thereto) attributable to the early extinguishment of Indebtedness"}
+      - {id: cni.i, what: "impairments, write-offs, intangible amortization, fair value adjustments", quote: "(i) any impairment charges or asset write-offs, in each case pursuant to GAAP"}
+      - {id: cni.j, what: "non-cash equity / benefit plan expense", quote: "(j) any non-cash expense realized or resulting from stock option plans"}
+      - {id: cni.k, what: "non-cash compensation", quote: "(k) any non-cash compensation charges"}
+      - {id: cni.l, what: "Third Restatement accruals within 12 months", quote: "(l) accruals and reserves that are established or adjusted within 12 months after the Third Restatement Date"}
+      - {id: cni.m, what: "non-cash fair value accounting", quote: "(m) non-cash gains, losses, income and expenses resulting from fair value accounting"}
+      - {id: cni.n, what: "ALL currency gains and losses (cash and non-cash)", quote: "(n) any currency gains and losses"}
+      - {id: cni.o, what: "insured casualty / business interruption losses (180/365-day reimbursement test)", quote: "expenses with respect to liability or casualty events or business interruption"}
+      - {id: cni.p, what: "DTA valuation allowance charges", quote: "(p) non-cash charges for deferred tax asset valuation allowances"}
+    inclusions:
+      - {what: "business interruption insurance proceeds and indemnity reimbursements", quote: "provided further that there shall be included amounts actually received from insurance in respect of lost revenues or earnings"}
+
+  - id: consolidated_cash_interest_expense
+    name: Consolidated Cash Interest Expense
+    type: custom
+    components:
+      - {id: ccie.a.i, what: "GAAP interest expense incl. imputed interest on Financing Lease Obligations", sign: +, input: income_statement, quote: "(i) the interest expense (including imputed interest expense in respect of Financing Lease Obligations)"}
+      - {id: ccie.a.ii, what: "capitalized interest", sign: +, input: footnotes, quote: "(ii) any interest accrued during such period in respect of Indebtedness of Holdings, the Parent Borrower or any Subsidiary (including the Receivables Subsidiary) that is required to be capitalized"}
+      - {id: ccie.a.iii, what: "cash paid on items amortized/accrued in prior periods", sign: +, input: borrower_schedule, quote: "(iii) any cash payments made during such period in respect of obligations referred to in clause (b)(iii) below"}
+      - {id: ccie.a.iv, what: "receivables financing interest-equivalent costs", sign: +, input: footnotes, quote: "(iv) interest-equivalent costs associated with any Permitted Receivables Financing or Specified Vendor Receivables Financing, whether accounted for as interest expense or loss on the sale of receivables, minus"}
+      - {id: ccie.b.i, what: "interest income", sign: "-", input: income_statement, quote: "(i) interest income of Holdings, the Parent Borrower and the Subsidiaries (including the Receivables Subsidiary) for such period"}
+      - {id: ccie.b.ii, what: "non-cash amortization of financing costs paid earlier", sign: "-", input: footnotes, quote: "noncash amounts attributable to amortization of -12- financing costs paid in a previous period"}
+      - {id: ccie.b.iii, what: "OID amortization and PIK interest", sign: "-", input: footnotes, quote: "noncash amounts attributable to amortization of debt discounts or accrued interest payable in kind for such period"}
+      - {id: ccie.b.iv_xi, what: "Transaction financing fees, agency fees, hedge costs, discounting, tax penalties/interest, bridge/commitment fees, push-down interest, non-financing lease expense", sign: "-", input: borrower_schedule, quote: "plus (v) annual agency fees paid to the administrative agents and collateral agents under any permitted credit facility"}
+    quote: "“Consolidated Cash Interest Expense” means, for any period, the excess of (a) the sum, without duplication, of"
+
+  - id: preferred_dividends
+    name: Preferred Dividends
+    type: custom
+    rule: "cash dividends on Holdings preferred stock; Holdings has no preferred outstanding at 2026-06-30"
+    quote: "“Preferred Dividends” means any cash dividends of Holdings permitted hereunder paid with respect to preferred stock of Holdings."
+    evidence:
+      src: q2
+      quote: "Preferred stock, $0.01 par: Authorized 100,000,000 shares; Issued and outstanding: None"
+
+  - id: permitted_investments
+    name: Permitted Investments
+    type: lookup
+    points_to: "Permitted Investments definition (Treasuries, CDs, CP, MMFs etc.)"
+    quote: "“Permitted Investments” means: (a) direct obligations of, or obligations the principal of and interest on which are unconditionally guaranteed by, the United States of America"
+
+  - {id: gaap, name: GAAP, type: standard, quote: "“GAAP” means generally accepted accounting principles in the United States of America."}
+  - {id: subsidiary, name: Subsidiary, type: standard, note: "all subsidiaries consolidated; no Unrestricted Subsidiary carve-out found"}
+  - {id: consolidated_total_assets, name: Consolidated Total Assets, type: standard, quote: "“Consolidated Total Assets” means, at any date of determination with respect to any Person, the total assets of such Person, determined on a consolidated basis in accordance with GAAP"}
+  - {id: financial_officer, name: Financial Officer, type: standard, quote: "“Financial Officer” means the chief financial officer, principal accounting officer, treasurer or controller of Holdings or the Parent Borrower"}
+
+# ---------------------------------------------------------------- lookups
+lookups:
+  - id: receivables_transfer_agreement_annex_a
+    name: Receivables Transfer Agreement, Annex A (Net Investment)
+    status: missing
+    why: "not filed with these documents"
+    working_assumption: "no receivables securitization balance at 2026-06-30 (10-Q discloses none); inferred, confirm"
+  - id: consent_2026_03_04
+    name: Consent dated March 4, 2026
+    status: missing
+    why: "referenced in the Tenth Amendment recitals; not in the filings folder; not listed as a 10-Q exhibit"
+    working_assumption: "likely consent related to the Aerospace sale closing (Mar 16 2026); content unknown - do not assume it changes 6.12/6.13"
+  - id: schedule_2_01
+    name: Schedule 2.01 Commitments
+    status: missing
+    why: "schedules not filed publicly; aggregate $250M is in the text"
+  - id: compliance_certificate_form
+    name: Officer's certificate under 5.01(c)
+    status: no_form_exhibit
+    stand_in: data/reference/mercury-compliance-certificate-form.txt
+
+# ---------------------------------------------------------------- replay test
+replay:
+  - covenant: total_net_leverage
+    test_date: 2026-06-30
+    units: usd_thousands
+    numerator:
+      - id: in.senior_notes
+        value: 400000
+        maps_to: ti.a
+        src: q2
+        quote: "4.125% Senior Notes due April 2029 $400,000 $400,000 Credit Agreement — 72,790"
+      - id: in.revolver
+        value: 0
+        maps_to: ti.a
+        src: q2
+        quote: "At June 30, 2026, we had no amounts outstanding under our revolving credit facility"
+      - id: in.finance_leases
+        value: 1040
+        maps_to: ti.a
+        inferred: "residual: 10-Q says only '$1.0 million'; 1,040 is the amount that makes Total Indebtedness net of $240M cash foot to the disclosed $161,040 (flag F6)"
+        src: q2
+        quote: "(3) Includes $1.0 million of finance leases."
+      - id: in.receivables_net_investment
+        value: 0
+        maps_to: ti.b
+        inferred: "no securitization balance disclosed; unknown, assumed 0"
+      - id: in.letters_of_credit
+        value: 0
+        maps_to: ti.c
+        note: "$6.2M undrawn LCs excluded by the Total Indebtedness proviso (support no Indebtedness - inferred)"
+        src: q2
+        quote: "had $243.8 million available after giving effect to $6.2 million of letters of credit issued and outstanding"
+      - id: in.swap_obligations
+        value: 0
+        maps_to: "indebtedness (k)"
+        note: "cross-currency swap liability $15.0M is below the $25M threshold (Tenth Amendment); measured at termination value, which the 10-Q fair value approximates (inferred)"
+        src: q2
+        quote: "Cross-currency swaps Other long-term liabilities $(15,000) $(18,270)"
+      - id: in.cash_netting
+        value: -240000
+        maps_to: tni.less.cash
+        note: "cash $1,242,480 >> $250M, so the $240M 6.13 cap binds; Freely Transferable split not disclosed but most cash sits in US Treasury MMFs / G-SIB deposits"
+        src: q2
+        quote: "The Credit Agreement allows up to $240.0 million in cash netting."
+        cash_quote: "Cash and cash equivalents $1,242,480 $30,020"
+        permitted_investments_quote: "These investments earn interest at an average rate of 3.7%, and qualify as permitted investments under the Company's credit agreement."
+    numerator_quote:
+      src: q2
+      quote: "June 30, 2026 Total Indebtedness, as defined (3) $161,040 Consolidated Bank EBITDA, as defined 91,160 Total net leverage ratio 1.77 x Covenant requirement 4.00 x"
+    denominator:
+      - {id: in.net_income, value: 905200, maps_to: consolidated_net_income (GAAP start, incl. discontinued ops)}
+      - {id: in.interest_expense, value: 18330, maps_to: ebitda.a.i}
+      - {id: in.income_tax, value: 214170, maps_to: ebitda.a.ii}
+      - {id: in.d_and_a, value: 53300, maps_to: ebitda.a.iii}
+      - {id: in.impairments, value: 1520, maps_to: cni.i}
+      - {id: in.noncash_comp, value: 11950, maps_to: "cni.j / cni.k"}
+      - {id: in.other_noncash, value: 190, maps_to: ebitda.a.vi}
+      - {id: in.nonrecurring_costs, value: 15960, maps_to: cni.e.i, inferred: "mapping from footnote (2): diligence/transaction, system implementation, restructuring, severance"}
+      - {id: in.extraordinary_gains, value: -1052660, maps_to: "cni.d (borrower label); economically the Aerospace sale gain, also excludable under cni.e.ii", inferred: "gain identity inferred from Q1 2026 sale timing"}
+      - {id: in.purchase_accounting, value: 880, maps_to: cni.g}
+      - {id: in.permitted_dispositions, value: 840, maps_to: cni.e.iii, inferred: "label only; mapping not stated"}
+      - {id: in.currency, value: 1160, maps_to: cni.n}
+      - {id: in.interest_income, value: -13130, maps_to: ebitda.b.ii}
+      - {id: in.disposed_ebitda, value: -66550, maps_to: ebitda.pf.acquisitions_dispositions, inferred: "Aerospace EBITDA for pre-closing quarters (kept in CNI by the Ninth Amendment, then removed pro forma)"}
+    denominator_quote:
+      src: q2
+      quote: "Twelve Months Ended June 30, 2026 Net income $905,200 Bank stipulated adjustments: Interest expense 18,330 Income tax expense 214,170 Depreciation and amortization 53,300 Impairment charges and asset write-offs 1,520 Non-cash compensation expense (1) 11,950 Other non-cash expenses or losses 190 Non-recurring expenses or costs (2) 15,960 Extraordinary, non-recurring or unusual gains or losses (1,052,660) Effects of purchase accounting adjustments 880 Permitted dispositions 840 Currency gains and losses 1,160 Interest income (13,130) Permitted dispositions EBITDA (66,550) Consolidated Bank EBITDA, as defined $91,160"
+      footnote_quote: "(2) Non-recurring costs and expenses relating to diligence and transaction costs, system implementation costs, and business restructuring and severance costs."
+    excluded_on_purpose:
+      - {item: "$6.2M undrawn letters of credit", why: "Total Indebtedness proviso excludes contingent LC obligations not supporting Indebtedness"}
+      - {item: "$15.0M cross-currency swap liability", why: "below $25M Indebtedness (k) threshold"}
+      - {item: "$3.1M unamortized debt issuance costs", why: "principal amount, not net carrying value"}
+      - {item: "$40.9M operating lease liabilities", why: "Non-Financing Lease Obligations excluded"}
+    expected:
+      ratio: 1.77
+      cap: 4.00
+      direction: max
+      src: q2
+      quote: "Our actual total net leverage ratio was 1.77 to 1.00 at June 30, 2026."
+    checks:
+      - {id: C1, what: "CNI clause (e) non-recurring exclusions <= 20% of Consolidated EBITDA", lines: [in.nonrecurring_costs], op: "<=", pct: 0.20, of: denominator}
+      - {id: C2, what: "clause (e) incl. disposition losses <= 20% (if 'Permitted dispositions' is (e)(iii))", lines: [in.nonrecurring_costs, in.permitted_dispositions], op: "<=", pct: 0.20, of: denominator}
+    variants:
+      - {id: V1, reading: "use the $150M netting cap (pre-Tenth Amendment / non-6.13 TNLR)", override: {in.cash_netting: -150000}, flag: F3}
+      - {id: V2, reading: "no cash netting (gross Total Indebtedness)", drop: [in.cash_netting], flag: F2}
+      - {id: V3, reading: "net all cash above $10M (miss the cap)", override: {in.cash_netting: -1232480}, flag: F2}
+      - {id: V4, reading: "keep Aerospace EBITDA (skip pro forma disposition)", drop: [in.disposed_ebitda], flag: F4}
+      - {id: V5, reading: "count the $6.2M undrawn LCs as Indebtedness", override: {in.letters_of_credit: 6200}}
+      - {id: V6, reading: "old $5M swap threshold: count the $15.0M swap liability", override: {in.swap_obligations: 15000}, flag: F1}
+      - {id: V7, reading: "reject the non-recurring cost exclusion", drop: [in.nonrecurring_costs], flag: F5}
+      - {id: V8, reading: "Covenant Holiday cap wrongly applied", cap: 4.50}
+
+  - covenant: interest_expense_coverage
+    test_date: 2026-06-30
+    units: usd_thousands
+    numerator:
+      - id: in.consolidated_ebitda
+        value: 91160
+        maps_to: consolidated_ebitda
+        build: {net_income: 905200, interest_expense: 18330, income_tax: 214170, d_and_a: 53300, impairments: 1520, noncash_comp: 11950, other_noncash: 190, nonrecurring: 15960, extraordinary_gains: -1052660, purchase_accounting: 880, permitted_dispositions: 840, currency: 1160, interest_income: -13130, disposed_ebitda: -66550}
+        note: "same bridge as the total_net_leverage replay denominator"
+    denominator:
+      - {id: in.interest_expense_gaap, value: 18330, maps_to: ccie.a.i}
+      - {id: in.interest_income_cie, value: -13070, maps_to: ccie.b.i, note: "differs from the -13,130 used in the EBITDA bridge (flag F7)"}
+      - {id: in.financing_cost_amortization, value: -960, maps_to: ccie.b.ii}
+      - {id: in.preferred_dividends, value: 0, maps_to: preferred_dividends}
+    denominator_quote:
+      src: q2
+      quote: "Twelve Months Ended June 30, 2026 Interest expense $18,330 Bank stipulated adjustments: Interest income (13,070) Non-cash amounts attributable to amortization of financing costs (960) Total Consolidated Cash Interest Expense, as defined $4,300"
+    expected:
+      ratio: 21.21
+      note: "10-Q components are rounded to $10K (91,160 / 4,300 = 21.20x); reported 21.21x is within checker tolerance"
+      cap: 3.00
+      direction: min
+      src: q2
+      quote: "Our actual interest expense coverage ratio was 21.21 to 1.00 at June 30, 2026."
+    variants:
+      - {id: V1, reading: "use the EBITDA-bridge interest income (13,130)", override: {in.interest_income_cie: -13130}, flag: F7}
+      - {id: V2, reading: "gross interest expense (no interest income netting)", drop: [in.interest_income_cie]}
+      - {id: V3, reading: "keep Aerospace EBITDA in the numerator", override: {in.consolidated_ebitda: 157710}, flag: F4}
+
+# ---------------------------------------------------------------- judgment flags
+flags:
+  - id: F1
+    topic: Blackline source text
+    issue: "The only current-agreement text on file is a blackline. Normalized text interleaves deleted and inserted words (e.g. swap threshold '$5,000,000 25,000,000'; '(ii iii)'). Any extractor reading plain text will mis-read these spots. The deleted/inserted mapping here came from HTML styles."
+    impact: "swap threshold: at $5M the $15.0M swap liability would count (variant V6, see checker output); at $25M it does not"
+    owner: setup_agent (source parsing) + human sign-off
+  - id: F2
+    topic: Cash netting is the whole covenant story
+    issue: "Cash of $1.24B vs gross debt of ~$401M. Netting is floored at $10M and capped at $240M for 6.13. Gross leverage would breach 4.00x; uncapped netting gives a negative ratio."
+    impact: "see variants V2/V3 in checker output"
+    owner: credit_officer
+  - id: F3
+    topic: Two netting caps, one defined term
+    issue: "The $240M cap applies 'solely with respect to the financial covenants set forth in Section 6.13'. Incurrence gates that test TNLR (RP grid 6.08(a)(viii), 6.04(u), 6.01(a)(iv), Permitted Acquisition (c)(iv)) arguably use the $150M cap, though gates that say 'compliance with ... Section 6.13' could be read either way."
+    impact: "see variant V1 (ratio under the $150M cap) in checker output; RP grid tiering depends on it"
+    owner: credit_officer / agent counsel
+  - id: F4
+    topic: Aerospace in, then out
+    issue: "Ninth Amendment keeps Aerospace income in CNI for quarters ending before the Mar 16 2026 closing; pro forma disposition treatment then strips Aerospace EBITDA ($66.55M) out of the whole TTM. Borrower books the $1.05B sale gain as 'extraordinary/unusual' (cni.d) rather than (e)(ii). Same result, but the classification matters for the clause (e) 20% cap."
+    impact: "see variant V4 in checker output"
+    owner: credit_officer
+  - id: F5
+    topic: Clause (e) 20% cap is close
+    issue: "Non-recurring costs ($15.96M) plus 'Permitted dispositions' ($0.84M) run close to the 20%-of-EBITDA cap on clause (e) exclusions. Mapping of each line to (e)(i)/(e)(iii) vs (a)(x) (uncapped deal fees) is inferred."
+    impact: "see checks C1/C2 in checker output"
+    owner: credit_officer
+  - id: F6
+    topic: Finance lease amount inferred
+    issue: "10-Q gives finance leases only as '$1.0 million'. 1,040 is a residual chosen so the line items foot to the disclosed $161,040 net Total Indebtedness."
+    owner: request compliance certificate
+  - id: F7
+    topic: Interest income differs between the two calcs
+    issue: "EBITDA bridge deducts interest income of 13,130; Consolidated Cash Interest Expense nets 13,070. A 60K gap; immaterial but unexplained (definitions differ in scope: Receivables Subsidiary included in CCIE)."
+    owner: request compliance certificate
+  - id: F9
+    topic: Missing March 4 2026 Consent
+    issue: "Tenth Amendment recitals reference a Consent dated Mar 4 2026 that is not in the folder and not a 10-Q exhibit. Probably the Aerospace sale consent; could carry conditions on proceeds."
+    owner: request from agent
+  - id: F10
+    topic: Specified Discontinued Operations date reference
+    issue: "Definition cites a Form 8-K 'filed on November 5, 2024'; the Aerospace sale agreement is dated Nov 4 2025. Likely a drafting error (2025)."
+    owner: credit_officer / agent counsel
+  - id: F11
+    topic: Covenant Holiday usage
+    issue: "Number of Covenant Holiday Acquisitions used (max 2) is not disclosed. With $1.24B cash earmarked partly for acquisitions, a holiday election (4.50x) is plausible in coming quarters."
+    owner: request from agent
+  - id: F12
+    topic: No equity cure
+    issue: "No equity cure right found; a 6.12/6.13 breach is an immediate Event of Default under VII(d)."
+    owner: credit_officer

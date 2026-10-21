@@ -1,0 +1,1258 @@
+{
+ "spec_version": "v1.1-2026-10-13",
+ "header": {
+  "borrower": "SRI",
+  "source_file": "credit_agreement_2026-03.pdf",
+  "sha256": "a91491bbbd4b071b0466ac6aff35d29c96be90c63bdb97bd446cb32e5b90b5e7",
+  "doc_type": {
+   "doc_type": "amendment",
+   "contains_full_agreement": true,
+   "is_blackline": false,
+   "confidence": "high",
+   "evidence": {
+    "cover_matches": [
+     "amendment",
+     "credit_agreement"
+    ],
+    "definitions": 333,
+    "struck_chars": 0
+   }
+  },
+  "covenant_sections": {
+   "ids": [
+    "8.2.16",
+    "8.2.17"
+   ],
+   "confidence": "high (model confirms code)",
+   "evidence": "ratio-titled sections with test language: [('8.2.16', 'Maximum Leverage Ratio'), ('8.2.17', 'Minimum Interest Coverage Ratio')]"
+  },
+  "status": "draft",
+  "built": "2026-10-13",
+  "models": [
+   "claude-sonnet-5-5"
+  ]
+ },
+ "loan": {
+  "borrower": "STONERIDGE, INC.",
+  "agent": "PNC BANK, NATIONAL ASSOCIATION",
+  "agreement_date": {
+   "value": "2023-11-02",
+   "quote": "Fifth Amended and Restated Credit Agreement, dated as of November 2, 2023"
+  },
+  "latest_amendment_date": {
+   "value": "2026-03-06",
+   "quote": "dated as of March 6, 2026"
+  },
+  "closing_date": {
+   "value": "2023-11-02",
+   "quote": "\u201cClosing Date\u201d shall mean the Business Day on which the first Loan shall be made, which shall be November 2, 2023."
+  },
+  "fiscal_year_end": {
+   "value": "12-31",
+   "quote": "change its fiscal year from the twelve-month period beginning January 1 and ending December 31"
+  },
+  "facilities": [
+   {
+    "type": "revolver",
+    "commitment": "175000000",
+    "maturity": "",
+    "quote": "As of the Third Amendment Effective Date, the aggregate amount of the Revolving Credit Commitments is $175,000,000; provided, however, that on December 31, 2026 the aggregate amount of the Revolving Credit Commitment shall be the lesser of (i) $157,500,000 or (ii) the aggregate amount Revolving Credit Commitments as of such date, if lower."
+   },
+   {
+    "type": "other",
+    "commitment": "40000000",
+    "maturity": "",
+    "quote": "\u201cSwing Loan Commitment\u201d shall mean PNC\u2019s commitment to make Swing Loans to the Domestic Borrowers pursuant to Section 2.1.2 [Swing Loan Commitment] hereof in an aggregate principal amount up to Forty Million Dollars ($40,000,000)."
+   }
+  ],
+  "reporting": {
+   "annual_days": "90",
+   "quarterly_days": "45",
+   "compliance_certificate": "not_stated",
+   "quote_annual": "within ninety (90) days after the end of each fiscal year of the Parent",
+   "quote_quarterly": "within forty-five (45) calendar days after the end of each of the first three fiscal quarters in each fiscal year",
+   "quote_certificate": ""
+  },
+  "test_period": {
+   "basis": "other",
+   "quote": ""
+  },
+  "equity_cure": {
+   "present": false,
+   "section": "",
+   "covenants": [],
+   "effect": "n/a",
+   "deadline_count": "",
+   "deadline_unit": "n/a",
+   "deadline_anchor": "n/a",
+   "limits": [],
+   "prepayment_required": false,
+   "quote": ""
+  },
+  "needs_context": [
+   "Sections 8.2.16 and 8.2.17 (the designated covenant sections) are not included in the text, so the test period, covenant levels and any equity cure wording could not be assessed",
+   "Expiration Date (revolver maturity) definition not provided",
+   "Compliance certificate delivery section (likely 8.3.x) not provided",
+   "Schedule 1.1(B) lender commitments",
+   "Definitions of Original Closing Date (recitals), Revolving Facility Usage, Swing Loans, Optional Currency",
+   "Amendment Sections 4 and 5 (conditions/limitations) not provided",
+   "Amendment No. 1 and Amendment No. 2 text not provided"
+  ],
+  "flags": [
+   "The text is Amendment No. 3 excerpts only; the covenant sections 8.2.16 and 8.2.17 are absent, so no equity cure or test period could be confirmed.",
+   "The Third Amendment Effective Date definition refers to an Amendment No. 3 dated 'February [__], 2026', while the amendment is dated March 6, 2026, so the date is inconsistent and the blank is unresolved.",
+   "The revolver commitment steps down to the lesser of $157,500,000 or the then-current commitments on December 31, 2026.",
+   "The Swing Loan Commitment of $40,000,000 is a sub-commitment of PNC and is probably within the revolver, so it may not be additive.",
+   "The Foreign Borrower, Stoneridge B.V., is a co-borrower. The Parent is Stoneridge, Inc.; Electronics is also a Borrower.",
+   "The excerpted section numbers are inconsistent: for example '7.1' is labelled Section 2.1 and '13.3.1' is labelled 8.3.1. Section references should be verified against the full agreement.",
+   "The Closing Date definition is stated as November 2, 2023, which matches the agreement date."
+  ]
+ },
+ "loan_code_notes": [],
+ "covenants": [
+  {
+   "id": "max_leverage",
+   "ref": "8.2.16",
+   "name": "Maximum Leverage Ratio",
+   "metric": "Leverage Ratio",
+   "kind": "ratio",
+   "direction": "max",
+   "unit": "x",
+   "frequency": "quarterly",
+   "event_tests": [],
+   "skip_when": "",
+   "applies_during": "",
+   "quote": "The Loan Parties shall not permit the Leverage Ratio as of the end of any fiscal quarter to exceed the ratio specified below for the periods specified below:",
+   "schedule": [
+    {
+     "start": {
+      "kind": "date",
+      "date": "2025-12-31",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2025-12-31",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "3.75",
+     "quote": "December 31, 2025 | 3.75 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-03-31",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2026-03-31",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "6.25",
+     "quote": "March 31, 2026 | 6.25 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-06-30",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2026-06-30",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "6.75",
+     "quote": "June 30, 2026 | 6.75 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-09-30",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2026-09-30",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "6.00",
+     "quote": "September 30, 2026 | 6.00 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-12-31",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "open",
+      "date": "",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "4.00",
+     "quote": "December 31, 2026 and thereafter | 4.00 to 1.00"
+    }
+   ]
+  },
+  {
+   "id": "min_interest_coverage",
+   "ref": "8.2.17",
+   "name": "Minimum Interest Coverage Ratio",
+   "metric": "ratio of Consolidated EBITDA to Consolidated Interest Expense",
+   "kind": "ratio",
+   "direction": "min",
+   "unit": "x",
+   "frequency": "quarterly",
+   "event_tests": [],
+   "skip_when": "",
+   "applies_during": "",
+   "quote": "calculated as of the end of each fiscal quarter for the four (4) fiscal quarters then ended, to be less than the ratio specified below:",
+   "schedule": [
+    {
+     "start": {
+      "kind": "date",
+      "date": "2025-12-31",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2025-12-31",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "2.50",
+     "quote": "December 31, 2025 | 2.50 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-03-31",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2026-03-31",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "1.60",
+     "quote": "March 31, 2026 | 1.60 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-06-30",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2026-06-30",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "1.70",
+     "quote": "June 30, 2026 | 1.70 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-09-30",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "date",
+      "date": "2026-09-30",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "1.75",
+     "quote": "September 30, 2026 | 1.75 to 1.00"
+    },
+    {
+     "start": {
+      "kind": "date",
+      "date": "2026-12-31",
+      "count": "",
+      "anchor": ""
+     },
+     "end": {
+      "kind": "open",
+      "date": "",
+      "count": "",
+      "anchor": ""
+     },
+     "value": "2.50",
+     "quote": "December 31, 2026 and thereafter | 2.50 to 1.00"
+    }
+   ]
+  }
+ ],
+ "regimes": [],
+ "terms": [
+  {
+   "name": "Leverage Ratio",
+   "family": "ratio",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(A)",
+     "category": "numerator_term",
+     "ref_term": "Consolidated Net Debt",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "the ratio of (A) Consolidated Net Debt on such date",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Numerator is Consolidated Net Debt (Consolidated Funded Indebtedness less US cash and 65% of freely transferable non-US cash and Cash Equivalents)."
+    },
+    {
+     "clause": "(A)",
+     "category": "measurement_period",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "Consolidated Net Debt on such date",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Numerator measured as of the date of determination."
+    },
+    {
+     "clause": "(B)",
+     "category": "denominator_term",
+     "ref_term": "Consolidated EBITDA",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "to (B) Consolidated EBITDA (i) for the four fiscal quarters then ending if such date is a fiscal quarter end",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Consolidated EBITDA is calculated on a Pro Forma Basis per its definition and Section 6.5."
+    },
+    {
+     "clause": "(B)(i)",
+     "category": "measurement_period",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(i) for the four fiscal quarters then ending if such date is a fiscal quarter end",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "If the date is a fiscal quarter end: the four fiscal quarters then ending."
+    },
+    {
+     "clause": "(B)(ii)",
+     "category": "measurement_period",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(ii) for the four fiscal quarters most recently ended for which financial statements have been (or are then being) furnished",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "If the date is not a fiscal quarter end: the four most recent fiscal quarters for which financials have been or are being furnished under Section 8.3.1 or 8.3.2."
+    },
+    {
+     "clause": "(i)",
+     "category": "measurement_period",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "for the four fiscal quarters then ending if such date is a fiscal quarter end",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Measurement period for Consolidated EBITDA (denominator): the four fiscal quarters ending on the date of determination, when that date is a fiscal quarter end."
+    },
+    {
+     "clause": "(ii)",
+     "category": "measurement_period",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "for the four fiscal quarters most recently ended for which financial statements have been (or are then being) furnished to the Administrative Agent and the Lenders",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Measurement period for Consolidated EBITDA (denominator) when the date is not a fiscal quarter end: the four most recent fiscal quarters for which financials have been or are being furnished under Section 8.3.1 or 8.3.2."
+    }
+   ],
+   "review": [],
+   "used_by": [
+    "max_leverage"
+   ],
+   "code_clauses": [
+    "(i)",
+    "(ii)"
+   ]
+  },
+  {
+   "name": "Consolidated EBITDA",
+   "family": "ebitda",
+   "starts_from": "Consolidated Net Income",
+   "components": [
+    {
+     "clause": "(a)(i)",
+     "category": "interest",
+     "ref_term": "Consolidated Interest Expense",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "Consolidated Interest Expense for such period",
+     "caps": [],
+     "source": "income_statement",
+     "needs_judgment": false,
+     "note": "Added back to the extent deducted in Consolidated Net Income. Consolidated Interest Expense is net of cash interest income and excludes non-cash interest."
+    },
+    {
+     "clause": "(a)(ii)",
+     "category": "taxes",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "Consolidated income tax expenses for such period",
+     "caps": [],
+     "source": "income_statement",
+     "needs_judgment": false,
+     "note": ""
+    },
+    {
+     "clause": "(a)(iii)",
+     "category": "depreciation_amortization",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "all amounts attributable to depreciation and amortization for such period",
+     "caps": [],
+     "source": "cash_flow_statement",
+     "needs_judgment": false,
+     "note": ""
+    },
+    {
+     "clause": "(a)(iv)",
+     "category": "impairment_writedowns",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "all non-cash impairment Charges and write-offs or write-downs (other than the write-off or write-down of current assets)",
+     "caps": [],
+     "source": "cash_flow_statement",
+     "needs_judgment": false,
+     "note": "Excludes write-offs or write-downs of current assets."
+    },
+    {
+     "clause": "(a)(v)",
+     "category": "other_non_cash_charges",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "any non-cash Charges or adjustments for such period (provided that if any such non-cash Charges represent an accrual or reserve for potential cash items",
+     "caps": [],
+     "source": "cash_flow_statement",
+     "needs_judgment": false,
+     "note": "Parent may elect not to add back non-cash Charges that are accruals or reserves for potential future cash items. If added back, the later cash payment is deducted under (b)(ii)."
+    },
+    {
+     "clause": "(a)(vi)",
+     "category": "extraordinary_unusual_items",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "any extraordinary, non-recurring or unusual items for such period determined on a consolidated basis in accordance with GAAP in an aggregate amount not to exceed Three Million Dollars ($3,000,000)",
+     "caps": [
+      {
+       "type": "fixed_amount",
+       "value": "3000000",
+       "from": "",
+       "to": "",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "in an aggregate amount not to exceed Three Million Dollars ($3,000,000) in such four-fiscal quarter period"
+      }
+     ],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "The cap applies per four-fiscal quarter period."
+    },
+    {
+     "clause": "(a)(vii)",
+     "category": "restructuring_business_optimization",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "any cash restructuring Charge (including any cash Charge related to any tax restructuring) in an aggregate amount not to exceed in any four-fiscal quarter period",
+     "caps": [
+      {
+       "type": "fixed_amount",
+       "value": "6000000",
+       "from": "",
+       "to": "2025-12-31",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "December 31, 2025 | 6.0"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "4000000",
+       "from": "2026-03-31",
+       "to": "2026-03-31",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "March 31, 2026 | 4.0"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "3500000",
+       "from": "2026-06-30",
+       "to": "2026-06-30",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "June 30, 2026 | 3.5"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "3000000",
+       "from": "2026-09-30",
+       "to": "",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "September 30, 2026 and thereafter | 3.0"
+      }
+     ],
+     "source": "borrower_schedule",
+     "needs_judgment": false,
+     "note": "The schedule gives the cap by the last day of the four-quarter measurement period. Amounts are in $MM."
+    },
+    {
+     "clause": "(a)(viii)",
+     "category": "transaction_costs",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "Charges incurred by Parent or any of its Subsidiaries incurred in connection with any Investment, issuance of Equity Interests or Indebtedness, refinancing, amendment, disposition or other transaction",
+     "caps": [
+      {
+       "type": "fixed_amount",
+       "value": "9000000",
+       "from": "",
+       "to": "2025-12-31",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "December 31, 2025 | 9.0"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "9000000",
+       "from": "2026-03-31",
+       "to": "2026-03-31",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "March 31, 2026 | 9.0"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "7000000",
+       "from": "2026-06-30",
+       "to": "2026-06-30",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "June 30, 2026 | 7.0"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "3000000",
+       "from": "2026-09-30",
+       "to": "2026-09-30",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "September 30, 2026 | 3.0"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "2000000",
+       "from": "2026-12-31",
+       "to": "2026-12-31",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "December 31, 2026 | 2.0"
+      }
+     ],
+     "source": "borrower_schedule",
+     "needs_judgment": false,
+     "note": "Covers transaction Charges, whether or not consummated, plus Reimbursable Expenses and advisory fees for post-transaction restructurings. The text gives no cap after December 31, 2026, so it is unclear whether the add-back continues uncapped or ends. Reimbursable Expenses is defined in Section 11.3.1."
+    },
+    {
+     "clause": "(b)(i)",
+     "category": "non_cash_gains",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "non-cash gains or adjustments (excluding any non-cash gain to the extent it represents the reversal of an accrual or reserve for a potential cash item",
+     "caps": [],
+     "source": "cash_flow_statement",
+     "needs_judgment": false,
+     "note": "Deducted to the extent included in Consolidated Net Income. Excludes non-cash gains that reverse an accrual or reserve that reduced Consolidated EBITDA in a prior period. Also covers all other non-cash items of income."
+    },
+    {
+     "clause": "(b)(ii)",
+     "category": "cash_receipts_from_prior_non_cash_gains",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "all cash payments made during such period on account of accruals, reserves and other non-cash charges added to Consolidated Net Income in a previous period pursuant to clause (a)(v) above",
+     "caps": [
+      {
+       "type": "relative",
+       "value": "amount added back for such category under (a)(v)",
+       "from": "2025-12-31",
+       "to": "2026-12-31",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "will be capped at the respective amount added back for such category of accrual or reserve in such four-fiscal quarter period pursuant to clause (a)(v) above"
+      }
+     ],
+     "source": "borrower_schedule",
+     "needs_judgment": false,
+     "note": "The cap applies only to reporting periods for the fiscal quarters ending December 31, 2025 through December 31, 2026. It limits the deduction per category of accrual or reserve. No category fits well, so the closest is used."
+    },
+    {
+     "clause": "(b)(iii)",
+     "category": "extraordinary_unusual_items",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "any extraordinary, non-recurring or unusual gains for such period determined on a consolidated basis in accordance with GAAP",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "Deducted to the extent included in Consolidated Net Income."
+    },
+    {
+     "clause": "final sentence",
+     "category": "calculation_rule",
+     "ref_term": "Pro Forma Basis",
+     "ref_clauses": "",
+     "sign": "+/-",
+     "quote": "Consolidated EBITDA shall be calculated on a Pro Forma Basis.",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Pro Forma Basis gives effect to Permitted Acquisitions, Investments, Dispositions and Restricted Payments as if they occurred at the start of the period. See Section 1.5."
+    }
+   ],
+   "review": [],
+   "used_by": [
+    "max_leverage",
+    "min_interest_coverage"
+   ],
+   "code_clauses": [
+    "(a)(i)",
+    "(a)(ii)",
+    "(a)(iii)",
+    "(a)(iv)",
+    "(a)(v)",
+    "(a)(vi)",
+    "(a)(vii)",
+    "(b)(i)",
+    "(b)(ii)",
+    "(b)(iii)"
+   ]
+  },
+  {
+   "name": "Consolidated Net Debt",
+   "family": "debt",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(i)",
+     "category": "less_cash",
+     "ref_term": "Cash Equivalents",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "the amount of consolidated cash and Cash Equivalents held in the United States on such date",
+     "caps": [],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": "Subject to the no-Lien / no-restriction proviso (other than Loan Documents and Permitted Liens clause (xviii))."
+    },
+    {
+     "clause": "(ii)",
+     "category": "less_cash",
+     "ref_term": "Cash Equivalents",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "sixty-five percent (65%) of the amount of consolidated cash and Cash Equivalents outside of the United States that is freely transferable",
+     "caps": [
+      {
+       "type": "pct_of_other",
+       "value": "0.65",
+       "from": "",
+       "to": "",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "sixty-five percent (65%) of the amount of consolidated cash and Cash Equivalents outside of the United States"
+      }
+     ],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": "65% of non-US cash/Cash Equivalents that is freely transferable to the US; the 65% is of non-US cash, not of EBITDA or assets. Subject to the no-Lien / no-restriction proviso. Split of US vs non-US cash likely requires footnote/borrower data."
+    },
+    {
+     "clause": "base",
+     "category": "term_reference",
+     "ref_term": "Consolidated Funded Indebtedness",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "\u201cConsolidated Net Debt\u201d shall mean an amount equal to Consolidated Funded Indebtedness of the Parent and its Subsidiaries on such date, minus",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Starting amount is the whole defined term Consolidated Funded Indebtedness of the Parent and its Subsidiaries."
+    },
+    {
+     "clause": "proviso",
+     "category": "term_reference",
+     "ref_term": "Permitted Liens",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "is not subject to a Lien in favor of any Person other than the Collateral Agent or to any restriction on the use thereof, other than pursuant to the Loan Documents",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Condition on the cash netted in (i) and (ii): the cash must be free of Liens and use restrictions, except Liens under the Loan Documents and Permitted Liens under 'clause (xviii) of the definition thereof'. The earlier ref_clauses '(xviii)' was not found in Permitted Liens, so it is left blank until the definition is checked. Related terms: Loan Documents, Collateral Agent."
+    }
+   ],
+   "review": [],
+   "used_by": [
+    "max_leverage"
+   ],
+   "code_clauses": [
+    "(i)",
+    "(ii)"
+   ]
+  },
+  {
+   "name": "Consolidated Funded Indebtedness",
+   "family": "debt",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(a)",
+     "category": "excluded_debt",
+     "ref_term": "Indebtedness",
+     "ref_clauses": "(vii),(viii),(x),(xi)",
+     "sign": "-",
+     "quote": "excluding clauses (vii) and (viii) of such definition (including clauses (x) and (xi) as it relates to such Indebtedness) unless such amount would be properly recorded as debt on the balance sheet",
+     "caps": [],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": "Excludes conditional sale/title retention obligations (vii) and other borrowing-like transactions (viii), plus related guaranties (x) and secured obligations (xi), unless properly recorded as debt on the consolidated balance sheet under GAAP (GAAP frozen per Section 6.3 for Section 8.2)."
+    },
+    {
+     "clause": "(b)",
+     "category": "hedge_obligations",
+     "ref_term": "Hedge Termination Value",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "in the case of clause (v) of such definition, limited to the then outstanding Hedge Termination Values (if any)",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "Swap/hedge obligations under Indebtedness clause (v) count only at then outstanding Hedge Termination Values, i.e. only amounts for closed-out hedges with determined termination values."
+    },
+    {
+     "clause": "base",
+     "category": "term_reference",
+     "ref_term": "Indebtedness",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "the aggregate principal amount of Indebtedness of the Parent and its Subsidiaries on a consolidated basis",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Base: sums the aggregate principal amount of Indebtedness (defined term) of Parent and Subsidiaries on a consolidated basis, without duplication."
+    }
+   ],
+   "review": [],
+   "used_by": [
+    "max_leverage"
+   ],
+   "code_clauses": [
+    "(a)",
+    "(b)"
+   ]
+  },
+  {
+   "name": "Indebtedness",
+   "family": "debt",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "lead-in",
+     "category": "scope_entities",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "\u201cIndebtedness\u201d shall mean, as to any Person at any time, any and all indebtedness, obligations or liabilities (whether matured or unmatured",
+     "caps": [],
+     "source": "n/a",
+     "needs_judgment": false,
+     "note": "Applies to any Person; calculation is without duplication across the listed items."
+    },
+    {
+     "clause": "(i)",
+     "category": "borrowed_money",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "borrowed money,",
+     "caps": [],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": ""
+    },
+    {
+     "clause": "(ii)",
+     "category": "notes_bonds",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "obligations evidenced by notes, bonds, debentures or similar instruments,",
+     "caps": [],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": ""
+    },
+    {
+     "clause": "(iii)",
+     "category": "letters_of_credit_undrawn",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "obligations (contingent or otherwise) under any acceptance, letter of credit or similar facilities,",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "Covers contingent obligations, so both drawn and undrawn letters of credit and acceptances."
+    },
+    {
+     "clause": "(iv)",
+     "category": "receivables_financing",
+     "ref_term": "Qualified Receivables Transaction",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "any amount that is properly recorded as a liability on the balance sheet of such Person in accordance with GAAP or IFRS, as applicable, in connection with any Qualified Receivables Transaction,",
+     "caps": [
+      {
+       "type": "other",
+       "value": "50000000",
+       "from": "",
+       "to": "",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "provided, that the amount of Indebtedness resulting from all Qualified Receivables Transactions at any time shall not exceed $50,000,000 in the aggregate."
+      }
+     ],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": "The $50,000,000 limit sits in the Qualified Receivables Transaction definition. It limits the transactions permitted and is not a cap on the amount counted. It is an aggregate limit outstanding at any time."
+    },
+    {
+     "clause": "(v)",
+     "category": "hedge_obligations",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "obligations under any currency swap agreement, interest rate swap, cap, collar or floor agreement or other interest rate or currency risk management device,",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "The text does not say how hedge obligations are valued, for example mark-to-market or termination value."
+    },
+    {
+     "clause": "(vi)",
+     "category": "capital_finance_leases",
+     "ref_term": "Capital Lease Obligations",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "Capital Lease Obligations,",
+     "caps": [],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": "Capital Lease Obligations is taken at the amount accounted for as liabilities on the consolidated balance sheet. Under Section 1.3, leases are treated as under GAAP in effect on the Original Closing Date."
+    },
+    {
+     "clause": "(vii)",
+     "category": "conditional_sale",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "all obligations of such Person under conditional sale or other title retention agreements relating to property acquired by such Person,",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": ""
+    },
+    {
+     "clause": "(ix)",
+     "category": "disqualified_equity",
+     "ref_term": "Disqualified Equity Interests",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "Disqualified Equity Interests,",
+     "caps": [],
+     "source": "balance_sheet",
+     "needs_judgment": false,
+     "note": ""
+    },
+    {
+     "clause": "(x)",
+     "category": "guarantees",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "any Guaranty of Indebtedness of a type referred to in clause (i) through (ix) above,",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "Guaranty is a defined term, but its name is not in this clause's own wording as a term to add. It covers guaranties of debt of the types in clauses (i) through (ix)."
+    },
+    {
+     "clause": "(xi)",
+     "category": "others_debt_secured_by_own_assets",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "all obligations of the kind referred to in clauses (i) through (xi) above secured by (or for which the holder of such obligation has an existing right, contingent or otherwise, to be secured by) any Lien on property",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "The clause refers to itself (clauses (i) through (xi)). It covers obligations secured by a Lien on the Person's property, whether or not the Person assumed or is liable for them."
+    },
+    {
+     "clause": "(viii)",
+     "category": "custom",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "any other transaction (including without limitation forward sale or purchase agreements) having the commercial effect of a borrowing of money entered into by such Person to finance its operations or capital requirements",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": true,
+     "note": "Catch-all for transactions with the commercial effect of borrowing. Excludes trade accounts payable and accrued expenses in the ordinary course that are not represented by a note or other evidence of indebtedness and are not more than 90 days past due. Amount would come from debt and commitment disclosures in the notes, not a face financial statement line."
+    },
+    {
+     "clause": "finalsentence",
+     "category": "partnership_jv_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "The Indebtedness of any Person shall include the Indebtedness of any other entity (including any partnership in which such Person is a general partner) to the extent such Person is liable therefor",
+     "caps": [],
+     "source": "footnote",
+     "needs_judgment": false,
+     "note": "Includes debt of other entities (e.g. partnerships where the Person is a general partner) to the extent the Person is liable through its ownership interest or other relationship. Excepted where the terms of that debt expressly provide the Person is not liable. Amount would come from notes on guarantees, unconsolidated entities or JV debt."
+    }
+   ],
+   "review": [
+    {
+     "clause": "(viii)",
+     "why": "no library part fits (custom)",
+     "note": "Catch-all for transactions with the commercial effect of borrowing. Excludes trade accounts payable and accrued expenses in the ordinary course that are not represented by a note or other evidence of "
+    }
+   ],
+   "used_by": [
+    "max_leverage"
+   ],
+   "code_clauses": [
+    "(i)",
+    "(ii)",
+    "(iii)",
+    "(iv)",
+    "(v)",
+    "(vi)",
+    "(vii)",
+    "(viii)",
+    "(ix)",
+    "(x)",
+    "(xi)"
+   ]
+  }
+ ],
+ "terms_pending": [
+  "Permitted Liens"
+ ],
+ "events": [
+  {
+   "type": "amendment_effective",
+   "regime_id": "",
+   "covenant_id": "max_leverage",
+   "date": "2025-02-26",
+   "doc": "10-Q_2026-06-30.pdf",
+   "quote": "On February 26, 2025, the Company entered into Amendment No. 1 to the Fifth Amended and Restated Credit Agreement and Waiver (\u201cAmendment No. 1\u201d).",
+   "note": "Amendment No. 1 raised max leverage to 6.00/5.50/4.50/3.50 for 2025 quarters during Covenant Relief Period (ending on delivery of compliance certificate for Q4 2025)."
+  },
+  {
+   "type": "waiver",
+   "regime_id": "",
+   "covenant_id": "min_interest_coverage",
+   "date": "2025-02-26",
+   "doc": "10-Q_2026-06-30.pdf",
+   "quote": "the minimum interest coverage ratio of 3.50 was waived for the quarter ended December 31, 2024 and was reduced to 2.00 for the quarters ended March 31 and June 30, 2025",
+   "note": "Amendment No. 1 waived interest coverage for Q4 2024 and reduced it for 2025 quarters (2.50 Sep 30, 3.50 Dec 31, 2025)."
+  },
+  {
+   "type": "amendment_effective",
+   "regime_id": "",
+   "covenant_id": "",
+   "date": "2025-11-05",
+   "doc": "10-Q_2026-06-30.pdf",
+   "quote": "On November 5, 2025, the Company entered into Amendment No. 2 to the Fifth Amended and Restated Credit Agreement and Consent Agreement (\u201cAmendment No. 2\u201d).",
+   "note": "Amendment No. 2 provided relief through Nov 2, 2026; leverage 4.5 (Q3 2025) and 3.5 (Q4 2025 onward) unchanged; interest coverage rises to 3.5 after Control Devices sale."
+  },
+  {
+   "type": "amendment_effective",
+   "regime_id": "",
+   "covenant_id": "max_leverage",
+   "date": "2026-03-06",
+   "doc": "10-Q_2026-06-30.pdf",
+   "quote": "On March 6, 2026, the Company entered into Amendment No. 3 to the Fifth Amended and Restated Credit Agreement (\u201cAmendment No. 3\u201d).",
+   "note": "Amends and restates facility; max leverage 3.75 (Q4 2025), 6.25 (Q1 2026), 6.75 (Q2 2026), 6.00 (Q3 2026), 4.00 (Q4 2026+); maturity extended to July 1, 2027."
+  },
+  {
+   "type": "amendment_effective",
+   "regime_id": "",
+   "covenant_id": "min_interest_coverage",
+   "date": "2026-03-06",
+   "doc": "10-Q_2026-06-30.pdf",
+   "quote": "the current minimum interest coverage ratio of 2.50 was reduced to 1.60 for the quarter ended March 31, 2026, 1.70 for the quarter ended June 30, 2026, 1.75 for the quarter ended September 30, 2026 and 2.50 for the quarter ended December 31, 2026 and thereafter",
+   "note": "Amendment No. 3 interest coverage step schedule."
+  },
+  {
+   "type": "other",
+   "regime_id": "",
+   "covenant_id": "",
+   "date": "2026-01-30",
+   "doc": "10-K_2025-12-31.pdf",
+   "quote": "On January 30, 2026, the Credit Facility borrowing capacity was reduced to a maximum level of $175.0 million as a result of the sale of the Control Devices business.",
+   "note": "Commitment reduced on Control Devices sale."
+  }
+ ],
+ "reported": [],
+ "event_docs": [
+  "10-K_2025-12-31.pdf",
+  "10-Q_2026-06-30.pdf"
+ ],
+ "calculation_rules": [
+  {
+   "type": "gaap_freeze",
+   "applies_to": "8.2",
+   "summary": "Accounting terms in Section 8.2 use GAAP as in effect on the date of the agreement, applied consistently with the historical statements.",
+   "threshold": "",
+   "conditions": [
+    "Applies to accounting terms and related defined terms used in Section 8.2",
+    "Consistent with statements referred to in Section 6.1.6(i)"
+   ],
+   "section": "6.3 (1.3 Accounting Principles; Changes in GAAP)",
+   "quote": "all accounting terms used in Section 8.2 [Negative Covenants] (and all defined terms used in the definition of any accounting term used in Section 8.2 [Negative Covenants]) shall have the meaning given to such terms (and defined terms) under GAAP as in effect on the date hereof"
+  },
+  {
+   "type": "gaap_freeze",
+   "applies_to": "8.2 and Leverage Ratio for pricing",
+   "summary": "If a GAAP change occurs, the parties negotiate an amendment, and until amended compliance is measured on GAAP in effect immediately before the change.",
+   "threshold": "",
+   "conditions": [
+    "Parent or Administrative Agent (on behalf of Required Lenders) gives written notice",
+    "Parties negotiate in good faith, subject to Required Lenders approval",
+    "Applies until notice is withdrawn or covenants are amended",
+    "Loan Parties provide reconciliation statements as reasonably requested"
+   ],
+   "section": "6.3 (1.3 Accounting Principles; Changes in GAAP)",
+   "quote": "until so amended, the Loan Parties\u2019 compliance with such covenants and/or the definition of the term Leverage Ratio for purposes of interest, Letter of Credit Fee and Commitment Fee determinations shall be determined on the basis of GAAP in effect immediately before the relevant change in GAAP became effective"
+  },
+  {
+   "type": "lease_accounting",
+   "applies_to": "all",
+   "summary": "Operating and capital leases are treated as under GAAP as in effect on the Original Closing Date, ignoring later changes.",
+   "threshold": "",
+   "conditions": [
+    "Unless the parties enter into a mutually acceptable amendment addressing such changes"
+   ],
+   "section": "6.3 (1.3 Accounting Principles; Changes in GAAP)",
+   "quote": "GAAP will be deemed to treat operating leases and capital leases in a manner consistent with their treatment under generally accepted accounting principles as in effect on the Original Closing Date"
+  },
+  {
+   "type": "pro_forma_transactions",
+   "applies_to": "8.2.16, 8.2.17",
+   "summary": "For periods with Permitted Acquisitions, Investments, Dispositions or Restricted Payments, the financial covenants and pricing grid are calculated on a Pro Forma Basis.",
+   "threshold": "",
+   "conditions": [
+    "Excludes Dispositions permitted under clauses (i) through (iv) of Section 8.2.7",
+    "Also applies to the pricing grid and tests based on Consolidated EBITDA or Consolidated Total Assets"
+   ],
+   "section": "6.5 (1.5 Pro Forma Calculations)",
+   "quote": "the financial covenants set forth in Sections 8.2.16 [Maximum Leverage Ratio] and 8.2.17 [Minimum Interest Coverage Ratio], the pricing grid on Schedule 1.1(A) hereof, and any other financial ratio or test or compliance with any covenant determined by reference to Consolidated EBITDA or Consolidated Total Assets shall be calculated"
+  },
+  {
+   "type": "pro_forma_transactions",
+   "applies_to": "all",
+   "summary": "Pro Forma Basis treats acquisitions, investments, dispositions, restricted payments and related debt as occurring at the beginning of the period.",
+   "threshold": "",
+   "conditions": [
+    "Permitted Acquisitions count to the extent not subsequently disposed of during the period",
+    "Includes related refinancings and Indebtedness incurred"
+   ],
+   "section": "definition of Pro Forma Basis",
+   "quote": "had been consummated or, as the case may be, incurred at the beginning of such period"
+  },
+  {
+   "type": "pro_forma_transactions",
+   "applies_to": "all",
+   "summary": "Floating-rate pro forma debt uses the rate in effect on the last day of the period; revolver interest uses average daily balance.",
+   "threshold": "",
+   "conditions": [
+    "Interest Rate Hedge taken into account",
+    "Borrowers may choose fixed or floating if debt has either option",
+    "Revolving debt interest uses average daily balance during the period"
+   ],
+   "section": "definition of Pro Forma Basis",
+   "quote": "if any Indebtedness to be so incurred bears interest at a floating rate and is being given pro forma effect, the interest on such Indebtedness will be calculated as if the rate in effect on the last day of the applicable period had been the applicable rate for the entire period"
+  },
+  {
+   "type": "currency_translation",
+   "applies_to": "all",
+   "summary": "Optional Currencies are converted to Dollars at weighted average rates (spot for balance sheet items) per GAAP.",
+   "threshold": "",
+   "conditions": [
+    "Financial statements and Compliance Certificates are in Dollars"
+   ],
+   "section": "6.4 (1.4 Currency Calculations)",
+   "quote": "Optional Currencies shall be converted to Dollars on a weighted average (spot rate for any balance sheet calculation) in accordance with GAAP."
+  },
+  {
+   "type": "limited_condition_transaction",
+   "applies_to": "all",
+   "summary": "At Parent's option, covenant and ratio compliance for a Limited Condition Transaction is tested on the date definitive agreements are signed and not retested later.",
+   "threshold": "",
+   "conditions": [
+    "Requires LCT Election by Parent",
+    "Pro forma effect given to the transaction and related debt",
+    "Not tested after LCT Test Date except as in clause (y)"
+   ],
+   "section": "6.6.1 (1.6 Limited Condition Transactions)",
+   "quote": "the date of determination for availability under any such covenant or ratio and whether any such action or transaction is permitted (or any requirement or condition therefor is complied with or satisfied (including as to the absence of any continuing Potential Default or Event of Default and the accuracy of any representations and warranties)) hereunder shall be deemed to be the date (the \u201cLCT Test Date\u201d)"
+  },
+  {
+   "type": "limited_condition_transaction",
+   "applies_to": "all",
+   "summary": "If Loan proceeds fund an LCT, it must close within 120 days and no payment, relief proceedings or financial covenant default may exist at closing.",
+   "threshold": "120",
+   "conditions": [
+    "Threshold is in days after the LCT Test Date",
+    "Applies only where Loan proceeds finance the LCT",
+    "No Event of Default under 9.1.1, 9.1.13 or 9.1.4 (Financial Covenants breach) continuing at consummation"
+   ],
+   "section": "6.6.1 (1.6 Limited Condition Transactions)",
+   "quote": "any such Limited Condition Transaction shall be consummated prior to the date which is 120 days following such LCT Test Date"
+  }
+ ],
+ "deemed_values": [],
+ "pricing_grid": {
+  "present": false,
+  "metric": "",
+  "levels": [],
+  "effective": "",
+  "default_if_late": "",
+  "on_schedule": "Schedule 1.1(A)",
+  "quote": "according to the pricing grid on Schedule 1.1(A) below the heading \u201cCommitment Fee.\u201d",
+  "flags": [
+   "The text only refers to a pricing grid on Schedule 1.1(A). The grid itself (ratio metric, levels, margins) is not included, so nothing could be extracted.",
+   "The metric, level bounds, margin values, effective date and late-financials default are all unknown from the text given.",
+   "Three headings are referenced: Commitment Fee, Revolving Credit Base Rate Spread, Revolving Credit Term Rate Spread, plus Revolving Credit Daily Rate Spread (Daily Simple RFR/SOFR). All point to the schedule.",
+   "Whether the pricing moves with a ratio can't be confirmed; present is set to false because the grid is not in the text.",
+   "The Schedule 1.1(A) text should be supplied to complete the extraction."
+  ]
+ },
+ "flags": [
+  {
+   "type": "dangling_reference",
+   "ref": "8.2.17",
+   "quote": "as of the end of fiscal quarter December 31, 2024",
+   "note": "The avoidance-of-doubt sentence refers to a December 31, 2024 test date that is not in the current schedule; likely a remnant of a prior amendment."
+  },
+  {
+   "type": "dangling_reference",
+   "ref": "Permitted Acquisition (e)(ii)",
+   "quote": "including the increase pursuant to Section 8.2.16 [Maximum Leverage Ratio]",
+   "note": "A Material Acquisition is defined (one or more related Permitted Acquisitions in a rolling 12-month period with aggregate purchase price of $50,000,000 or more), and the Permitted Acquisition definition refers to a leverage increase in 8.2.16 for it. Section 8.2.16 as given has no such increase mechanism, and searches found none. It was likely removed by an amendment, so no step-up regime is extracted."
+  },
+  {
+   "type": "other",
+   "ref": "8.2.16/8.2.17",
+   "quote": "13.2.16. Maximum Leverage Ratio.",
+   "note": "Section numbering in the text (13.2.16, 13.2.17) differs from the cited 8.2.16 and 8.2.17. This looks like a renumbering artifact from the amendment."
+  },
+  {
+   "type": "other",
+   "ref": "Amendment No. 3 Article 2",
+   "quote": "Subject to the terms, conditions and limitations of this Amendment, including, without limitation, Sections 4 and 5 below:",
+   "note": "The amendments are subject to Sections 4 and 5 of Amendment No. 3, which are not in the agreement text provided. Any conditions or limitations there could affect the schedules."
+  }
+ ],
+ "review": [
+  {
+   "step": 3,
+   "term": "Indebtedness",
+   "clause": "(viii)",
+   "why": "no library part fits (custom)",
+   "note": "Catch-all for transactions with the commercial effect of borrowing. Excludes trade accounts payable and accrued expenses in the ordinary course that are not represented by a note or other evidence of "
+  },
+  {
+   "step": "pricing",
+   "item": "pricing grid is on Schedule 1.1(A), which is not in the filed documents: obtain it"
+  }
+ ]
+}

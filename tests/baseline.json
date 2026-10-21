@@ -1,0 +1,5 @@
+{
+ "_note": "Scores of the stored abstracts (data/abstract/v1) against the answer keys, 2026-10-20. A change that lowers any number fails the suite; raise a number here when a fix improves it.",
+ "schedules": {"WEST": [4, 138, 6], "ROAD": [2, 46, 3], "TRS": [2, 50, 5], "CARS": [2, 54, 4], "MEC": [2, 62, 9]},
+ "sections": {"loan": 51, "events": 15, "calculation_rules": 9, "deemed_values": 5, "pricing": 36}
+}

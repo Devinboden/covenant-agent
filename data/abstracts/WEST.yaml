@@ -1,0 +1,549 @@
+# Westrock covenant abstract (hand-built reference)
+# The "answer key" the four agent builds are graded against.
+# Every quote is checked verbatim against its source by engine/verify_abstract.py.
+# Amounts in the replay are USD thousands. Ratios are x:1.00.
+
+schema_version: 0.1
+abstract_id: WEST-2026-06-30
+status: draft            # draft -> verified (code checks pass) -> signed_off (human)
+as_of: 2026-06-30        # text is current through Amendment No. 6
+built_by: hand (Devin + Claude), 2026-10-10
+
+sources:
+  ca:
+    file: data/filings/WEST/amendment_amendment-no-6-2026-06-conformed.htm
+    what: Amendment No. 6 with the conformed Credit Agreement attached (all amendments applied through Jun 30 2026)
+  q2:
+    file: data/filings/WEST/10-Q_2026-06-30.htm
+    what: Westrock Coffee Company 10-Q for Q2 2026 (borrower's own covenant calc, used for the replay test)
+
+# ---------------------------------------------------------------- agreement
+agreement:
+  borrower: Westrock Beverage Solutions, LLC
+  holdings: Westrock Coffee Company
+  agent: Wells Fargo Bank, N.A.
+  quote: "among Westrock Beverage Solutions, LLC, a Delaware limited liability company (the “ Borrower ”), Westrock Coffee Company, a Delaware corporation (“ Holdings ”)"
+  closing_date:
+    value: 2022-08-29
+    quote: "which date occurred on August 29, 2022"
+  fiscal_year_end: 12-31
+
+  amendments:
+    - {no: 1, date: 2023-02-14, quote: "“ Amendment No. 1 Effective Date ” shall mean February 14, 2023"}
+    - {no: 2, date: 2023-06-30, note: "starts the Covenant Relief Period", quote: "“ Amendment No. 2 Effective Date ” shall mean June 30, 2023"}
+    - {no: 3, date: 2024-02-15, note: "adds Minimum Liquidity", quote: "“ Amendment No. 3 Effective Date ” shall mean February 15, 2024"}
+    - {no: 4, date: 2025-01-15, quote: "“ Amendment No. 4 Effective Date ” shall mean January 15, 2025"}
+    - {no: 5, date: 2025-11-04, note: "extends relief to Oct 1 2026", quote: "“ Amendment No. 5 Effective Date ” shall mean November 4, 2025"}
+    - {no: 6, date: 2026-06-30, note: "maturity extension; conformed copy used here", quote: "“Amendment No. 6 Effective Date” shall mean June 30, 2026"}
+
+  reporting:
+    annual_financials:
+      due: "90 days after fiscal year end"
+      ref: "5.04(a)"
+      quote: "within ninety (90) days after the end of each fiscal year"
+    quarterly_financials:
+      due: "45 days after Q1, Q2, Q3"
+      ref: "5.04(b)"
+      quote: "within forty-five (45) days after the end of each of the first three fiscal quarters of each fiscal year"
+    compliance_certificate:
+      due: "with each 5.04(a)/(b) delivery"
+      ref: "5.11"
+      quote: "at each time financial statements are delivered pursuant to Sections 5.04(a) or (b) , a duly completed Compliance Certificate that demonstrates compliance with the Financial Covenants set forth in Section 6.09"
+      form: "Exhibit G (not filed publicly); Mercury Systems form in data/reference used as a stand-in"
+    officer_default_certificate:
+      due: "10 Business Days after each financial statement delivery"
+      ref: "5.04(c)"
+      quote: "within ten (10) Business Days of any delivery of financial statements under clause (a) or (b) above, a certificate of a Financial Officer of the Borrower"
+
+  test_period:
+    meaning: "trailing four fiscal quarters, as one period, for which statements were or should have been delivered"
+    quote: "the period of four consecutive fiscal quarters of the Borrower then most recently ended (taken as one accounting period) for which financial statements have been (or were required to be) delivered pursuant to Section 5.04(a) or 5.04(b)"
+
+  covenant_relief_period:
+    start: 2023-06-30
+    scheduled_end: 2026-10-01
+    quote: "the period commencing on the Amendment No. 2 Effective Date and ending on the earlier to occur of (i) October 1, 2026 and (ii) the Covenant Relief Period Early Termination Date"
+    early_termination:
+      conditions: "officer certificate electing to end it, SNLR < 4.00x pro forma, projections showing compliance to maturity with the pre-relief covenant"
+      quote: "showing that such Secured Net Leverage Ratio on a Pro Forma Basis is less than 4.00 to 1.00"
+      status: exercised
+      date: 2026-06-30
+      evidence:
+        src: q2
+        quote: "on June 30, 2026, the Borrower elected to terminate the Covenant Relief Period"
+
+  elections:
+    step_up:
+      what: "max SNLR goes to 4.50x for the four test dates after a Permitted Acquisition; notice before the first affected test date"
+      limit: 2
+      used: unknown            # not disclosed; ask the borrower / agent
+      ref: "6.09(a)(i)"
+      quote: "increase the maximum Secured Net Leverage Ratio permitted hereunder to 4.50 to 1.00 for the four immediately succeeding Test Period end dates following a Permitted Acquisition"
+      limit_quote: "The Borrower may make no more than two Step-Up Elections."
+      during_relief_note: "Permitted Acquisitions during relief also need pro forma SNLR <= 4.00x (6.11)"
+
+  equity_cure:
+    ref: "7.02; Specified Equity Contribution"
+    effect: "cure amount added to Adjusted Consolidated EBITDA for the quarter and every test period containing it; Section 6.09 only"
+    quote: "Adjusted Consolidated EBITDA shall be increased with respect to such applicable fiscal quarter and any Test Period that contains such fiscal quarter by the amount of such Specified Equity Contribution"
+    deadline: "15 Business Days after statements are due"
+    deadline_quote: "on or prior to the day that is fifteen (15) Business Days after the day on which financial statements are required to be delivered pursuant to Section 5.04(a) or 5.04(b)"
+    limits:
+      - rule: "two cure-free quarters in every four"
+        quote: "in each consecutive four fiscal quarter period, there will be a period of two (2) fiscal quarters in which no Specified Equity Contribution is made"
+      - rule: "5 cures over the life of the facilities"
+        quote: "only five (5) Specified Equity Contributions may be made during the term of the Facilities"
+      - rule: "no more than needed to comply"
+        quote: "the amount of any Specified Equity Contribution will not exceed the amount required to cause the Borrower to be in compliance with such Financial Covenants"
+    cures_used: unknown
+
+# ---------------------------------------------------------------- covenants
+covenants:
+
+  - id: secured_net_leverage
+    kind: ratio
+    name: Secured Net Leverage Ratio
+    ref: "6.09(a)"
+    direction: max
+    tested: quarterly, last day of each Test Period
+    formula: {numerator: secured_net_debt, denominator: adjusted_consolidated_ebitda}
+    thresholds:
+      # standard schedule, 6.09(a)(i); applies outside the relief period
+      - {from: 2022-09-30, to: 2024-03-31, value: 4.50, regime: standard, note: "1st-6th full quarters after closing (Q4'22-Q1'24); superseded from Jun 30 2023 by relief"}
+      - {from: 2024-06-30, to: null, value: 4.00, regime: standard, note: "7th full quarter onward"}
+      # relief overlay, 6.09(a)(ii); applies only while the relief period runs
+      - {date: 2023-06-30, value: 5.00, regime: relief}
+      - {date: 2023-09-30, value: 5.25, regime: relief}
+      - {date: 2023-12-31, value: 5.50, regime: relief}
+      - {date: 2024-03-31, value: 6.00, regime: relief}
+      - {date: 2024-06-30, value: 6.25, regime: relief}
+      - {date: 2024-09-30, value: 6.25, regime: relief}
+      - {date: 2024-12-31, value: 6.00, regime: relief}
+      - {date: 2025-03-31, value: 6.00, regime: relief}
+      - {date: 2025-06-30, value: 6.00, regime: relief}
+      - {date: 2025-09-30, value: 5.50, regime: relief}
+      - {date: 2025-12-31, value: 5.50, regime: relief}
+      - {date: 2026-03-31, value: 5.25, regime: relief}
+      - {date: 2026-06-30, value: 5.00, regime: relief, note: "NOT applied: relief terminated early on this date"}
+      - {date: 2026-09-30, value: 4.50, regime: relief, note: "NOT applied: relief terminated"}
+      - {date: 2026-12-31, value: 4.00, regime: relief, note: "NOT applied: relief terminated"}
+    regime_rule: "relief table applies while covenant_relief_period is running; otherwise standard (plus any active Step-Up Election)"
+    effective_cap:
+      2026-06-30: 4.00
+      2026-09-30: 4.00
+    quotes:
+      standard: "in the case of any Test Period ending on the last day of the seventh or any subsequent full fiscal quarter of the Borrower ending after the Closing Date and prior to the later of the latest Initial Term Facility Maturity Date or the latest Revolving Facility Maturity Date, 4.00 to 1.00"
+      standard_initial: "in the case of the Test Periods ending on the last day of the first through sixth full fiscal quarters of the Borrower ending after the Closing Date, 4.50 to 1.00"
+      relief_trigger: "During the Covenant Relief Period, permit the Secured Net Leverage Ratio as of the last day of any Test Period (commencing with the Test Period ending on June 30, 2023) to be greater than the maximum ratio set forth in the table below"
+      relief_table: "June 30, 2026 5.00 to 1.00 September 30, 2026 4.50 to 1.00 December 31, 2026 4.00 to 1.00"
+      relief_table_early: "June 30, 2023 5.00 to 1.00 September 30, 2023 5.25 to 1.00 December 31, 2023 5.50 to 1.00 March 31, 2024 6.00 to 1.00 June 30, 2024 6.25 to 1.00 September 30, 2024 6.25 to 1.00 December 31, 2024 6.00 to 1.00 March 31, 2025 6.00 to 1.00 June 30, 2025 6.00 to 1.00 September 30, 2025 5.50 to 1.00 December 31, 2025 5.50 to 1.00 March 31, 2026 5.25 to 1.00"
+      cap_confirmed:
+        src: q2
+        quote: "the maximum permitted secured net leverage ratio under the secured net leverage ratio financial covenant decreased from 5.00x to 4.00x for the test period ended June 30, 2026, and from 4.50x to 4.00x for the test period ending September 30, 2026"
+
+  - id: interest_coverage
+    kind: ratio
+    name: Interest Coverage Ratio
+    ref: "6.09(b)"
+    direction: min
+    tested: quarterly, last day of each Test Period
+    formula: {numerator: adjusted_consolidated_ebitda, denominator: consolidated_interest_expense}
+    thresholds:
+      - {from: 2022-09-30, to: 2025-12-31, value: 1.50}
+      - {from: 2026-01-01, to: 2026-09-30, value: 1.75}
+      - {from: 2026-10-01, to: null, value: 2.00}
+    quote: "(x) on and prior to December 31, 2025, 1.50 to 1.00, (y) on January 1, 2026 and on or prior to September 30, 2026, 1.75 to 1.00 and (z) on October 1, 2026 and thereafter, 2.00 to 1.00"
+    replay: not_possible      # borrower does not disclose its ICR calc
+
+  - id: minimum_liquidity
+    kind: level
+    name: Minimum Liquidity
+    ref: "6.09(c)"
+    direction: min
+    value: 15000000
+    tested: monthly, last Business Day of each calendar month
+    applies: {from: 2024-02-15, to: end_of_covenant_relief_period}
+    status_2026_06_30: "ends with relief. June 30 2026 is both the last relief day and a month-end test date, so it is arguably tested one last time (flag F6)"
+    formula: {expression: "unrestricted_cash_amount + revolving_facility_availability - remaining_conway_capex - remaining_select_milk_jv_investments"}
+    certificate: "Minimum Liquidity Certificate within 30 days"
+    cure: "Liquidity Cure Right: a second certificate showing compliance after new equity or unsecured convert proceeds"
+    quotes:
+      covenant: "From and after the Amendment No. 3 Effective Date through the last day of the Covenant Relief Period, permit Liquidity, measured as of the last Business Day of each calendar month"
+      threshold: "to be less than $15,000,000 (the “ Minimum Liquidity Covenant ”)"
+      certificate: "within thirty (30) days following the Liquidity Test Date, the Borrower shall deliver to the Administrative Agent (for distribution to the Lenders) a Minimum Liquidity Certificate"
+
+  - id: anti_cash_hoarding
+    kind: level
+    name: Anti-Cash Hoarding
+    ref: "6.09(d)"
+    direction: max
+    value: 20000000
+    measure: unrestricted_cash_amount (anti-cash-hoarding version)
+    applies: {from: 2024-02-29, to: end_of_covenant_relief_period}  # key fix 2026-10-13: test dates commence with the month ending February 29, 2024 (Anti-Cash Hoarding Test Date definition)
+    remedy: "repay revolver/swingline by the excess within 5 Business Days of the certificate"
+    status_2026_06_30: "no longer applies after relief ended"
+    quote: "On each Anti-Cash Hoarding Test Date that occurs prior to the termination of the Covenant Relief Period, permit the Unrestricted Cash Amount to exceed $20,000,000"
+
+  - id: restricted_payment_gate
+    name: Restricted payment leverage/liquidity gate (Amendment No. 6)
+    kind: incurrence     # not a maintenance covenant; tested only when a payment is made
+    note: "SNLR <= 3.75x and liquidity >= $25.0M pro forma. Captured from the 10-Q; the exact clause in 6.06 is not yet mapped (open item)."
+    src: q2
+    quote: "restricted payments subject to the secured net leverage ratio being no greater than 3.75x and liquidity being no less than $25.0 million, in each case on a pro forma basis"
+
+# ---------------------------------------------------------------- terms
+# type: standard = everyday meaning / GAAP, nothing to map
+#       lookup   = points at a list, schedule or another defined term you have to fetch
+#       custom   = deal-specific formula; decompose into components
+terms:
+
+  - id: secured_net_debt
+    name: Secured net debt (numerator of SNLR)
+    type: custom
+    defined_in: "Secured Net Leverage Ratio, clause (A)"
+    formula: "secured_consolidated_debt - unrestricted_cash_amount"
+    measured: "last day of the Test Period"
+    components:
+      - id: snd.x.secured_debt_restricted_group
+        what: "principal of Consolidated Debt of the Borrower and Restricted Subsidiaries secured by their assets"
+        sign: +
+        input: balance_sheet_debt_schedule
+      - id: snd.y.other_debt_on_collateral
+        what: "principal of any other Consolidated Debt of the Borrower and Subsidiaries secured by Liens on the Collateral"
+        sign: +
+        input: balance_sheet_debt_schedule
+      - id: snd.less.unrestricted_cash
+        what: "Unrestricted Cash Amount (capped, see term)"
+        sign: "-"
+        input: balance_sheet
+    quote: "(x) the aggregate principal amount of any Consolidated Debt of the Borrower and its Restricted Subsidiaries secured by assets of the Borrower or its Restricted Subsidiaries and (y) the aggregate principal amount of any other Consolidated Debt of the Borrower and its Subsidiaries outstanding as of the last day of the Test Period most recently ended as of such date that is then secured by Liens on the Collateral, less (ii) the Unrestricted Cash Amount as of the last day of such Test Period"
+
+  - id: consolidated_debt
+    name: Consolidated Debt
+    type: lookup
+    points_to: indebtedness
+    filter: "for borrowed money only, plus guarantees of it; principal amount"
+    quote: "the principal amount of (x) all Indebtedness for borrowed money of the Borrower and the Subsidiaries and (y) guarantees by the Borrower and the Subsidiaries of Indebtedness for borrowed money"
+
+  - id: indebtedness
+    name: Indebtedness
+    type: lookup
+    kind: list
+    items: [a borrowed money, b notes and bonds, c conditional sale, d deferred purchase price, e guarantees, f capitalized leases, g hedging net obligations, h letters of credit (principal component), i bankers' acceptances, j Disqualified Stock, k others' debt secured by own property, l receivables facility]
+    exclusions:
+      - what: "supply chain finance / structured payables programs"
+        quote: "Indebtedness shall not include, and shall be calculated without giving effect to, (i) obligations of the Borrower or any Subsidiary pursuant to or arising out of any Permitted Supplier Receivables Sale Program"
+      - what: "intercompany cash management items and <=364-day intercompany loans"
+        quote: "the Indebtedness of the Borrower and the Subsidiaries shall exclude intercompany liabilities arising from their cash management, Tax, and accounting operations"
+      - what: "short trade-payable extensions (<= 6 months) out of clause (b)"
+        quote: "except any such obligation with a maturity date of no more than six (6) months in a transaction intended to extend payment terms of trade payables"
+    convertibles_rule:
+      quote: "Indebtedness convertible into or exchangeable for Equity Interests shall at all times prior to the repurchase, conversion or payment thereof be valued at the full stated principal amount thereof"
+    lc_item_quote: "(h) the principal component of all obligations, contingent or otherwise, of such person as an account party in respect of letters of credit"
+    quote: "(a) all obligations of such person for borrowed money"
+
+  - id: unrestricted_cash_amount
+    name: Unrestricted Cash Amount
+    type: custom
+    base: "cash + Permitted Investments not shown as restricted on the consolidated balance sheet"
+    cap_for_snlr:
+      - {from: 2022-08-29, to: 2024-08-28, rule: "greater of (cash - $20M) and 100% of Adjusted Consolidated EBITDA"}
+      - {from: 2024-08-29, to: null, rule: "100% of Adjusted Consolidated EBITDA for the most recent Test Period"}
+    anti_cash_hoarding_version: "excludes proceeds earmarked within 5 BD (general) or 20 BD (Conway capex / Select Milk JV)"
+    input: balance_sheet
+    quote: "the amount of cash or Permitted Investments of the Borrower or any of its Subsidiaries that would not appear as “restricted” on a consolidated balance sheet"
+    cap_quote: "(B) thereafter, 100% of Adjusted Consolidated EBITDA for the most recently ended Test Period as of such time"
+
+  - id: restricted_subsidiaries
+    name: Restricted Subsidiaries
+    type: lookup
+    points_to: schedule_1_01a
+    rule: "every Subsidiary except Unrestricted Subsidiaries (Schedule 1.01(a) + later designations)"
+    quote: "“ Restricted Subsidiary ” shall mean any Subsidiary other than an Unrestricted Subsidiary"
+    unrestricted_quote: "(1) any Subsidiary set forth on Schedule 1.01(a) , (2) any Subsidiary of the Borrower, whether now owned or acquired or created after the Closing Date, that is designated on or after the Closing Date by the Borrower as an Unrestricted Subsidiary"
+
+  - id: adjusted_consolidated_ebitda
+    name: Adjusted Consolidated EBITDA
+    type: custom
+    starts_from: consolidated_net_income
+    defined_in: "Section 1.01"
+    measured: "for the Test Period (TTM)"
+    quote: "“ Adjusted Consolidated EBITDA ” shall mean, for any period, the Consolidated Net Income for such period, plus"
+    addback_gate: "only if already deducted in Consolidated Net Income, no duplication"
+    addback_gate_quote: "without duplication and to the extent already deducted (and not added back) in arriving at such Consolidated Net Income"
+    components:
+      # (a) addbacks ------------------------------------------------
+      - {id: ebitda.a.i, category: interest, sign: +, input: income_statement, quote: "(i) total interest expense"}
+      - {id: ebitda.a.ii, category: taxes, sign: +, input: income_statement, quote: "(ii) provision for Taxes based on income, profits, revenue or capital"}
+      - {id: ebitda.a.iii, category: depreciation_amortization, sign: +, input: cash_flow_statement, quote: "(iii) depreciation and amortization"}
+      - id: ebitda.a.iv
+        category: other_non_cash_charges
+        sign: +
+        input: borrower_schedule
+        trigger: "if a reserve for future cash, the later cash payment is subtracted"
+        quote: "(iv) other non-cash charges (other than any accrual in respect of bonuses)"
+      - {id: ebitda.a.v, category: nci_income, sign: +, input: income_statement, quote: "(v) the amount of any non-controlling interest consisting of income attributable to non-controlling interests of third parties"}
+      - {id: ebitda.a.vi, category: sponsor_management_fees, sign: +, input: borrower_schedule, quote: "the amount of consulting, advisory, or other fees, indemnities or expenses paid pursuant to the Management Services Agreement"}
+      - {id: ebitda.a.vii, category: receivables_facility_losses, sign: +, input: borrower_schedule, quote: "(vii) losses or discounts on sales of receivables and related assets in connection with any Qualified Receivables Facilities"}
+      - {id: ebitda.a.viii, category: cash_receipts_from_prior_non_cash_gains, sign: +, input: borrower_schedule, quote: "(viii) cash receipts (or any netting arrangements resulting in reduced cash expenditures) not included in the calculation of Consolidated Net Income"}
+      - {id: ebitda.a.ix, category: equity_plan_costs, sign: +, input: borrower_schedule, quote: "(ix) any costs or expenses incurred by the Borrower or any Subsidiary pursuant to any management equity plan or stock option or phantom equity plan"}
+      - {id: ebitda.a.x, category: pension_amortization, sign: +, input: footnotes, quote: "(x) any net pension or other post-employment benefit costs representing amortization of unrecognized prior service costs"}
+      - {id: ebitda.a.xi, category: cost_savings_implementation, sign: +, input: borrower_schedule, review: human_signoff, quote: "(xi) any unusual or non-recurring operating expenses directly attributable to the implementation of cost savings initiatives"}
+      - id: ebitda.a.xii
+        category: restructuring_business_optimization
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        cap:
+          type: pct_of_ebitda
+          basis: "Adjusted Consolidated EBITDA after all add-backs (circular; solve as addback <= pct x final EBITDA)"
+          schedule:
+            - {from: 2025-04-01, to: 2025-06-30, value: 0.70}
+            - {from: 2025-07-01, to: 2025-09-30, value: 0.60}
+            - {from: 2025-10-01, to: 2025-12-31, value: 0.60}
+            - {from: 2026-01-01, to: 2026-03-31, value: 0.50}
+            - {from: 2026-04-01, to: 2026-06-30, value: 0.40}
+            - {from: 2026-07-01, to: 2026-09-30, value: 0.30}
+            - {from: 2026-10-01, to: null, value: 0.20}
+          applies_by: "date the test period ends"
+        quote: "(xii) severance, relocation costs, integration and facilities’ or offices’ opening costs, start-up costs and other business optimization expenses"
+        cap_quote: "(E) for any period ending on April 1, 2026 through June 30, 2026, 40% of Adjusted Consolidated EBITDA for such period, (F) for any period ending on July 1, 2026 through September 30, 2026, 30% of Adjusted Consolidated EBITDA for such period and (G) for any period ending on October 1, 2026 or any date thereafter, 20% of Adjusted Consolidated EBITDA for such period"
+      - {id: ebitda.a.xiii, category: transition_closure_costs, sign: +, input: borrower_schedule, review: human_signoff, quote: "(xiii) transition costs, costs related to closure/consolidation of facilities or offices"}
+      - {id: ebitda.a.xiv, category: third_party_reimbursed_expenses, sign: +, input: borrower_schedule, quote: "(xiv) any expenses reimbursed in cash during such period by non-Affiliate third parties"}
+      - id: ebitda.a.xv.x
+        category: public_company_costs
+        sign: +
+        input: borrower_schedule
+        cap: {type: fixed_per_test_period, value: 2500000}
+        quote: "(xv) (x) Public Company Costs; provided , that all such amounts pursuant to this clause (x) shall not exceed $2,500,000 for any relevant Test Period"
+      - id: ebitda.a.xv.y
+        category: litigation_regulatory
+        sign: +
+        input: borrower_schedule
+        cap: {type: fixed_per_test_period, value: 1000000}
+        quote: "provided , that all such amounts pursuant to this clause (y) shall not exceed $1,000,000 for any relevant Test Period"
+      - {id: ebitda.a.xvi, category: transaction_costs, sign: +, input: borrower_schedule, quote: "(xvi) costs, fees and expenses (including diligence and integration costs) incurred in connection with"}
+      - {id: ebitda.a.xvii, category: fx_losses, sign: +, input: income_statement, quote: "(xvii) (A) unrealized or realized foreign exchange losses resulting from the impact of foreign currency changes"}
+      - id: ebitda.a.xviii
+        category: quality_of_earnings_adjustments
+        sign: +
+        input: qoe_report
+        trigger: "only with a Big Four / acceptable firm QoE tied to a Permitted Acquisition or Investment"
+        review: human_signoff
+        quote: "(xviii) other add backs and adjustments, at the election of the Borrower, reflected in a quality of earnings report"
+      # (b) projected savings ----------------------------------------
+      - id: ebitda.b.projected_savings
+        category: projected_savings
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        condition: "run-rate; actions taken or expected within 12 months; reasonably quantifiable and factually supportable; net of benefits already realized; no double count"
+        cap:
+          type: pct_of_ebitda
+          shared_with: [pro_forma_adjustments]
+          schedule:
+            - {to: 2023-08-29, value: 0.20}
+            - {from: 2023-08-30, to: null, value: 0.15}
+          basis: "Adjusted Consolidated EBITDA after the capped adjustments"
+        quote: "projected by the Borrower in good faith to be realized as a result of actions that have been taken or initiated or are expected to be taken or initiated (in the good-faith determination of the Borrower) within 12 months after the relevant transaction"
+        condition_quote: "such Projected Savings are reasonably quantifiable and factually supportable"
+        cap_quote: "such Projected Savings and any Pro Forma Adjustments included in Adjusted Consolidated EBITDA for the relevant Test Period pursuant to the definition of “Pro Forma Basis” shall not exceed (x) 20% of Adjusted Consolidated EBITDA for any relevant Test Period (calculated after giving effect to such capped adjustments) ending on or prior to the date that is 12 months from the Closing Date and (y) 15% for any relevant Test Period ending thereafter"
+      # (c) deductions -----------------------------------------------
+      - {id: ebitda.c.i, category: non_cash_gains, sign: "-", input: income_statement, quote: "(i) non-cash gains (excluding any non-cash gain to the extent it represents the reversal of an accrual or reserve"}
+      - {id: ebitda.c.ii, category: nci_losses, sign: "-", input: income_statement, quote: "(ii) the amount of any non-controlling interest consisting of loss attributable to non-controlling interests of third parties"}
+      - {id: ebitda.c.iii, category: fx_gains, sign: "-", input: income_statement, quote: "(iii) (A) unrealized or realized foreign exchange gains resulting from the impact of foreign currency changes"}
+      # provisos --------------------------------------------------------
+      - id: ebitda.proviso.I.acquired
+        category: acquired_ebitda
+        sign: +
+        input: borrower_schedule
+        trigger: "acquisition (or Unrestricted -> Restricted conversion) during the period; full-period pro forma"
+        quote: "there shall be included in determining Adjusted Consolidated EBITDA for any period, without duplication, the Acquired EBITDA of any person, property, business or asset acquired by the Borrower or any Subsidiary during such period"
+      - id: ebitda.proviso.II.disposed
+        category: disposed_ebitda
+        sign: "-"
+        input: borrower_schedule
+        trigger: "sale, closure or discontinued ops (or Restricted -> Unrestricted) during the period"
+        quote: "there shall be excluded in determining Adjusted Consolidated EBITDA for any period the Disposed EBITDA of any person, property, business or asset (other than any Unrestricted Subsidiary) sold, transferred or otherwise disposed of"
+      - id: ebitda.equity_cure
+        category: equity_cure
+        sign: +
+        input: agent_notice
+        trigger: "Specified Equity Contribution under 7.02; see agreement.equity_cure"
+        quote: "by the amount of such Specified Equity Contribution (the “ Cure Amount ”), solely for the purpose of measuring compliance with Section 6.09"
+    historical_deemed_values:
+      note: "fixed EBITDA for four pre-closing quarters; irrelevant after 2023 but must not be lost"
+      values: {2021-09-30: 11462000, 2021-12-31: 11544000, 2022-03-31: 10420000, 2022-06-30: 12471000}
+      quote: "(a) $11,462,000 for the fiscal quarter ended September 30, 2021, (b) $11,544,000 for the fiscal quarter ended December 31, 2021, (c) $10,420,000 for the fiscal quarter ended March 31, 2022 and (d) $12,471,000 for the fiscal quarter ended June 30, 2022"
+
+  - id: consolidated_net_income
+    name: Consolidated Net Income
+    type: custom
+    starts_from: "GAAP net income (loss), Borrower + Subsidiaries"
+    quote: "the net income (loss) of the Borrower and the Subsidiaries for such period determined on a consolidated basis in accordance with GAAP, excluding, without duplication"
+    exclusions:
+      - {id: cni.a, what: "extraordinary, non-recurring or unusual items", quote: "(a) extraordinary, non-recurring or unusual gains or losses"}
+      - {id: cni.b, what: "accounting changes", quote: "(b) the cumulative effect of a change in accounting principles"}
+      - {id: cni.c, what: "Transaction Costs", quote: "(c) Transaction Costs"}
+      - {id: cni.d, what: "income of Unrestricted Subsidiaries / non-subs / equity method, except cash received", quote: "(d) the net income for such period of any person that is an Unrestricted Subsidiary"}
+      - {id: cni.e, what: "deal and financing fees", quote: "(e) any fees and expenses (including any transaction or retention bonus or similar payment, any earnout, contingent consideration obligation or purchase price adjustment)"}
+      - {id: cni.f, what: "debt extinguishment gains/losses", quote: "(f) any income (loss) for such period attributable to the early extinguishment of Indebtedness"}
+      - {id: cni.g, what: "transaction-related accruals within 12 months of closing", quote: "(g) accruals and reserves that are established or adjusted as a result of the Transactions"}
+      - {id: cni.h, what: "Non-Cash Compensation Expenses", quote: "(h) all Non-Cash Compensation Expenses"}
+      - {id: cni.i, what: "deferred comp plans", quote: "(i) any income (loss) attributable to deferred compensation plans or trusts"}
+      - {id: cni.j, what: "equity-method income except cash dividends", quote: "(j) any income (loss) from investments recorded using the equity method of accounting"}
+      - {id: cni.k, what: "non-ordinary-course asset sale gains/losses; discontinued ops", quote: "(k) any gain (loss) on asset sales, disposals or abandonments (other than asset sales, disposals or abandonments in the ordinary course of business)"}
+      - {id: cni.l, what: "hedge / financial instrument mark-to-market", quote: "(l) any non-cash gain (loss) attributable to the mark-to-market movement in the valuation of hedging obligations"}
+      - {id: cni.m, what: "non-cash FX remeasurement of debt, hedge results", quote: "(m) any non-cash gain (loss) related to currency remeasurements of Indebtedness"}
+      - {id: cni.n, what: "historical tax exposure / valuation allowance charges", quote: "(n) any non-cash expenses, accruals or reserves related to adjustments to historical Tax exposures"}
+      - {id: cni.o, what: "impairments and write-downs (not inventory/AR)", quote: "(o) any impairment charge or asset write-off or write-down (other than with respect to Inventory or Accounts"}
+      - {id: cni.p, what: "insured casualty / business interruption losses", quote: "expenses with respect to liability or casualty events or business interruption shall be excluded"}
+
+  - id: pro_forma_basis
+    name: Pro Forma Basis
+    type: custom
+    rule: "events after the period starts are treated as if they happened on day one of the Reference Period"
+    events: ["asset sales, acquisitions, investments, mergers, distributions > $10M", "factually supportable operational changes and restructurings (incl. cost savings)", "designations, debt incurrence/repayment (rest of definition)"]
+    shares_cap_with: ebitda.b.projected_savings
+    quote: "such calculation as will give pro forma effect to such events as if such events occurred on the first day of the most recent Test Period ended on or before the occurrence of such event"
+    threshold_quote: "in each case in excess of $10,000,000"
+
+  - id: consolidated_interest_expense
+    name: Consolidated Interest Expense
+    type: custom
+    components:
+      - {id: cie.a, what: "cash interest net of cash interest income, incl. capital leases, LC and BA fees, net hedge costs", sign: +, input: footnotes}
+      - {id: cie.b, what: "non-cash OID amortization and PIK interest", sign: +, input: footnotes}
+      - {id: cie.c, what: "dividends paid to fund Permitted Convertible Notes interest", sign: +, input: borrower_schedule}
+      - {id: cie.d, what: "cash preferred / Disqualified Stock dividends", sign: +, input: cash_flow_statement}
+    excludes: "deferred financing cost amortization, swap mark-to-market, breakage, receivables facility fees (rest of definition)"
+    quote: "(a) cash interest expense (including that attributable to Capitalized Lease Obligations), net of cash interest income, of the Borrower and the Subsidiaries"
+    exclusion_quote: "but excluding, for the avoidance of doubt, (i) amortization of deferred financing costs, debt issuance costs"
+
+  - id: liquidity
+    name: Liquidity
+    type: custom
+    formula: "unrestricted_cash_amount + revolving_facility_availability - remaining_conway_capex - remaining_select_milk_jv_investments"
+    quote: "(x) the sum of (i) the Unrestricted Cash Amount, plus (ii) the Revolving Facility Availability, less (y) the sum of (i) the remaining amount of planned capital expenditures related to the Borrower’s extraction, bottling and canning facility located in Conway, Arkansas plus (ii) the remaining amount of planned Investments in the joint venture with Select Milk Producers, Inc."
+
+  - id: revolving_facility_availability
+    name: Revolving Facility Availability
+    type: custom
+    formula: "total revolving commitments - revolving loans outstanding - letters of credit outstanding"
+    note: "total revolving commitments $200M after Amendment No. 4"
+    quote: "the sum of the Revolving Facility Commitments of each of the Lenders in effect at such time less (y) the sum of (i) the aggregate principal amount of all Revolving Facility Loans outstanding at such time plus (ii) the aggregate amount of all Letters of Credit outstanding at such time"
+
+  # standard terms: everyday / GAAP meaning, nothing to decompose
+  - {id: gaap, name: GAAP, type: standard}
+  - {id: subsidiary, name: Subsidiary, type: standard}
+  - {id: lien, name: Lien, type: standard}
+  - {id: collateral, name: Collateral, type: standard, note: "defined by the Security Documents; secured-debt test only needs to know which debt sits on it"}
+  - {id: test_period, name: Test Period, type: standard, note: "see agreement.test_period"}
+
+# ---------------------------------------------------------------- lookups
+lookups:
+  - id: schedule_1_01a
+    name: Schedule 1.01(a) Unrestricted Subsidiaries
+    status: missing
+    why: "schedules are not filed publicly"
+    working_assumption: "the restricted group is Westrock Beverage Solutions, LLC and its subsidiaries. Section 6.10 lets Holdings own Westrock Coffee International, LLC directly, and the 10-Q computes the covenant on the Beverage Solutions segment only, so the Sustainable Sourcing & Traceability business likely sits outside the borrower group. Confirm with the agent or borrower."
+    evidence_quote: "the Equity Interests of (x) the Borrower (and/or intercompany advances to the Borrower), (y) Westrock Coffee International, LLC (or a successor thereof)"
+  - id: compliance_certificate_form
+    name: Exhibit G Compliance Certificate
+    status: missing
+    stand_in: data/reference/mercury-compliance-certificate-form.txt
+
+# ---------------------------------------------------------------- replay test
+# Run the abstract on the borrower's own reported components and match its ratio.
+replay:
+  # One entry per covenant the borrower discloses a calculation for.
+  # Lines carry signed values (units below); engine sums numerator and denominator.
+  - covenant: secured_net_leverage
+    test_date: 2026-06-30
+    units: usd_thousands
+    denominator:
+      - id: in.segment_adj_ebitda_ttm
+        value: 84669
+        build: {fy_2025: 68481, ytd_2026: 45441, ytd_2025: -29253}
+        maps_to: "adjusted_consolidated_ebitda before ebitda.b (borrower starts from segment EBITDA, not CNI; bridge not disclosed)"
+        src: q2
+        quote: "Trailing Twelve-Months Beverage Solutions Segment Adjusted EBITDA $ 84,669 Permissible credit agreement adjustments (1) 8,505 Trailing Twelve-Months Credit Agreement Adjusted EBITDA $ 93,174"
+        build_quote: "Year ended December 31, 2025 $ 68,481 Six months ended June 30, 2026 45,441 Six months ended June 30, 2025 (29,253) Trailing Twelve-Months Beverage Solutions Adjusted EBITDA $ 84,669"
+      - id: in.run_rate_savings
+        value: 8505
+        maps_to: ebitda.b.projected_savings
+        src: q2
+        quote: "Consists primarily of pro forma run-rate impact of cost savings initiatives, as permitted by the Credit Agreement."
+    numerator:
+      - {id: in.term_loan, value: 138906, maps_to: snd.x.secured_debt_restricted_group}
+      - {id: in.ddtl, value: 43438, maps_to: snd.x.secured_debt_restricted_group}
+      - {id: in.revolver, value: 165000, maps_to: snd.x.secured_debt_restricted_group}
+      - {id: in.letters_of_credit, value: 1980, maps_to: snd.x.secured_debt_restricted_group, flag: F1}
+      - {id: in.unrestricted_cash, value: -36177, maps_to: snd.less.unrestricted_cash}
+    numerator_quote:
+      src: q2
+      quote: "Term loan facility $ 138,906 Delayed draw term loan facility 43,438 Revolving credit facility 165,000 Letters of credit outstanding 1,980 Secured debt 349,324 Beverage Solutions unrestricted cash and cash equivalents (36,177) Secured net debt $ 313,147"
+    excluded_on_purpose:
+      - {item: "2029 convertible notes $72.0M", why: "unsecured"}
+      - {item: "2031 convertible notes $30.0M", why: "unsecured"}
+      - {item: "supply chain finance program", why: "Permitted Supplier Receivables Sale Program carve-out"}
+    expected:
+      ratio: 3.36
+      cap: 4.00
+      direction: max
+      src: q2
+      quote: "At June 30, 2026, the Company’s secured net leverage ratio was 3.36:1.00, compared to a maximum allowable ratio of 4.00:1.00"
+    checks:
+      - {id: C1, what: "projected savings <= 15% of Adjusted Consolidated EBITDA", lines: [in.run_rate_savings], op: "<=", pct: 0.15, of: denominator}
+      - {id: C2, what: "unrestricted cash <= 100% of Adjusted Consolidated EBITDA", lines: [in.unrestricted_cash], op: "<=", pct: 1.00, of: denominator, absolute: true}
+    variants:      # what a wrong reading would produce; used to catch misreads
+      - {id: V1, reading: "exclude undrawn LCs (not 'borrowed money')", drop: [in.letters_of_credit], flag: F1}
+      - {id: V2, reading: "reject the $8.5M run-rate savings", drop: [in.run_rate_savings], flag: F2}
+      - {id: V3, reading: "keep the relief cap (missed the early termination)", cap: 5.00, flag: F3}
+      - {id: V4, reading: "subtract no cash (gross secured leverage)", drop: [in.unrestricted_cash]}
+  - covenant: interest_coverage
+    test_date: 2026-06-30
+    status: not_disclosed
+    note: "Borrower does not publish its ICR calculation (flag F4)."
+
+# ---------------------------------------------------------------- judgment flags
+flags:
+  - id: F1
+    topic: Letters of credit in secured debt
+    issue: "Consolidated Debt counts only Indebtedness 'for borrowed money'. Undrawn LCs are Indebtedness under clause (h) but arguably not borrowed money. The borrower includes $1.98M."
+    impact: "3.36x vs 3.34x; immaterial here, but the reading has to be pinned once and reused"
+    owner: credit_officer
+  - id: F2
+    topic: Projected savings
+    issue: "$8.5M run-rate savings are within the 15% cap but must be 'reasonably quantifiable and factually supportable'. Needs the borrower's support schedule."
+    impact: "without them the ratio is about 3.70x; still passes 4.00x"
+    owner: credit_officer
+  - id: F3
+    topic: Which cap applies on Jun 30 2026
+    issue: "Relief table says 5.00x for Jun 30 2026, but the borrower ended relief that day, so the standard 4.00x applies. An abstract built from the table alone gets this wrong."
+    impact: "headroom 16% (vs 33% if 5.00x were wrongly used)"
+    owner: setup_agent (date logic) + human sign-off
+  - id: F4
+    topic: Interest coverage not replayable
+    issue: "Borrower does not disclose its ICR calc; the covenant steps up to 2.00x on Oct 1 2026."
+    owner: request compliance certificate
+  - id: F5
+    topic: Clause (xii) cap is tightening
+    issue: "40% (Q2 2026) -> 30% (Q3) -> 20% (Q4 onward). The amount claimed isn't disclosed."
+    owner: credit_officer
+  - id: F6
+    topic: Last liquidity test
+    issue: "June 30 2026 is the last relief day and a month-end Liquidity Test Date; one final Minimum Liquidity Certificate is arguably due."
+    owner: credit_officer
+  - id: F7
+    topic: Starting point is segment EBITDA, not CNI
+    issue: "The 10-Q starts from Beverage Solutions segment Adjusted EBITDA; the agreement starts from Consolidated Net Income. The bridge needs the compliance certificate."
+    owner: request compliance certificate
+  - id: F8
+    topic: Restricted group not public
+    issue: "Schedule 1.01(a) is missing; see lookups.schedule_1_01a working assumption."
+    owner: request from agent
+  - id: F9
+    topic: Step-Up Elections and cures used
+    issue: "Count of Step-Up Elections (max 2) and equity cures (max 5) used to date is not disclosed."
+    owner: request from agent

@@ -1,0 +1,63 @@
+== CARS.yaml  (CARS-2026-06-30)
+Quotes checked: 127  missing: 0
+Schedule problems: 0
+Replay:
+  [senior_secured_net_leverage] 2026-06-30  reported only: 0.08x vs max 3.5x  pass=True  headroom 97.71%
+  [interest_coverage] 2026-06-30  reported only: 7.2x vs min 3.0x  pass=True  headroom 140.0%
+  [rp_unlimited_tnlr_gate] 2026-06-30  reported only: 1.95x vs max 2.0x  pass=True  headroom 2.5%
+RESULT: PASS
+
+== MEC.yaml  (MEC-2026-06-30)
+Quotes checked: 128  missing: 0
+Schedule problems: 0
+Replay:
+  [total_leverage] 2026-06-30  reported only: 2.91x vs max 5.25x  pass=True  headroom 44.57%
+  [interest_coverage] 2026-06-30  reported only: 3.27x vs min 2.75x  pass=True  headroom 18.91%
+RESULT: PASS
+
+== ROAD.yaml  (ROAD-2026-06-30)
+Quotes checked: 155  missing: 0
+Schedule problems: 0
+Replay:
+  [net_leverage] 2026-06-30  reported only: 3.17x vs max 4.75x  pass=True  headroom 33.26%
+  [interest_coverage] 2026-06-30  reported only: 5.37x vs min 2.75x  pass=True  headroom 95.27%
+RESULT: PASS
+
+== TRS.yaml  (TRS-2026-06-30)
+Quotes checked: 137  missing: 0
+Schedule problems: 0
+Replay:
+  [total_net_leverage] 2026-06-30  numerator 161,040  denominator 91,160
+      ratio 1.77x  reported 1.77x  match=YES  max 4.0x  pass=True  headroom 55.84%
+      check C1: CNI clause (e) non-recurring exclusions <= 20% of Consolidated EBITDA: 15,960 vs 18,232.0 (17.51%) -> OK
+      check C2: clause (e) incl. disposition losses <= 20% (if 'Permitted dispositions' is (e)(iii)): 16,800 vs 18,232.0 (18.43%) -> OK
+      variant V1: use the $150M netting cap (pre-Tenth Amendment / non-6.13 TNLR): 2.75x vs 4.0x (pass=True, headroom 31.15%)
+      variant V2: no cash netting (gross Total Indebtedness): 4.4x vs 4.0x (pass=False, headroom -9.98%)
+      variant V3: net all cash above $10M (miss the cap): -9.12x vs 4.0x (pass=True, headroom 328.02%)
+      variant V4: keep Aerospace EBITDA (skip pro forma disposition): 1.02x vs 4.0x (pass=True, headroom 74.47%)
+      variant V5: count the $6.2M undrawn LCs as Indebtedness: 1.83x vs 4.0x (pass=True, headroom 54.14%)
+      variant V6: old $5M swap threshold: count the $15.0M swap liability: 1.93x vs 4.0x (pass=True, headroom 51.72%)
+      variant V7: reject the non-recurring cost exclusion: 2.14x vs 4.0x (pass=True, headroom 46.46%)
+      variant V8: Covenant Holiday cap wrongly applied: 1.77x vs 4.5x (pass=True, headroom 60.74%)
+  [interest_expense_coverage] 2026-06-30  numerator 91,160  denominator 4,300
+      ratio 21.2x  reported 21.21x  match=YES  min 3.0x  pass=True  headroom 606.67%
+      variant V1: use the EBITDA-bridge interest income (13,130): 21.5x vs 3.0x (pass=True, headroom 616.67%)
+      variant V2: gross interest expense (no interest income netting): 5.25x vs 3.0x (pass=True, headroom 74.94%)
+      variant V3: keep Aerospace EBITDA in the numerator: 36.68x vs 3.0x (pass=True, headroom 1122.56%)
+RESULT: PASS
+
+== WEST.yaml  (WEST-2026-06-30)
+Quotes checked: 108  missing: 0
+Schedule problems: 0
+Replay:
+  [secured_net_leverage] 2026-06-30  numerator 313,147  denominator 93,174
+      ratio 3.36x  reported 3.36x  match=YES  max 4.0x  pass=True  headroom 15.98%
+      check C1: projected savings <= 15% of Adjusted Consolidated EBITDA: 8,505 vs 13,976.1 (9.13%) -> OK
+      check C2: unrestricted cash <= 100% of Adjusted Consolidated EBITDA: 36,177 vs 93,174.0 (38.83%) -> OK
+      variant V1: exclude undrawn LCs (not 'borrowed money'): 3.34x vs 4.0x (pass=True, headroom 16.51%)
+      variant V2: reject the $8.5M run-rate savings: 3.7x vs 4.0x (pass=True, headroom 7.54%)
+      variant V3: keep the relief cap (missed the early termination): 3.36x vs 5.0x (pass=True, headroom 32.78%)
+      variant V4: subtract no cash (gross secured leverage): 3.75x vs 4.0x (pass=True, headroom 6.27%)
+  [interest_coverage] skipped: not_disclosed
+RESULT: PASS
+

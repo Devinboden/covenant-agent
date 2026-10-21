@@ -1,0 +1,60 @@
+borrower,ticker,doc_type,label,url,local_path,http
+TriMas,TRS,credit_agreement,2013 credit agreement,https://www.sec.gov/Archives/edgar/data/842633/000119312513405477/d614258dex101.htm,filings/TRS/credit_agreement_2013-credit-agreement.htm,200
+TriMas,TRS,amendment,8th amendment 2025-03 (conformed),https://www.sec.gov/Archives/edgar/data/842633/000084263325000073/ex101creditagreement.htm,filings/TRS/amendment_8th-amendment-2025-03-conformed.htm,200
+TriMas,TRS,amendment,9th amendment,https://www.sec.gov/Archives/edgar/data/842633/000084263326000012/trs-123125xexh1035.htm,filings/TRS/amendment_9th-amendment.htm,200
+TriMas,TRS,amendment,10th amendment 2026-03 (conformed),https://www.sec.gov/Archives/edgar/data/842633/000084263326000029/trs_03312026xexh101.htm,filings/TRS/amendment_10th-amendment-2026-03-conformed.htm,200
+TriMas,TRS,10-Q,2026-06-30,https://www.sec.gov/Archives/edgar/data/842633/000084263326000049/trs-20260630.htm,filings/TRS/10-Q_2026-06-30.htm,200
+TriMas,TRS,10-Q,2026-03-31,https://www.sec.gov/Archives/edgar/data/842633/000084263326000029/trs-20260331.htm,filings/TRS/10-Q_2026-03-31.htm,200
+TriMas,TRS,10-Q,2025-09-30,https://www.sec.gov/Archives/edgar/data/842633/000084263325000125/trs-20250930.htm,filings/TRS/10-Q_2025-09-30.htm,200
+TriMas,TRS,10-Q,2025-06-30,https://www.sec.gov/Archives/edgar/data/842633/000084263325000116/trs-20250630.htm,filings/TRS/10-Q_2025-06-30.htm,200
+TriMas,TRS,10-K,2025-12-31,https://www.sec.gov/Archives/edgar/data/842633/000084263326000012/trs-20251231.htm,filings/TRS/10-K_2025-12-31.htm,200
+Cars.com,CARS,credit_agreement,2017 credit agreement,https://www.sec.gov/Archives/edgar/data/1683606/000119312517194574/d514190dex107.htm,filings/CARS/credit_agreement_2017-credit-agreement.htm,200
+Cars.com,CARS,amendment,5th amendment 2024-05 (conformed),https://www.sec.gov/Archives/edgar/data/1683606/000095017024056894/cars-ex10_1.htm,filings/CARS/amendment_5th-amendment-2024-05-conformed.htm,200
+Cars.com,CARS,10-Q,2026-06-30,https://www.sec.gov/Archives/edgar/data/1683606/000119312526337949/cars-20260630.htm,filings/CARS/10-Q_2026-06-30.htm,200
+Cars.com,CARS,10-Q,2026-03-31,https://www.sec.gov/Archives/edgar/data/1683606/000119312526211864/cars-20260331.htm,filings/CARS/10-Q_2026-03-31.htm,200
+Cars.com,CARS,10-Q,2025-09-30,https://www.sec.gov/Archives/edgar/data/1683606/000119312525269472/cars-20250930.htm,filings/CARS/10-Q_2025-09-30.htm,200
+Cars.com,CARS,10-Q,2025-06-30,https://www.sec.gov/Archives/edgar/data/1683606/000168360625000005/cars-20250630.htm,filings/CARS/10-Q_2025-06-30.htm,200
+Cars.com,CARS,10-K,2025-12-31,https://www.sec.gov/Archives/edgar/data/1683606/000119312526076546/cars-20251231.htm,filings/CARS/10-K_2025-12-31.htm,200
+Construction Partners,ROAD,credit_agreement,Third A&R credit agreement 2022,https://www.sec.gov/Archives/edgar/data/1718227/000119312522186224/d716196dex101.htm,filings/ROAD/credit_agreement_third-a-r-credit-agreement-2022.htm,200
+Construction Partners,ROAD,amendment,5th amendment 2025,https://www.sec.gov/Archives/edgar/data/1718227/000119312525154409/d22666dex101.htm,filings/ROAD/amendment_5th-amendment-2025.htm,200
+Construction Partners,ROAD,amendment,6th amendment 2026-06,https://www.sec.gov/Archives/edgar/data/1718227/000162828026054661/a2026q3exhibit101.htm,filings/ROAD/amendment_6th-amendment-2026-06.htm,200
+Construction Partners,ROAD,amendment,Term loan B amendment no. 1,https://www.sec.gov/Archives/edgar/data/1718227/000162828026054661/a2026q3exhibit102.htm,filings/ROAD/amendment_term-loan-b-amendment-no-1.htm,200
+Construction Partners,ROAD,10-Q,2026-06-30,https://www.sec.gov/Archives/edgar/data/1718227/000162828026054661/road-20260630.htm,filings/ROAD/10-Q_2026-06-30.htm,200
+Construction Partners,ROAD,10-Q,2026-03-31,https://www.sec.gov/Archives/edgar/data/1718227/000162828026032643/road-20260331.htm,filings/ROAD/10-Q_2026-03-31.htm,200
+Construction Partners,ROAD,10-Q,2025-12-31,https://www.sec.gov/Archives/edgar/data/1718227/000162828026006228/road-20251231.htm,filings/ROAD/10-Q_2025-12-31.htm,200
+Construction Partners,ROAD,10-Q,2025-06-30,https://www.sec.gov/Archives/edgar/data/1718227/000171822725000081/road-20250630.htm,filings/ROAD/10-Q_2025-06-30.htm,200
+Construction Partners,ROAD,10-K,FY2025-09-30,https://www.sec.gov/Archives/edgar/data/1718227/000162828025053871/road-20250930.htm,filings/ROAD/10-K_fy2025-09-30.htm,200
+Westrock Coffee,WEST,credit_agreement,2022 credit agreement,https://www.sec.gov/Archives/edgar/data/1806347/000155837022014048/west-20220630xex10d3.htm,filings/WEST/credit_agreement_2022-credit-agreement.htm,200
+Westrock Coffee,WEST,amendment,Amendment no. 2 relief 2023-06,https://www.sec.gov/Archives/edgar/data/1806347/000110465923077081/tm2320195d1_ex10-2.htm,filings/WEST/amendment_amendment-no-2-relief-2023-06.htm,200
+Westrock Coffee,WEST,amendment,Amendment no. 5 2025-11,https://www.sec.gov/Archives/edgar/data/1806347/000110465925107736/west-20251104xex10d1.htm,filings/WEST/amendment_amendment-no-5-2025-11.htm,200
+Westrock Coffee,WEST,amendment,Amendment no. 6 2026-06 (conformed),https://www.sec.gov/Archives/edgar/data/1806347/000110465926079351/tm2618568d1_ex10-1.htm,filings/WEST/amendment_amendment-no-6-2026-06-conformed.htm,200
+Westrock Coffee,WEST,8-K,Amendment no. 6 8-K,https://www.sec.gov/Archives/edgar/data/1806347/000110465926079351/tm2618568d1_8k.htm,filings/WEST/8-K_amendment-no-6-8-k.htm,200
+Westrock Coffee,WEST,10-Q,2026-06-30,https://www.sec.gov/Archives/edgar/data/1806347/000110465926092129/west-20260630x10q.htm,filings/WEST/10-Q_2026-06-30.htm,200
+Westrock Coffee,WEST,10-Q,2026-03-31,https://www.sec.gov/Archives/edgar/data/1806347/000110465926057284/west-20260331x10q.htm,filings/WEST/10-Q_2026-03-31.htm,200
+Westrock Coffee,WEST,10-Q,2025-09-30,https://www.sec.gov/Archives/edgar/data/1806347/000110465925107840/west-20250930x10q.htm,filings/WEST/10-Q_2025-09-30.htm,200
+Westrock Coffee,WEST,10-Q,2025-06-30,https://www.sec.gov/Archives/edgar/data/1806347/000155837025010772/west-20250630x10q.htm,filings/WEST/10-Q_2025-06-30.htm,200
+Westrock Coffee,WEST,10-K,2025-12-31,https://www.sec.gov/Archives/edgar/data/1806347/000110465926025932/west-20251231x10k.htm,filings/WEST/10-K_2025-12-31.htm,200
+Mayville Engineering,MEC,credit_agreement,A&R credit agreement 2023,https://www.sec.gov/Archives/edgar/data/1766368/000155837023011571/tmb-20230628xex10.htm,filings/MEC/credit_agreement_a-r-credit-agreement-2023.htm,200
+Mayville Engineering,MEC,amendment,1st amendment 2025-06,https://www.sec.gov/Archives/edgar/data/1766368/000155837025008962/tmb-20250626xex10.htm,filings/MEC/amendment_1st-amendment-2025-06.htm,200
+Mayville Engineering,MEC,amendment,2nd amendment 2026-02,https://www.sec.gov/Archives/edgar/data/1766368/000110465926020541/tmb-20260225xex10d1.htm,filings/MEC/amendment_2nd-amendment-2026-02.htm,200
+Mayville Engineering,MEC,amendment,3rd amendment relief 2026-02 (conformed),https://www.sec.gov/Archives/edgar/data/1766368/000110465926020541/tmb-20260225xex10d2.htm,filings/MEC/amendment_3rd-amendment-relief-2026-02-conformed.htm,200
+Mayville Engineering,MEC,8-K,Amendments 8-K 2026-02,https://www.sec.gov/Archives/edgar/data/1766368/000110465926020541/tmb-20260225x8k.htm,filings/MEC/8-K_amendments-8-k-2026-02.htm,200
+Mayville Engineering,MEC,10-Q,2026-06-30,https://www.sec.gov/Archives/edgar/data/1766368/000110465926091110/tmb-20260630x10q.htm,filings/MEC/10-Q_2026-06-30.htm,200
+Mayville Engineering,MEC,10-Q,2026-03-31,https://www.sec.gov/Archives/edgar/data/1766368/000110465926056257/tmb-20260331x10q.htm,filings/MEC/10-Q_2026-03-31.htm,200
+Mayville Engineering,MEC,10-Q,2025-09-30,https://www.sec.gov/Archives/edgar/data/1766368/000110465925106973/tmb-20250930x10q.htm,filings/MEC/10-Q_2025-09-30.htm,200
+Mayville Engineering,MEC,10-Q,2025-06-30,https://www.sec.gov/Archives/edgar/data/1766368/000155837025010445/tmb-20250630x10q.htm,filings/MEC/10-Q_2025-06-30.htm,200
+Mayville Engineering,MEC,10-K,2025-12-31,https://www.sec.gov/Archives/edgar/data/1766368/000110465926023496/tmb-20251231x10k.htm,filings/MEC/10-K_2025-12-31.htm,200
+Quad/Graphics,QUAD,credit_agreement,"A&R credit agreement 2025-08 (10-K ex 4.7)",https://www.sec.gov/Archives/edgar/data/1481792/000148179226000042/exhibit47-quad2025amendmen.htm,filings/QUAD/credit_agreement_a-r-2025-08.htm,200
+Quad/Graphics,QUAD,10-Q,"2026-06-30",https://www.sec.gov/Archives/edgar/data/1481792/000148179226000130/quad-20260630.htm,filings/QUAD/10-Q_2026-06-30.htm,200
+Quad/Graphics,QUAD,10-Q,"2026-03-31",https://www.sec.gov/Archives/edgar/data/1481792/000148179226000092/quad-20260331.htm,filings/QUAD/10-Q_2026-03-31.htm,200
+Quad/Graphics,QUAD,10-K,"2025-12-31",https://www.sec.gov/Archives/edgar/data/1481792/000148179226000042/quad-20251231.htm,filings/QUAD/10-K_2025-12-31.htm,200
+Stoneridge,SRI,credit_agreement,"Credit agreement 2026-03 (8-K ex 10.1)",https://www.sec.gov/Archives/edgar/data/1043337/000104333726000016/sri-2026311xexx101creditfa.htm,filings/SRI/credit_agreement_2026-03.htm,200
+Stoneridge,SRI,10-Q,"2026-06-30",https://www.sec.gov/Archives/edgar/data/1043337/000104333726000074/sri-20260630.htm,filings/SRI/10-Q_2026-06-30.htm,200
+Stoneridge,SRI,10-Q,"2026-03-31",https://www.sec.gov/Archives/edgar/data/1043337/000104333726000052/sri-20260331.htm,filings/SRI/10-Q_2026-03-31.htm,200
+Stoneridge,SRI,10-K,"2025-12-31",https://www.sec.gov/Archives/edgar/data/1043337/000104333726000023/sri-20251231.htm,filings/SRI/10-K_2025-12-31.htm,200
+Crane NXT,CXT,amendment,6th amendment 2026-07 (conformed),https://www.sec.gov/Archives/edgar/data/25445/000002544526000034/cxt-ex101_x20260630.htm,filings/CXT/amendment_6th-amendment-2026-07.htm,200
+Crane NXT,CXT,10-Q,2026-06-30,https://www.sec.gov/Archives/edgar/data/25445/000002544526000034/cxt-20260630.htm,filings/CXT/10-Q_2026-06-30.htm,200
+Crane NXT,CXT,10-K,2025-12-31,https://www.sec.gov/Archives/edgar/data/25445/000002544526000009/cxt-20251231.htm,filings/CXT/10-K_2025-12-31.htm,200
+Ultra Clean Holdings,UCTT,amendment,10th amendment 2026-04 (conformed),https://www.sec.gov/Archives/edgar/data/1275014/000095010326006157/dp245610_ex1001.htm,filings/UCTT/amendment_10th-amendment-2026-04.htm,200
+Ultra Clean Holdings,UCTT,10-Q,2026-06-26,https://www.sec.gov/Archives/edgar/data/1275014/000162828026052540/uctt-20260626.htm,filings/UCTT/10-Q_2026-06-26.htm,200
+Ultra Clean Holdings,UCTT,10-K,2025-12-26,https://www.sec.gov/Archives/edgar/data/1275014/000162828026010744/uctt-20251226.htm,filings/UCTT/10-K_2025-12-26.htm,200

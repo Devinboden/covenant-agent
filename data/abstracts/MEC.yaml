@@ -1,0 +1,758 @@
+# Mayville Engineering (MEC) covenant abstract
+# The "answer key" the four agent builds are graded against.
+# Every quote is checked verbatim against its source by engine/verify_abstract.py.
+# Ratios are x:1.00. Dollar amounts in agreement terms are USD; 10-Q amounts are USD thousands.
+#
+# READ FIRST: the `ca` source is a REDLINE conformed copy (Annex C to the Third Amendment).
+# Stricken (deleted) text is still present in the plain-text extraction the checker uses,
+# so a quote of deleted language would still "verify". Every quote below was taken from
+# text that survives the redline (current language); deleted language is only quoted
+# where it is labelled as superseded.
+
+schema_version: 0.1
+abstract_id: MEC-2026-06-30
+status: draft            # draft -> verified (code checks pass) -> signed_off (human)
+as_of: 2026-06-30        # text is current through the Third Amendment (Feb 25 2026); Q2 2026 10-Q shows nothing later
+built_by: Claude (subagent) from public SEC filings, 2026-10-10
+
+sources:
+  ca:
+    file: data/filings/MEC/amendment_3rd-amendment-relief-2026-02-conformed.htm
+    what: Third Amendment (Feb 25 2026) with Annex C, a redline conformed copy of the A&R Credit Agreement as amended through the Third Amendment. Annex A (commitments) and Annex B (new Exhibit F compliance certificate form) are NOT in the filed text.
+  a1:
+    file: data/filings/MEC/amendment_1st-amendment-2025-06.htm
+    what: First Amendment (Jun 26 2025) with conformed copy; this is the covenant text "as in effect immediately prior to the Third Amendment Effective Date" (the Second Amendment did not touch Article I or IX)
+  a2:
+    file: data/filings/MEC/amendment_2nd-amendment-2026-02.htm
+    what: Second Amendment (dated Aug 15 2025, filed Feb 2026); depository bank covenant 8.15 and collateral agreement only
+  orig:
+    file: data/filings/MEC/credit_agreement_a-r-credit-agreement-2023.htm
+    what: A&R Credit Agreement dated Jun 28 2023 as originally filed
+  k8:
+    file: data/filings/MEC/8-K_amendments-8-k-2026-02.htm
+    what: 8-K (Feb 25 2026) summarising the Third Amendment
+  q2:
+    file: data/filings/MEC/10-Q_2026-06-30.htm
+    what: MEC 10-Q for Q2 2026 (reported ratios only; no calculation detail)
+  q1:
+    file: data/filings/MEC/10-Q_2026-03-31.htm
+    what: MEC 10-Q for Q1 2026 (reported ratios, history)
+  k:
+    file: data/filings/MEC/10-K_2025-12-31.htm
+    what: MEC 10-K for FY2025 (reported ratios, history)
+
+# ---------------------------------------------------------------- agreement
+agreement:
+  borrower: Mayville Engineering Company, Inc.
+  holdings: none          # the public company is the Borrower; no separate holdco
+  agent: Wells Fargo Bank, National Association
+  quote: "AMENDED AND RESTATED CREDIT AGREEMENT, dated as of June 28, 2023, by and among MAYVILLE ENGINEERING COMPANY, INC., a Wisconsin corporation (“Mayville” or the “Borrower”)"
+  agent_quote: "and WELLS FARGO BANK, NATIONAL ASSOCIATION, a national banking association, as Administrative Agent for the Lenders"
+  closing_date:
+    value: 2023-06-28
+    quote: "“Closing Date” means the date of this Agreement."
+  fiscal_year_end: 12-31
+  fiscal_year_quote: "“Fiscal Year” means the fiscal year of the Borrower and its Subsidiaries ending on December 31."
+  facility:
+    type: senior secured revolving credit facility (with swingline and L/C sublimits); no term loan
+    commitments: 275000000
+    commitments_quote: "the aggregate amount of Revolving Credit Commitments (as defined in the Credit Agreement) is $275,000,000"
+    maturity: 2028-06-28
+    maturity_quote: "“Revolving Credit Maturity Date” means the earliest to occur of (a) June 28, 2028"
+
+  amendments:
+    - no: 1
+      date: 2025-06-26
+      note: "revolver $250M -> $350M (accordion); cash netting up to $25M added to leverage; Leverage Increase Period acquisition threshold $25M -> $40M; Accu-Fab triggers a Leverage Increase Period; EBITDA add-backs (xi)-(xiii) with a 15% cap; Accu-Fab deemed EBITDA"
+      quote: "“First Amendment Effective Date” means June 26, 2025."
+      lip_quote:
+        src: a1
+        quote: "For the avoidance of doubt, the consummation of the Accu-Fab Acquisition shall trigger a Leverage Increase Period."
+    - no: 2
+      date: 2025-08-15
+      note: "depository bank covenant (8.15) and collateral agreement delivery/control-agreement timing only; no covenant economics. Filed as an 8-K exhibit in Feb 2026 (manifest labels it 2026-02 by filing date)."
+      src: a2
+      quote: "dated as of August 15, 2025 (and effective as set forth below)"
+    - no: 3
+      date: 2026-02-25
+      note: "the relief amendment: revolver cut to $275M; Covenant Adjustment Period; stepped leverage/ICR tables; two pricing levels added; acquisitions, debt and lien baskets restricted; $10M cash-netting cap during relief; capex limit $50M -> $40M; monthly financials; Specified Disposition permitted"
+      quote: "“Third Amendment Effective Date” means February 25, 2026."
+      summary:
+        src: k8
+        quote: "further restricted certain operational covenants of the Company under the Credit Agreement, including restrictions on permitted acquisitions, during the Company's 2026 fiscal year"
+  later_amendments: "none found: the Q2 2026 10-Q (filed Aug 2026) exhibit index lists no credit agreement exhibit and the debt note describes nothing after the Third Amendment"
+  later_amendments_evidence:
+    src: q2
+    quote: "As a result of these financial covenant changes, the interest pricing grid now includes additional interest rate tiers. All other material terms of the Credit Agreement remained unchanged."
+
+  reporting:
+    annual_financials:
+      due: "120 days after fiscal year end (audited, no going-concern qualification)"
+      ref: "8.1(a)"
+      quote: "within one hundred twenty (120) days after the end of each Fiscal Year"
+    quarterly_financials:
+      due: "45 days after Q1, Q2, Q3"
+      ref: "8.1(b)"
+      quote: "within forty-five (45) days after the end of each of the first three (3) quarters of each year"
+    monthly_financials:
+      due: "30 days after each month-end that is not a quarter-end, starting with February 2026"
+      ref: "8.1(d) (added by the Third Amendment)"
+      sunset: none_stated     # inferred: the clause has no end date and is not tied to the Covenant Adjustment Period
+      quote: "within thirty (30) days after the end of each month of each year (other than for months that coincide with the end of the fiscal quarters and Fiscal Year of the Borrower and commencing with the month ending February 28, 2026)"
+    annual_budget:
+      due: "60 days after fiscal year end"
+      ref: "8.1(c)"
+      quote: "within sixty (60) days after the end of each Fiscal Year, a business plan and operating and capital budget of the Borrower for the ensuing four (4) fiscal quarters"
+    compliance_certificate:
+      due: "with each 8.1(a)/(b) delivery"
+      ref: "8.2(a)"
+      quote: "at each time financial statements are delivered pursuant to Sections 8.1(a) or (b), a duly completed Officer's Compliance Certificate signed by the chief executive officer, chief financial officer, treasurer or controller of the Borrower"
+      form: "Exhibit F, amended and restated by Annex B to the Third Amendment; Annex B is not in the public filing"
+      form_quote: "Exhibit F (Form of Officer's Compliance Certificate) to the Existing Credit Agreement is hereby amended and restated in the form attached hereto as Annex B"
+    lender_meetings:
+      ref: "8.21"
+      quote: "Not more than once each quarter (provided that, if an Event of Default exists, the Administrative Agent or Required Lenders may request such meetings more frequently in their sole discretion)"
+
+  test_period:
+    meaning: "covenants tested as of the last day of each fiscal quarter; EBITDA, interest and capex measured over the four fiscal quarters ending on or immediately before that date"
+    quote: "for the period of four (4) consecutive fiscal quarters ending on or immediately prior to such date"
+    test_date_quote: "As of the last day of any fiscal quarter"
+
+  accounting:
+    ref: "1.3"
+    rules:
+      - rule: "debt carried at 100% of principal; ASC 825 / ASC 470-20 ignored"
+        quote: "Indebtedness of the Borrower and its Subsidiaries shall be deemed to be carried at 100% of the outstanding principal amount thereof, and the effects of FASB ASC 825 and FASB ASC 470-20 on financial liabilities shall be disregarded"
+      - rule: "frozen GAAP for leases: pre-ASC 842 operating leases stay operating leases (not debt)"
+        quote: "all obligations of any Person that are or would have been treated as operating leases for purposes of GAAP prior to the effectiveness of FASB ASC 842 shall continue to be accounted for as operating leases"
+
+  # The relief period. MEC calls it the "Covenant Adjustment Period" (CAP).
+  covenant_relief_period:
+    name: Covenant Adjustment Period
+    start: 2026-02-25
+    scheduled_end: "date Q1 2027 financial statements (8.1(b)) and compliance certificate are delivered showing compliance; due by 2027-05-15 (45 days after Mar 31 2027)"
+    scheduled_end_inferred: true        # the due date is derived from 8.1(b), the definition names no calendar date
+    quote: "mean the period commencing with the Third Amendment Effective Date and ending on the earlier of (a) the date that the Borrower provides the financial statements referred to in Section 8.1(b) for the fiscal quarter ended March 31, 2027, demonstrating"
+    open_ended_quote: "For the avoidance of doubt, the Covenant Adjustment Period shall continue unless or until one of the events in the foregoing clause (a) or (b) occurs."
+    exit_paths:
+      - id: a_scheduled
+        what: "Q1 2027 statements + compliance certificate showing compliance with 9.15 (the stepped tables)"
+        consequence: "stepped table keeps running (3.50x / 3.00x from Mar 31 2027 anyway); post-relief Leverage Increase Period re-opens; inferred: Accu-Fab LIP may resume (flag F2)"
+        quote: "compliance with the financial covenants set forth in Section 9.15 for such quarter and an Officer's Compliance Certificate evidencing the same"
+      - id: b_early_election
+        what: "at the Borrower's sole option, any quarterly or annual delivery showing compliance with the PRE-Third-Amendment covenants (3.50x max leverage, 3.00x min ICR), with no Leverage Increase Period"
+        consequence: "leverage max locks at 3.50x and ICR min at 3.00x from then on; Accu-Fab LIP is not resumed"
+        quote: "at the sole option of the Borrower, on the date that the Borrower provides the financial statements referred to in Section 8.1(a) or (b), as applicable, demonstrating compliance with"
+        test_quote: "as in effect immediately prior to the Third Amendment Effective Date (without giving effect to any Leverage Increase Period) for the applicable fiscal quarter and an Officer's Compliance Certificate"
+        pre_relief_levels:
+          src: a1
+          leverage_quote: "permit the Consolidated Total Leverage Ratio to be greater than 3.50 to 1.00"
+          icr_quote: "permit the Consolidated Interest Coverage Ratio to be less than 3.00 to 1.00"
+        status: not_elected_as_of_2026-06-30     # inferred: the Q2 10-Q still compares to the 5.25x / 2.75x relief levels (flag F1)
+    restrictions_during_relief: "see covenants relief_acquisition_basket, relief_basket_freezes; terms unrestricted_cash_and_cash_equivalents ($10M netting cap); pricing below"
+    pricing_during_relief:
+      what: "eight-level grid during the CAP (adds >=5.00x at SOFR+3.25% and 4.00-5.00x at SOFR+3.00%); six-level grid after"
+      quote: "Greater than or equal to 5.00 to 1.00 3.25% 2.25% 0.40%"
+      level_floor_quote: "based on Pricing Level III as set forth in clause (a) above until the first Calculation Date occurring after March 31, 2026"
+
+  elections:
+    leverage_increase_period:
+      what: "automatic +0.50x on the leverage max (hard ceiling 4.00x) for the four quarters ending after an Acquisition with Permitted Acquisition Consideration over $40M that meets 9.3(i); at least one clean quarter between LIPs; max two LIPs over the term"
+      available: "only after the end of the Covenant Adjustment Period; none during it"
+      automatic: true            # not a borrower notice election (unlike Westrock's Step-Up Election)
+      limit: 2
+      used: 1                    # inferred: Accu-Fab (closed Jul 1 2025) triggered one per the First Amendment; see flag F11
+      ref: "9.15(a)(ii)"
+      quote: "after the end of the Covenant Adjustment Period, the test level set forth in this clause (a) shall be automatically increased by 0.50 to 1.00 for each of the four (4) consecutive fiscal quarters"
+      cap_quote: "the maximum Consolidated Total Leverage Ratio shall not exceed 4.00 to 1.00 at any time"
+      trigger_quote: "ending immediately after consummation of an Acquisition having Permitted Acquisition Consideration over $40,000,000 and otherwise complying with the requirements set forth in Section 9.3(i)"
+      limit_quote: "there shall be no more than two (2) Leverage Increase Periods during the term of this Agreement"
+      cooling_quote: "for at least one (1) fiscal quarter ending immediately following each Leverage Increase Period, the Consolidated Total Leverage Ratio as of the end of such fiscal quarter shall not be greater than the applicable test level set forth above prior to giving effect to another Leverage Increase Period"
+      during_relief_quote: "no Leverage Increase Period shall be triggered or in effect during the Covenant Adjustment Period, including pursuant to the Accu-Fab Acquisition"
+      accu_fab_resume_quote: "(2) the Leverage Increase Period triggered by the Accu-Fab Acquisition shall not be resumed if the Covenant Adjustment Period has ended pursuant to clause (b) of such definition"
+      accu_fab_close:
+        src: q2
+        quote: "On July 1, 2025, the Company acquired 100% of the membership interests of Accu-Fab, LLC (Accu-Fab)."
+    early_relief_exit: "see covenant_relief_period.exit_paths.b_early_election"
+
+  equity_cure:
+    present: false
+    evidence: "searched the conformed text for 'cure', 'Cure', 'Specified Equity', 'equity cure': only the Defaulting Lender Cure and generic cure language appear; no equity cure right"
+    note: "a 9.15 breach is an immediate Event of Default (10.1(d) covers Article IX with no grace period)"
+    quote: "shall default in the performance or observance of any covenant or agreement contained in Sections 8.1, 8.2, 8.3(a), 8.4, 8.13, 8.14, 8.16, 8.17, 8.18, 8.20, 8.21 or Article IX"
+
+# ---------------------------------------------------------------- covenants
+covenants:
+
+  - id: total_leverage
+    name: Consolidated Total Leverage Ratio
+    kind: ratio
+    ref: "9.15(a)"
+    direction: max
+    tested: quarterly, last day of each fiscal quarter
+    formula: {numerator: net_total_debt, denominator: consolidated_ebitda}
+    thresholds:
+      # the 9.15(a) table itself carries both the pre-relief history and the relief steps.
+      - {from: 2023-06-28, to: 2025-12-31, value: 4.00, regime: standard, note: "table row 'Closing Date through December 31, 2025'. Historical; at the time the test was 3.50x, +0.50x for the Accu-Fab LIP from Q3 2025"}
+      - {date: 2026-03-31, value: 5.25, regime: relief}
+      - {date: 2026-06-30, value: 5.25, regime: relief}
+      - {date: 2026-09-30, value: 5.00, regime: relief}
+      - {date: 2026-12-31, value: 4.00, regime: relief}
+      - {from: 2027-03-31, to: null, value: 3.50, regime: standard, note: "'March 31, 2027 and thereafter'; +0.50x (max 4.00x) during any post-relief Leverage Increase Period"}
+    early_exit_override:
+      rule: "if the CAP ends under clause (b), the cap is 3.50x for every later test date, replacing the table"
+      value: 3.50
+      quote: "(i) if the Covenant Adjustment Period has ended pursuant to clause (b) of such definition, the Consolidated Total Leverage Ratio applicable thereafter shall be 3.50 to 1.00"
+    regime_rule: "use the dated table; if the CAP ended early under (b), use 3.50x flat; after the CAP ends, add +0.50x (ceiling 4.00x) during a Leverage Increase Period; no LIP during the CAP"
+    effective_cap:
+      2026-06-30: 5.25
+      2026-09-30: 5.00
+      2026-12-31: 4.00
+      2027-03-31: 3.50
+    pre_relief_cap:   # what a stale abstract would use (flag F1/F3 variants)
+      base: 3.50
+      with_accu_fab_lip: 4.00
+      src: a1
+      quote: "permit the Consolidated Total Leverage Ratio to be greater than 3.50 to 1.00; provided, that, the test level set forth in this clause (a) shall be automatically increased by 0.50 to 1.00"
+    quotes:
+      trigger: "ending during the periods specified below, permit the Consolidated Total Leverage Ratio to be greater than the corresponding ratio set forth below:"
+      table: "Period Maximum Ratio Closing Date through December 31, 2025 4.00 to 1.00 March 31, 2026 and June 30, 2026 5.25 to 1.00 September 30, 2026 5.00 to 1.00 December 31, 2026 4.00 to 1.00 March 31, 2027 and thereafter 3.50 to 1.00"
+      table_8k:
+        src: k8
+        quote: "Closing Date through December 31, 2025 4.00 to 1.00 March 31, 2026 and June 30, 2026 5.25 to 1.00 September 30, 2026 5.00 to 1.00 December 31, 2026 4.00 to 1.00 March 31, 2027 and thereafter 3.50 to 1.00"
+      cap_confirmed:
+        src: q2
+        quote: "At June 30, 2026, our consolidated total leverage ratio under the Credit Agreement was 2.91 to 1.00 as compared to a covenant maximum of 5.25 to 1.00."
+    history:
+      - date: 2025-12-31
+        reported: 3.68
+        cap: 4.00
+        src: k
+        quote: "At December 31, 2025, our consolidated total leverage ratio was 3.68 to 1.00 as compared to a covenant maximum of 4.00 to 1.00"
+      - date: 2026-03-31
+        reported: 4.40
+        cap: 5.25
+        src: q1
+        quote: "At March 31, 2026, our consolidated total leverage ratio under the Credit Agreement was 4.40 to 1.00 as compared to a covenant maximum of 5.25 to 1.00."
+        note: "inferred: 4.40x would have exceeded the pre-relief 4.00x (3.50x + Accu-Fab LIP); this is the quarter the relief was bought for"
+
+  - id: interest_coverage
+    name: Consolidated Interest Coverage Ratio
+    kind: ratio
+    ref: "9.15(b)"
+    direction: min
+    tested: quarterly, last day of each fiscal quarter
+    formula: {numerator: icr_numerator, denominator: consolidated_interest_expense}
+    thresholds:
+      - {from: 2023-06-28, to: 2026-03-31, value: 3.00, regime: standard, note: "'Closing Date through March 31, 2026'"}
+      - {date: 2026-06-30, value: 2.75, regime: relief}
+      - {date: 2026-09-30, value: 2.75, regime: relief}
+      - {date: 2026-12-31, value: 2.75, regime: relief}
+      - {from: 2027-03-31, to: null, value: 3.00, regime: standard, note: "'March 31, 2027 and thereafter'"}
+    early_exit_override:
+      rule: "if the CAP ends under clause (b), the floor is 3.00x for every later test date"
+      value: 3.00
+      quote: "if the Covenant Adjustment Period has ended pursuant to clause (b) of such definition, the Consolidated Interest Coverage Ratio applicable thereafter shall be 3.00 to 1.00"
+    regime_rule: "use the dated table; if the CAP ended early under (b), 3.00x flat"
+    effective_floor:
+      2026-06-30: 2.75
+      2026-09-30: 2.75
+      2026-12-31: 2.75
+      2027-03-31: 3.00
+    quotes:
+      trigger: "permit the Consolidated Interest Coverage Ratio to be less than"
+      table: "Period Minimum Ratio Closing Date through March 31, 2026 3.00 to 1.00 June 30, 2026 through December 31, 2026 2.75 to 1.00 March 31, 2027 and thereafter 3.00 to 1.00"
+      cap_confirmed:
+        src: q2
+        quote: "At June 30, 2026, our consolidated interest coverage ratio under the Credit Agreement was 3.27 to 1.00 as compared to a covenant minimum of 2.75 to 1.00."
+    history:
+      - date: 2025-12-31
+        reported: 5.47
+        floor: 3.00
+        src: k
+        quote: "At December 31, 2025, our consolidated interest coverage ratio was 5.47 to 1.00 as compared to a covenant minimum of 3.00 to 1.00"
+      - date: 2026-03-31
+        reported: 4.27
+        floor: 2.75
+        src: q1
+        quote: "At March 31, 2026, our consolidated interest coverage ratio under the Credit Agreement was 4.27 to 1.00 as compared to a covenant minimum of 2.75 to 1.00."
+        note: "the 10-Q compares Q1 2026 to 2.75x, but the table sets 3.00x through March 31, 2026 (flag F6)"
+
+  - id: capex_limit
+    name: Capital Expenditures limit
+    kind: level
+    ref: "9.14"
+    direction: max
+    tested: per Fiscal Year
+    measure: capital_expenditures
+    thresholds:
+      - {from: 2023-06-28, to: 2025-12-31, value: 50000000, regime: standard, note: "pre-Third Amendment limit; carry-forward allowed"}
+      - {from: 2026-01-01, to: 2026-12-31, value: 40000000, regime: standard, note: "FY2026: no carry-forward in or out"}
+      - {from: 2027-01-01, to: null, value: 40000000, regime: standard, note: "carry-forward of unused amount to the next year only, used last"}
+    carry_forward:
+      from_fy: 2027
+      rule: "unused limit carries one year, used last, never carried twice; nothing carries out of FY2025"
+      quote: "that, commencing with the Fiscal Year ending December 31, 2027, the Borrower shall be permitted to carry forward any unused Capital Expenditure limit to the next Fiscal Year (the “Carry Forward Amount”)"
+      no_2025_quote: "the Borrower shall not be permitted to carry forward any unused Capital Expenditure limit, if any, from the Fiscal Year ended December 31, 2025"
+    quotes:
+      limit: "Permit the aggregate amount of all Capital Expenditures to exceed $"
+      limit_new: "40,000,000 for any Fiscal Year (commencing with the Fiscal Year ending December 31, 2026)"
+      limit_pre_third_amendment:
+        src: a1
+        quote: "Permit the aggregate amount of all Capital Expenditures to exceed $50,000,000 for any Fiscal Year"
+      ytd:
+        src: q2
+        quote: "During the six months ended June 30, 2026 and 2025, our capital expenditures were $11,755 and $5,408 respectively."
+      guidance:
+        src: q2
+        quote: "Capital expenditures for the full year 2026 are expected to be between $25,000 and $35,000."
+    note: "the capex limit is not tied to the CAP (permanent change). Capex also reduces the ICR numerator at 50%."
+
+  - id: restricted_payment_gate
+    name: Shareholder distribution leverage gate
+    kind: incurrence
+    ref: "9.6(e)(ii)"
+    direction: max
+    value: 2.75
+    measure: total_leverage, pro forma before and after the payment
+    applies: always (not a relief term); also requires no Default and no 9.15 breach caused by the payment
+    quote: "so long as the Consolidated Total Leverage Ratio does not exceed 2.75:1.00 both before and after giving effect to such Restricted Payment (and Mayville has furnished to the Administrative Agent an Officer's Compliance Certificate evidencing the same), Mayville may make Restricted Payments to its shareholders"
+    note: "Restricted Payment includes earn-out payments and ESOP contributions; Mandatory Repurchase Obligation Payments are always allowed (9.6(b))"
+
+  - id: acquisition_gate
+    name: Permitted Acquisition leverage gate (post-relief)
+    kind: incurrence
+    ref: "9.3(i)"
+    direction: max
+    value: "9.15(a) level in effect minus 0.25x, before and after, by officer's certificate"
+    applies: {from: end_of_covenant_relief_period, to: null}
+    quote: "at any time after the end of the Covenant Adjustment Period, Acquisitions; provided that (i) both before and after giving effect to any such Acquisition no Default or Event of Default exists or results therefrom"
+    level_quote: "does not exceed the level set forth in Section 9.15(a) minus 0.25:1.00"
+
+  - id: relief_acquisition_basket
+    name: One acquisition during relief
+    kind: incurrence
+    ref: "9.3(j)"
+    direction: max
+    value: 3.25
+    applies: {from: 2026-02-25, to: end_of_covenant_relief_period}
+    conditions:
+      - {what: "only one acquisition during the CAP", quote: "t any time during the Covenant Adjustment Period, one (1) Acquisition"}
+      - {what: "pro forma leverage <= 3.25x before and after", quote: "both immediately before and after giving effect to such Acquisition the Consolidated Total Leverage Ratio on a consolidated basis does not exceed 3.25 to 1.00"}
+      - {what: "funded solely with new equity", quote: "such Acquisition shall have been funded solely with the proceeds from an Equity Issuance"}
+      - {what: "purchase price <= $25M", quote: "the aggregate principal amount of the purchase price of such Acquisition shall not exceed $25,000,000"}
+    used: unknown            # no acquisition disclosed in the Q2 2026 10-Q
+    equity_raised:
+      note: "May 2026 equity offering went to repay the revolver, not to an acquisition"
+      src: q2
+      quote: "Proceeds net of underwriting fees and other direct costs from the common stock offering were used to reduce the outstanding balance owed on the Company's revolving credit facility."
+
+  - id: relief_basket_freezes
+    name: Other relief-period restrictions
+    kind: other
+    applies: {from: 2026-02-25, to: end_of_covenant_relief_period}
+    items:
+      - id: debt_basket_n
+        ref: "9.1(n)"
+        what: "$12.5M general debt basket: no new usage during the CAP"
+        quote: "during the Covenant Adjustment Period, no additional Indebtedness that is not already outstanding on the Third Amendment Effective Date shall be permitted to be incurred pursuant to this clause (n)"
+      - id: lien_basket_n
+        ref: "9.2(n)"
+        what: "$7.5M general lien basket: no new usage during the CAP"
+        quote: "during the Covenant Adjustment Period, no additional Liens that are not already outstanding on the Third Amendment Effective Date shall be permitted to be incurred pursuant to this clause (n)"
+      - id: no_incremental
+        ref: "5.13"
+        what: "no incremental revolver increases until the CAP ends"
+        quote: "SECTION 5.13 Incremental Loans. At any time after the end of the Covenant Adjustment Period and prior to the Revolving Credit Maturity Date, the Borrower may by written notice"
+      - id: no_lip
+        ref: "9.15(a)"
+        what: "no Leverage Increase Period during the CAP"
+        quote: "no Leverage Increase Period shall be triggered or in effect during the Covenant Adjustment Period"
+      - id: cash_netting_cap
+        ref: "Consolidated Total Leverage Ratio definition"
+        what: "cash netting capped at $10M (vs $25M) during the CAP"
+        quote: "provided that during the Covenant Adjustment Period, such amount shall not exceed $10,000,000"
+      - id: specified_disposition
+        ref: "9.5(o)"
+        what: "Specified Disposition permitted (assets identified privately to lenders), fair value and at least 80% cash; not CAP-limited"
+        quote: "he Specified Disposition; provided that (i) at the time of such Asset Disposition, no Default or Event of Default shall exist or would result from such Asset Disposition"
+
+# ---------------------------------------------------------------- terms
+# type: standard = everyday meaning / GAAP, nothing to map
+#       lookup   = points at a list, schedule or another defined term you have to fetch
+#       custom   = deal-specific formula; decompose into components
+terms:
+
+  - id: net_total_debt
+    name: Net total debt (numerator of the leverage ratio)
+    type: custom
+    defined_in: "Consolidated Total Leverage Ratio, clause (a)"
+    formula: "consolidated_total_indebtedness - min(unrestricted_cash_and_cash_equivalents, cash_cap)"
+    measured: "on the test date"
+    components:
+      - id: ntd.i.total_debt
+        what: "Consolidated Total Indebtedness (all Indebtedness, excluding hedge net obligations)"
+        sign: +
+        input: balance_sheet_debt_schedule
+      - id: ntd.ii.cash
+        what: "Unrestricted Cash and Cash Equivalents, capped"
+        sign: "-"
+        input: balance_sheet
+        cap:
+          type: fixed
+          schedule:
+            - {from: 2025-06-26, to: 2026-02-24, value: 25000000}
+            - {from: 2026-02-25, to: end_of_covenant_relief_period, value: 10000000, regime: relief}
+            - {from: end_of_covenant_relief_period, to: null, value: 25000000}
+          note: "before the First Amendment no cash netting at all (gross leverage)"
+          orig_quote:
+            src: orig
+            quote: "the ratio of (a) Consolidated Total Indebtedness on such date to (b) Consolidated EBITDA for the period of four (4) consecutive fiscal quarters ending on or immediately prior to such date"
+    quote: "the ratio of (a) (i) Consolidated Total Indebtedness on such date minus (ii) all Unrestricted Cash and Cash Equivalents on such date in an amount not to exceed $25,000,000"
+    relief_cap_quote: "provided that during the Covenant Adjustment Period, such amount shall not exceed $10,000,000"
+
+  - id: consolidated_total_indebtedness
+    name: Consolidated Total Indebtedness
+    type: custom
+    formula: "sum of Indebtedness of the Borrower and Subsidiaries, consolidated, excluding net hedge obligations"
+    quote: "in accordance with GAAP the sum of all Indebtedness of the Borrower and its Subsidiaries (excluding net obligations under any Hedge Agreements)"
+    note: "unlike Westrock, not limited to borrowed money or secured debt: earn-outs, LC face amounts (drawn or undrawn) and capital leases all count"
+
+  - id: indebtedness
+    name: Indebtedness
+    type: lookup
+    kind: list
+    items: [a borrowed money incl. bonds and notes, b deferred purchase price incl. earn-outs and non-competes (trade payables <= 90 days past due excluded), c capital leases and synthetic leases (attributable indebtedness), d conditional sale / title retention, e others' debt secured by own assets (lesser of FMV and debt), f letters of credit face amount whether or not drawn and bankers' acceptances, g Disqualified Equity Interests, h net hedge obligations (excluded from Consolidated Total Indebtedness), i guarantees]
+    quote: "(a) all liabilities, obligations and indebtedness for borrowed money including, but not limited to, obligations evidenced by bonds, debentures, notes or other similar instruments of any such Person"
+    earnout_quote: "(including, without limitation, all payment obligations under non-competition, earn-out or similar agreements)"
+    lc_item_quote: "(f) all obligations, contingent or otherwise, of any such Person relative to the face amount of letters of credit, whether or not drawn"
+    capital_lease_quote: "(c) the Attributable Indebtedness of such Person with respect to such Person's Capital Lease Obligations and Synthetic Leases (regardless of whether accounted for as indebtedness under GAAP)"
+    jv_quote: "the Indebtedness of any Person shall include the Indebtedness of any partnership or joint venture (other than a joint venture that is itself a corporation or limited liability company)"
+    exclusions:
+      - what: "ordinary-course trade payables not more than 90 days past due"
+        quote: "except trade payables arising in the ordinary course of business not more than ninety (90) days past due"
+      - what: "pre-ASC 842 operating leases (Section 1.3 frozen GAAP)"
+        see: agreement.accounting
+
+  - id: unrestricted_cash_and_cash_equivalents
+    name: Unrestricted Cash and Cash Equivalents
+    type: custom
+    base: "100% of cash and Cash Equivalents of the Borrower and Domestic Subsidiaries in US bank or securities accounts, unrestricted, no liens except 9.2(a)/(k)"
+    excludes: "proceeds of debt incurred substantially concurrently"
+    cap: "see net_total_debt ntd.ii.cash ($25M; $10M during the CAP)"
+    input: balance_sheet + account-level detail (domestic only)
+    quote: "100% of all cash and Cash Equivalents of the Borrower and its Domestic Subsidiaries that are held in bank accounts or securities accounts located in the United States, in each case that are unrestricted and not subject to any Liens"
+    exclusion_quote: "provided that the proceeds of any Indebtedness incurred substantially concurrently with the determination of such amount shall be excluded"
+
+  - id: consolidated_ebitda
+    name: Consolidated EBITDA
+    type: custom
+    starts_from: consolidated_net_income
+    defined_in: "Section 1.1"
+    measured: "four consecutive fiscal quarters (TTM)"
+    quote: "“Consolidated EBITDA” means, for any period, the sum of the following determined on a Consolidated basis, without duplication, for the Borrower and its Subsidiaries in accordance with GAAP: (a) Consolidated Net Income for such period plus"
+    addback_gate: "only if deducted in Consolidated Net Income, no duplication"
+    addback_gate_quote: "(b) the sum of the following, without duplication, to the extent deducted in determining Consolidated Net Income for such period:"
+    shared_caps:
+      - id: cash_addback_pool
+        type: pct_of_ebitda
+        value: 0.15
+        members: [ebitda.b.v, ebitda.b.vii, ebitda.b.viii, ebitda.b.xi, ebitda.b.xii, ebitda.b.xiii]
+        applies_to: "cash items only within those clauses"
+        basis: "Consolidated EBITDA before these add-backs (not circular, unlike Westrock)"
+        quote: "in no event shall the amount of cash items added back to Consolidated EBITDA under clauses (v), (vii), (viii), (xi), (xii) and (xiii) for any period exceed fifteen percent (15%) of aggregate Consolidated EBITDA for such period (calculated before giving effect to any such add back)"
+    components:
+      - {id: ebitda.b.i, category: interest, sign: +, input: income_statement, quote: "(i) Consolidated Interest Expense for such period"}
+      - {id: ebitda.b.ii, category: taxes, sign: +, input: income_statement, quote: "(ii) income tax expense for such period, net of tax refunds"}
+      - {id: ebitda.b.iii, category: depreciation_amortization, sign: +, input: cash_flow_statement, quote: "(iii) all amounts attributable to depreciation and amortization expense for such period"}
+      - {id: ebitda.b.iv, category: non_cash_compensation, sign: +, input: cash_flow_statement, quote: "(iv) any non-cash expense component incorporated in ESOP, profit sharing, bonuses, and deferred compensation, and other stock-based compensation expense recognized for such period"}
+      - id: ebitda.b.v
+        category: restructuring
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        cap: {type: shared_pool, pool: cash_addback_pool}
+        quote: "(v) restructuring costs associated with exiting a production or warehouse facility, or reduction in workforce, to include severance costs, inventory cleanup, asset dispositions, relocating equipment, lease termination costs and other wrap up costs"
+      - {id: ebitda.b.vi, category: other_non_cash_charges, sign: +, input: borrower_schedule, quote: "(vi) non-cash losses, charges, costs and expenses (net of any related recoveries)"}
+      - id: ebitda.b.vii
+        category: discontinued_operations
+        sign: +
+        input: income_statement
+        trigger: "if discontinued because under agreement to sell, add back only once actually disposed"
+        cap: {type: shared_pool, pool: cash_addback_pool}
+        quote: "(vii) losses, charges, costs and expenses incurred in connection with discontinued operations"
+      - id: ebitda.b.viii
+        category: casualty_and_non_ordinary_dispositions
+        sign: +
+        input: borrower_schedule
+        cap: {type: shared_pool, pool: cash_addback_pool}
+        quote: "casualty and condemnation events, and dispositions consummated outside the ordinary course of business"
+      - {id: ebitda.b.ix, category: acquisition_fair_value_step_ups, sign: "+/-", input: borrower_schedule, quote: "non-cash expenses/income incurred on fair value step-ups relating to Acquisitions"}
+      - {id: ebitda.b.x, category: earnout_fair_value_adjustments, sign: "+/-", input: footnotes, quote: "non-cash expenses/income from contingent consideration fair value adjustments related to any earn-outs paid in connection with Acquisitions"}
+      - id: ebitda.b.xi
+        category: transaction_costs
+        sign: +
+        input: borrower_schedule
+        cap:
+          - {type: fixed_per_acquisition, value: 7000000}
+          - {type: shared_pool, pool: cash_addback_pool}
+        quote: "(xi) transaction costs not to exceed $7,000,000 per Acquisition"
+      - id: ebitda.b.xii
+        category: cfo_transition_costs
+        sign: +
+        input: fixed_amount
+        value: 1166582
+        period: "quarter ended 2025-06-30 only; rolls out of the TTM from the Jun 30 2026 test onward"
+        cap: {type: shared_pool, pool: cash_addback_pool}
+        quote: "(xii) Borrower's CFO transition costs that occurred in the quarter ending June 30, 2025 of $1,166,582"
+      - id: ebitda.b.xiii
+        category: litigation_legal_fees
+        sign: +
+        input: borrower_schedule
+        cap: {type: shared_pool, pool: cash_addback_pool}
+        quote: "(xiii) legal fees related to the ongoing litigation with Peloton Interactive, Inc"
+      - id: ebitda.b.xiv
+        category: start_up_costs_data_center
+        sign: +
+        input: borrower_schedule
+        review: human_signoff
+        cap: {type: cumulative_over_term, value: 10000000, note: "lifetime cap across all test periods; needs a running ledger"}
+        added_by: third_amendment
+        quote: "(xiv) start-up and/or launch costs or expenses related to cross-sell revenue from the Borrower's data center and critical power business segments"
+        cap_quote: "aggregate amount added back to Consolidated EBITDA under this clause (xiv) for the term of this Agreement exceed $10,000,000"
+      - id: ebitda.b.xv
+        category: one_time_non_operating_reversals
+        sign: "+/-"
+        input: borrower_schedule
+        review: human_signoff
+        added_by: third_amendment
+        quote: "(xv) plus/minus the reversal of any one-time non-operating losses/gains, as applicable"
+      - id: ebitda.proviso.acquired
+        category: acquired_ebitda
+        sign: +
+        input: borrower_schedule
+        trigger: "acquisition during the period; full-period pro forma"
+        quote: "if during such period the Borrower or any Subsidiary shall have consummated an Acquisition, Consolidated EBITDA for such period shall be calculated after giving pro forma effect thereto as if such Acquisition occurred on the first day of such period"
+      - id: ebitda.proviso.no_disposal_adjustment
+        category: disposed_ebitda
+        note: "no pro forma removal of disposed EBITDA is written into the definition (only CNI excludes disposal gains/losses); flag F13"
+    historical_deemed_values:
+      note: "Accu-Fab deemed quarterly EBITDA; last used in the TTM ending Mar 31 2026; not used from Jun 30 2026"
+      values: {2024-12-31: 3242517, 2025-03-31: 3691078, 2025-06-30: 5011409}
+      quote: "the Consolidated EBITDA of Accu-Fab, LLC and its Subsidiaries shall equal $3,242,517 for the quarter ending December 31, 2024, $3,691,078 for the quarter ending March 31, 2025 and $5,011,409 for the quarter ending June 30, 2025"
+
+  - id: consolidated_net_income
+    name: Consolidated Net Income
+    type: custom
+    starts_from: "GAAP net income (loss), Borrower + Subsidiaries"
+    quote: "the net income (or loss) of the Borrower and its Subsidiaries for such period, determined on a Consolidated basis, without duplication, in accordance with GAAP"
+    exclusions:
+      - {id: cni.a, what: "pre-acquisition income of acquired persons/assets", quote: "(a) the net income (or loss) of any Person accrued prior to the date it becomes a Subsidiary of the Borrower"}
+      - {id: cni.b, what: "gains/losses on Asset Dispositions", quote: "(b) any gain or loss from Asset Dispositions during such period"}
+
+  - id: icr_numerator
+    name: Interest coverage numerator ("cash flow" style)
+    type: custom
+    defined_in: "Consolidated Interest Coverage Ratio, clause (a)"
+    formula: "consolidated_ebitda - 0.5 x capital_expenditures - discretionary_repurchase_payments_cash - income_taxes_net + mandatory_repurchase_payments_cash"
+    measured: "four consecutive fiscal quarters"
+    components:
+      - {id: icr.i, what: "Consolidated EBITDA", sign: +, input: consolidated_ebitda}
+      - {id: icr.ii, what: "50% of Capital Expenditures", sign: "-", factor: 0.5, input: cash_flow_statement}
+      - {id: icr.iii, what: "Discretionary Repurchase Obligation Payments paid in cash, if not already deducted in EBITDA", sign: "-", input: borrower_schedule}
+      - {id: icr.iv, what: "income tax expense net of refunds", sign: "-", input: income_statement}
+      - {id: icr.v, what: "Mandatory Repurchase Obligation Payments paid in cash, if deducted in EBITDA", sign: +, input: borrower_schedule}
+    quote: "the ratio of (a) an amount equal to (i) Consolidated EBITDA, minus (ii) 50% of Capital Expenditures, minus (iii) Discretionary Repurchase Obligation Payments paid in cash, to the extent not already deducted in calculating Consolidated EBITDA, minus (iv) income tax expense for such period, net of tax refunds, plus (v) Mandatory Repurchase Obligation Payments paid in cash, to the extent deducted in calculating Consolidated EBITDA to (b) Consolidated Interest Expense"
+
+  - id: consolidated_interest_expense
+    name: Consolidated Interest Expense
+    type: custom
+    formula: "GAAP interest expense incl. capital lease interest and net hedge payments; no deduction of interest income; no carve-out for deferred financing cost amortization"
+    components:
+      - {id: cie.a, what: "interest expense (GAAP)", sign: +, input: income_statement}
+      - {id: cie.b, what: "interest on Capital Lease Obligations", sign: +, input: footnotes}
+      - {id: cie.c, what: "net payment obligations under Hedge Agreements", sign: +, input: footnotes}
+    quote: "the sum of interest expense (including, without limitation, interest expense attributable to Capital Lease Obligations and all net payment obligations pursuant to Hedge Agreements) for such period"
+
+  - id: capital_expenditures
+    name: Capital Expenditures
+    type: custom
+    formula: "cash-flow-statement PP&E additions + Capital Lease Obligations incurred in the period - insurance-funded restorations"
+    quote: "(a) the additions to property, plant and equipment and other capital expenditures that are (or would be) set forth in a consolidated statement of cash flows"
+    lease_quote: "(b) Capital Lease Obligations during such period, but excluding expenditures for the restoration, repair or replacement of any fixed or capital asset which was destroyed or damaged"
+    note: "finance-lease additions count as capex: Q2 10-Q shows $8,150K of finance-lease ROU assets obtained in H1 2026 (flag F8)"
+    finance_lease_quote:
+      src: q2
+      quote: "Right-of-use assets obtained in exchange for recorded lease obligations: Operating leases $52 $2,798 Finance leases $8,150 $911"
+
+  - id: repurchase_obligation_payments
+    name: Discretionary / Mandatory Repurchase Obligation Payments (ESOP)
+    type: lookup
+    points_to: ESOP documentation and the Code 409(o) timing rules
+    rule: "mandatory = diversification and slowest-permitted payouts; discretionary = anything faster"
+    quote: "“Discretionary Repurchase Obligation Payments” means Repurchase Obligation Payments (other than payments to satisfy current ESOP diversification requirements under the ESOP and the Code)"
+    mandatory_quote: "“Mandatory Repurchase Obligation Payments” means (a) Repurchase Obligation Payments made to satisfy current ESOP diversification requirements under the ESOP and the Code"
+
+  - id: permitted_acquisition_consideration
+    name: Permitted Acquisition Consideration
+    type: custom
+    formula: "purchase price incl. assumed debt, earn-outs at maximum, deferred payments, and MEC equity issued"
+    quote: "the aggregate amount of the purchase price, including, but not limited to, any assumed debt, earn-outs (valued at the maximum amount payable thereunder), deferred payments, or Equity Interests of Mayville"
+
+  - id: equity_issuance
+    name: Equity Issuance
+    type: custom
+    rule: "new MEC equity to non-Credit Parties or capital contributions from non-Credit Parties; excludes asset sales and debt"
+    added_by: third_amendment
+    quote: "“Equity Issuance” means (a) any issuance by the Borrower of shares of its Equity Interests to any Person that is not a Credit Party"
+
+  - id: subsidiaries
+    name: Subsidiaries (scope)
+    type: standard
+    note: "no restricted/unrestricted subsidiary split: all consolidated Subsidiaries are in the covenant group (contrast Westrock Schedule 1.01(a))"
+
+  # standard terms: everyday / GAAP meaning, nothing to decompose
+  - {id: gaap, name: GAAP, type: standard, note: "subject to 1.3 frozen-GAAP rules"}
+  - {id: lien, name: Lien, type: standard}
+  - {id: acquisition, name: Acquisition, type: standard}
+  - {id: hedge_agreement, name: Hedge Agreement, type: standard}
+
+# ---------------------------------------------------------------- lookups
+lookups:
+  - id: compliance_certificate_form
+    name: Exhibit F Officer's Compliance Certificate (as amended by Annex B to the Third Amendment)
+    status: missing
+    why: "Annex B is referenced but not included in the filed exhibit"
+    stand_in: data/reference/mercury-compliance-certificate-form.txt
+  - id: schedule_1_1
+    name: Schedule 1.1 Commitments (Annex A)
+    status: missing
+    why: "not in the filed exhibit; aggregate $275M is stated in the amendment"
+  - id: specified_disposition_assets
+    name: Specified Disposition asset list
+    status: missing
+    why: "identified privately to the lenders before closing"
+    quote: "“Specified Disposition” means the transaction pursuant to which, among other things, the Credit Parties will dispose of certain assets previously identified to the Administrative Agent and the Lenders prior to the Third Amendment Effective Date."
+  - id: schedule_9_1
+    name: Schedule 9.1 Existing Indebtedness
+    status: missing
+    why: "schedules are not filed publicly"
+
+# ---------------------------------------------------------------- replay test
+# MEC discloses only the reported ratios, not the calculation. No math replay is possible.
+replay:
+  - covenant: total_leverage
+    test_date: 2026-06-30
+    status: reported_only
+    note: "10-Q gives the ratio and the cap only. Consolidated EBITDA (credit-agreement definition) and the debt build (finance leases, LCs, earn-outs) are not disclosed. Partial inputs listed below for a later replay once the compliance certificate is in hand (flag F5)."
+    cap_basis: "agreement 9.15(a) table, Jun 30 2026 = 5.25x (relief regime; CAP not exited); matches the 10-Q"
+    reported:
+      ratio: 2.91
+      cap: 5.25
+      direction: max
+      src: q2
+      quote: "At June 30, 2026, our consolidated total leverage ratio under the Credit Agreement was 2.91 to 1.00 as compared to a covenant maximum of 5.25 to 1.00."
+    partial_inputs:
+      units: usd_thousands
+      lines:
+        - id: in.revolver
+          value: 125718
+          maps_to: ntd.i.total_debt
+          src: q2
+          quote: "The amount borrowed on the revolving credit notes was $125,718 and $202,525 as of June 30, 2026 and December 31, 2025, respectively."
+        - id: in.fond_du_lac_note
+          value: 1375
+          maps_to: ntd.i.total_debt
+          src: q2
+          quote: "The balance outstanding as of June 30, 2026 and December 31, 2025 was $1,375."
+        - id: in.cash
+          value: -2203
+          maps_to: ntd.ii.cash
+          note: "below the $10M relief cap, so the cap does not bind; domestic/unrestricted split not disclosed"
+          src: q2
+          quote: "Cash and cash equivalents $2,203 $1,502"
+        - id: in.finance_leases
+          value: unknown
+          maps_to: ntd.i.total_debt
+          note: "only undiscounted contractual payments disclosed; balance-sheet liability not located"
+          src: q2
+          quote: "Finance lease obligations (3) 10,803 1,358 4,960 3,976 508"
+        - id: in.letters_of_credit
+          value: unknown
+          maps_to: ntd.i.total_debt
+        - id: in.consolidated_ebitda_ttm
+          value: unknown
+          maps_to: consolidated_ebitda
+    variants_text:      # not computable by the checker (not_disclosed); recorded for graders
+      - {id: V1, reading: "use the pre-relief 3.50x cap", result: "2.91x still passes"}
+      - {id: V2, reading: "use the 10-Q headline 5.25x for Sep 30 2026", result: "wrong: Sep 30 2026 cap is 5.00x"}
+  - covenant: interest_coverage
+    test_date: 2026-06-30
+    status: reported_only
+    note: "10-Q gives the ratio and floor only; numerator (EBITDA - 50% capex - taxes +/- ESOP repurchases) and interest expense per the definition are not disclosed (flag F4)."
+    cap_basis: "agreement 9.15(b) table, Jun 30 2026 = 2.75x (relief regime; CAP not exited); matches the 10-Q"
+    reported:
+      ratio: 3.27
+      cap: 2.75
+      direction: min
+      src: q2
+      quote: "At June 30, 2026, our consolidated interest coverage ratio under the Credit Agreement was 3.27 to 1.00 as compared to a covenant minimum of 2.75 to 1.00."
+    variants_text:
+      - {id: V1, reading: "use the pre-relief / post-early-exit 3.00x floor", result: "3.27x still passes, narrowly"}
+
+# ---------------------------------------------------------------- judgment flags
+flags:
+  - id: F1
+    topic: Early relief exit (clause (b)) status and trade-off
+    issue: "On the reported Q2 2026 ratios (2.91x leverage, 3.27x ICR) the borrower appears to meet the pre-amendment covenants (3.50x / 3.00x). It may elect to end the CAP early; if it does, leverage locks at 3.50x and ICR at 3.00x, the relief restrictions fall away, and the Accu-Fab LIP is forfeited. The Q2 10-Q still compares against 5.25x / 2.75x, so we read it as NOT elected (inferred). Need the agent to confirm CAP status every quarter: it changes both caps and which negative-covenant baskets are open."
+    impact: "Sep 30 2026 cap 5.00x (CAP running) vs 3.50x (exited); ICR floor 2.75x vs 3.00x"
+    owner: setup_agent (status tracking) + credit_officer
+  - id: F2
+    topic: Does the Accu-Fab Leverage Increase Period resume after a scheduled (clause (a)) exit?
+    issue: "Accu-Fab closed Jul 1 2025, so its LIP covered Q3'25-Q2'26. The Third Amendment suspends LIPs during the CAP and says the Accu-Fab LIP 'shall not be resumed' only if the CAP ends under clause (b), implying it does resume after a clause (a) exit. How many quarters remain (two, Q1'26 and Q2'26, were suspended) and from when is not stated."
+    impact: "possible 4.00x instead of 3.50x for up to two quarters after the CAP ends (around Q2-Q3 2027)"
+    owner: credit_officer + agent counsel
+  - id: F3
+    topic: Relief end is document-driven, not date-driven
+    issue: "The CAP ends on DELIVERY of Q1 2027 statements showing compliance (due by May 15 2027), not on a calendar date. If those statements do not show compliance, the CAP 'shall continue' and the relief restrictions stay on indefinitely, while the covenant levels are 3.50x / 3.00x by then anyway. Abstracts that hard-code an end date will be wrong."
+    owner: setup_agent (date logic) + human sign-off
+  - id: F4
+    topic: ICR is the tighter covenant and is falling
+    issue: "Reported ICR fell from 5.47x (Dec 2025) to 4.27x (Mar 2026) to 3.27x (Jun 2026). The floor goes back up to 3.00x at Mar 31 2027. The numerator subtracts 50% of capex and capex is rising (FY2026 guide $25-35M, H1 $11.8M). The ICR calculation is not disclosed."
+    owner: request compliance certificate
+  - id: F5
+    topic: Leverage not replayable
+    issue: "No Consolidated EBITDA bridge or debt build in the 10-Q. The 10-Q Adjusted EBITDA (non-GAAP) uses a different definition (no 15% pool, no $10M lifetime cap). Total debt also includes finance leases, LC face amounts and earn-outs, which are not disclosed in covenant form."
+    owner: request compliance certificate (Exhibit F as amended by Annex B, not public)
+  - id: F6
+    topic: 10-Q cap language is a headline, not the schedule
+    issue: "Both 2026 10-Qs describe the covenant as 'not to exceed 5.25 to 1.00' and an ICR minimum of 2.75. The table gives 5.00x at Sep 30 2026 and 4.00x at Dec 31 2026. The Q1 2026 10-Q compares ICR to 2.75x, but the table row 'Closing Date through March 31, 2026' sets 3.00x for Mar 31 2026. The reported 4.27x passes either way, but an agent copying the 10-Q's cap would mis-set future tests."
+    owner: setup_agent
+  - id: F7
+    topic: Add-back caps that need ledgers
+    issue: "Cash add-backs under (v), (vii), (viii), (xi), (xii) and (xiii) share a 15%-of-EBITDA pool (pre-add-back basis). Clause (xi) is also capped at $7M per acquisition. New clause (xiv) (data-center start-up costs) has a $10M LIFETIME cap that has to be tracked across periods. Amounts used to date are not disclosed."
+    owner: credit_officer
+  - id: F8
+    topic: Capex covenant and finance leases
+    issue: "FY2026 capex limit is $40M with no carry-forward. Capital Expenditures include Capital Lease Obligations incurred; H1 2026 finance-lease ROU additions were $8.15M on top of $11.76M cash capex. Whether 'Capital Lease Obligations during such period' means new leases incurred (our reading) needs confirming."
+    owner: credit_officer
+  - id: F9
+    topic: Relief-period acquisition basket
+    issue: "Only one acquisition is allowed during the CAP: at most $25M, funded solely with Equity Issuance proceeds, at 3.25x or lower pro forma. The May 2026 equity raise went to revolver paydown, so equity used for any later deal must be newly raised or traced (open question)."
+    owner: credit_officer
+  - id: F10
+    topic: Redline source and filing-label hygiene
+    issue: "The conformed copy is a redline, and stricken text survives text extraction, so a deleted provision can pass the quote check (e.g. the old $50,000,000 capex limit, 'the consummation of the Accu-Fab Acquisition shall trigger a Leverage Increase Period'). Also: the 8-K exhibit index dates the Second Amendment 'August 15, 2026' (the amendment itself says 2025), and the manifest labels the Second Amendment '2026-02' (filing date)."
+    owner: tooling (verify_abstract) + data steward
+  - id: F11
+    topic: Leverage Increase Periods used
+    issue: "Max two over the term. Accu-Fab triggered one (First Amendment text; 10-K says the acquisition 'met these terms'), so one remains, usable only after the CAP. Whether a suspended and non-resumed Accu-Fab LIP still counts toward the two is not addressed."
+    owner: credit_officer + agent
+  - id: F12
+    topic: Monthly reporting has no sunset
+    issue: "8.1(d) monthly financials (added with the relief) is not tied to the CAP and has no end date (inferred from the text). Confirm whether lenders expect it to drop after relief."
+    owner: relationship manager
+  - id: F13
+    topic: No pro forma for dispositions in EBITDA
+    issue: "The EBITDA definition gives pro forma credit for acquisitions but has no matching removal of EBITDA for dispositions (only disposal gains and losses are excluded from CNI). The Specified Disposition and the held-for-sale Fond du Lac building could leave sold EBITDA in the TTM. Confirm the treatment with the agent."
+    owner: credit_officer

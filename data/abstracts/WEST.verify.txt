@@ -1,0 +1,15 @@
+== WEST.yaml  (WEST-2026-06-30)
+Quotes checked: 108  missing: 0
+Schedule problems: 0
+Replay:
+  [secured_net_leverage] 2026-06-30  numerator 313,147  denominator 93,174
+      ratio 3.36x  reported 3.36x  match=YES  max 4.0x  pass=True  headroom 15.98%
+      check C1: projected savings <= 15% of Adjusted Consolidated EBITDA: 8,505 vs 13,976.1 (9.13%) -> OK
+      check C2: unrestricted cash <= 100% of Adjusted Consolidated EBITDA: 36,177 vs 93,174.0 (38.83%) -> OK
+      variant V1: exclude undrawn LCs (not 'borrowed money'): 3.34x vs 4.0x (pass=True, headroom 16.51%)
+      variant V2: reject the $8.5M run-rate savings: 3.7x vs 4.0x (pass=True, headroom 7.54%)
+      variant V3: keep the relief cap (missed the early termination): 3.36x vs 5.0x (pass=True, headroom 32.78%)
+      variant V4: subtract no cash (gross secured leverage): 3.75x vs 4.0x (pass=True, headroom 6.27%)
+  [interest_coverage] skipped: not_disclosed
+RESULT: PASS
+

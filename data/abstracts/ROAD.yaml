@@ -1,0 +1,774 @@
+# Construction Partners (ROAD) covenant abstract
+# The "answer key" the four agent builds are graded against.
+# Every quote is checked verbatim against its source by engine/verify_abstract.py.
+# Amounts are USD thousands unless stated. Ratios are x:1.00.
+#
+# READ FIRST - how the current text was established
+#   There is no clean conformed copy. Both the 5th (a5) and 6th (a6) amendments attach
+#   "Exhibit A - Conformed Copy of the Credit Agreement", but as a BLACKLINE: struck text
+#   (red/green line-through) and inserted text (blue/green double underline) are both
+#   present in the HTML. The checker strips tags, so a6's searchable text interleaves old
+#   and new wording (e.g. "4. 2 7 5 to 1.00" = 4.25 struck, 4.75 inserted).
+#   Current text = a6 Exhibit A with struck runs removed. The checker's load_source() now
+#   does this (live=True), so ordinary quote fields are checked against CURRENT text.
+#   Quotes that deliberately cite deleted wording use keys containing "blackline" and are
+#   checked against the raw redline. Live text can still split digits ("4. 7 5 to 1.00").
+#   Where possible the clean reading is corroborated by a 10-Q quote (src q2).
+#   Provenance per item: `introduced_by:` ca (2022 original) | a1_a4 (missing amendments,
+#   inferred because the text is in a5's unmarked/struck base but not in ca) | a5 | a6.
+
+schema_version: 0.1
+abstract_id: ROAD-2026-06-30
+status: draft            # draft -> verified (code checks pass) -> signed_off (human)
+as_of: 2026-06-30        # text current through the Sixth Amendment (Jun 3 2026); TLB through Amendment No. 1 (Jun 18 2026)
+built_by: agent (Claude) from public EDGAR filings, 2026-10-10
+fiscal_calendar: "fiscal year ends Sep 30; fiscal Q3 FY2026 = quarter ended Jun 30 2026"
+
+sources:
+  ca:
+    file: data/filings/ROAD/credit_agreement_third-a-r-credit-agreement-2022.htm
+    what: Third Amended and Restated Credit Agreement (Term Loan A / Revolver), dated Jun 30 2022, as originally signed
+  a5:
+    file: data/filings/ROAD/amendment_5th-amendment-2025.htm
+    what: Fifth Amendment (Jun 30 2025) with Exhibit A blackline conformed copy (changes vs. text as amended by Amendments 1-4)
+  a6:
+    file: data/filings/ROAD/amendment_6th-amendment-2026-06.htm
+    what: Sixth Amendment (Jun 3 2026) with Exhibit A blackline conformed copy (changes vs. a5 text). CURRENT TEXT of the TLA/RCF agreement
+  tlb:
+    file: data/filings/ROAD/amendment_term-loan-b-amendment-no-1.htm
+    what: Amendment No. 1 (Jun 18 2026) to the separate Term Loan Credit Agreement (TLB, Nov 1 2024), with Exhibit A blackline of the TLB agreement
+  q2:
+    file: data/filings/ROAD/10-Q_2026-06-30.htm
+    what: ROAD 10-Q for the quarter ended Jun 30 2026 (fiscal Q3 FY2026); reported ratios, debt table
+  q1:
+    file: data/filings/ROAD/10-Q_2026-03-31.htm
+    what: ROAD 10-Q for the quarter ended Mar 31 2026 (fiscal Q2 FY2026)
+  qd:
+    file: data/filings/ROAD/10-Q_2025-12-31.htm
+    what: ROAD 10-Q for the quarter ended Dec 31 2025 (fiscal Q1 FY2026)
+  qp:
+    file: data/filings/ROAD/10-Q_2025-06-30.htm
+    what: ROAD 10-Q for the quarter ended Jun 30 2025 (fiscal Q3 FY2025); describes the Fifth Amendment
+  k:
+    file: data/filings/ROAD/10-K_fy2025-09-30.htm
+    what: ROAD 10-K for fiscal year ended Sep 30 2025
+
+# ---------------------------------------------------------------- agreement
+agreement:
+  name: Third Amended and Restated Credit Agreement (Term Loan A / Revolver)
+  src: a6
+  borrowing_agent: Construction Partners, Inc.
+  borrowers: "Construction Partners, Inc. and wholly owned operating subsidiaries as co-borrowers (13 named in a6)"
+  agent: PNC Bank, National Association
+  quote: "among Construction Partners, Inc., a Delaware corporation (“Construction Partners” or “Borrowing Agent”)"
+  agent_quote: "and PNC Bank, National Association (“Administrative Agent”), as Administrative Agent and Issuing Lender"
+  facilities: "Revolver $700M (after a6 $200M incremental), Term Loan A $600M original (a5); both mature Jun 28 2030"
+  facilities_quotes:
+    src: q2
+    revolver_quote: "increased the revolving credit facility thereunder from $500.0 million to $700.0 million"
+    maturity_quote: "All outstanding advances under the Term Loan A and Revolving Credit Facility are due and payable in full on June 28, 2030"
+  expiration_quote: "“Expiration Date” means, with respect to the Revolving Credit Commitments, June 28, 2030"
+  closing_date:
+    value: 2022-06-30
+    inferred: "agreement is 'dated as of' Jun 30 2022; 'Closing Date' is defined as the day Section 7.1 conditions were first satisfied, actual date not stated in the filed text"
+    src: ca
+    quote: "Dated as of June 30, 2022"
+    definition_quote: "“Closing Date” means the Business Day on which the conditions specified in Section 7.1 shall be first satisfied"
+  fiscal_year_end: 09-30
+  fiscal_year_quote: "“Fiscal Year” means the fiscal year of the Borrowing Agent and its Subsidiaries ending on September 30 of each year"
+  fiscal_quarter_quote: "“Fiscal Quarter” means a fiscal quarter ending on March 31, June 30, September 30 or December 31 of each Fiscal Year"
+
+  current_text_method:
+    conformed_copy_available: "blackline only (a5 and a6 each attach Exhibit A, marked to show changes)"
+    approach: "a6 Exhibit A with struck runs removed = current text; a5 struck runs = text after Amendments 1-4; ca = 2022 original"
+    confidence: high for 9.16 and the definitions used by it (three-way cross-check against ca, a5 base text and the 10-Q schedule description); medium for anything only in a6 where struck/inserted runs are interleaved inside numbers
+    conformed_quote: "as set forth in the conformed copy of the Credit Agreement attached hereto as Exhibit A hereto"
+    exhibit_quote: "EXHIBIT A Conformed Copy of the Credit Agreement [See attached.]"
+    a5_exhibit:
+      src: a5
+      quote: "EXHIBIT A Conformed Copy of the Credit Agreement [See attached.]"
+    blackline_markup_quote: "to delete red or green stricken text (indicated textually in the same manner as the following examples: stricken text and stricken text) and (ii) to add the blue or green double-underlined text"
+
+  amendments:
+    # all listed in the a6 recital; only 5 and 6 are in the folder
+    - {no: 1, date: 2022-11-17, in_folder: false, covenant_change: unknown, quote: "(i) First Amendment to Third Amended and Restated Credit Agreement, dated as of November 17, 2022, (ii) Consent, dated as of November 17, 2022"}
+    - {no: 2, date: 2023-05-08, in_folder: false, covenant_change: unknown, quote: "(iii) Second Amendment to Third Amended and Restated Credit Agreement, dated as of May 8, 2023"}
+    - {no: 3, date: 2024-05-29, in_folder: false, covenant_change: unknown, quote: "(iv) Third Amendment to Third Amended and Restated Credit Agreement and First Amendment to Third Amended and Restated Security Agreement, dated as of May 29, 2024"}
+    - no: 4
+      date: 2024-10-30
+      in_folder: false
+      covenant_change: "yes (inferred): between ca and a5's base text the flat 3.50x NLR became a step schedule (4.50x peak), Holdback Amount carve-outs were added to Consolidated Funded Debt, Qualifying Cash allowed liens of the TLB agent, and a time-limited 0.25x acquisition cushion test was added. The 4th Amendment accompanied the Lone Star Paving acquisition and TLB, so it is the likely source; 1-3 cannot be excluded"
+      quote: "(vi) Fourth Amendment to Third Amended and Restated Credit Agreement, dated as of October 30, 2024"
+      effective_quote: "“Fourth Amendment Effective Date” means the first date all the conditions precedent to effectiveness in the Fourth Amendment are satisfied or waived which was October 30, 2024"
+    - no: 5
+      date: 2025-06-30
+      in_folder: true
+      note: "FCCR 1.20x replaced by ICR 3.00x; NLR schedule reset (4.50x to Dec-25, 4.25x, 4.00x, 3.75x from Sep-27); step-up start moved to Sep-27; EBITDA add-backs (vi)-(viii) incl. 15% cap; revolver $500M, TLA $600M, maturity Jun 28 2030"
+      quote: "(x) Fifth Amendment to Third Amended and Restated Credit Agreement, dated as of June 30, 2025"
+      description:
+        src: qp
+        quote: "replaced the consolidated fixed charge coverage ratio covenant with a consolidated interest coverage ratio covenant, (iii) adjusted the maximum consolidated net leverage ratio permitted thereunder"
+    - no: 6
+      date: 2026-06-03
+      in_folder: true
+      note: "NLR relief (4.75x Jun-26..Sep-26, 4.50x, 4.25x, 4.00x from Jun-28); ICR to 2.75x from Jun-26; step-up 4.25x from Jun-28; Qualifying Cash cap now greater of $325M / 50% EBITDA; surety-backed LCs out of Funded Debt; Material Acquisition $100M; 0.25x cushion incurrence tests; convertible notes basket; revolver +$200M"
+      quote: "dated as of June 3, 2026"
+      description:
+        src: q2
+        quote: "On June 3, 2026, the parties entered into an amendment to the Term Loan A / Revolver Credit Agreement that, among other things, (i) increased the revolving credit facility thereunder from $500.0 million to $700.0 million (the “Revolving Credit Facility”) and (ii) adjusted certain financial covenants"
+      effective_date: unknown   # "Sixth Amendment Effective Date" = date conditions satisfied; not stated in the filing
+      effective_date_quote: "(the date of such satisfaction being the “Sixth Amendment Effective Date”)"
+      condition_quote: "that the Consolidated Net Leverage Ratio does not exceed 0.25 to 1.00 less than the maximum Consolidated Net Leverage Ratio in effect pursuant to Section 9.16(a)"
+
+  reporting:
+    annual_financials:
+      due: "120 days after fiscal year end (Sep 30 -> ~Jan 28)"
+      ref: "8.1(a)"
+      quote: "within one hundred twenty (120) days after the end of each Fiscal Year"
+    quarterly_financials:
+      due: "45 days after fiscal Q1, Q2, Q3 (Dec 31, Mar 31, Jun 30)"
+      ref: "8.1(b)"
+      quote: "within forty-five (45) days after the end of each of the first three Fiscal Quarters of each Fiscal Year"
+    compliance_certificate:
+      due: "concurrently with each 8.1(a)/(b) delivery; so the Sep 30 test is certified at 120 days, the others at 45 days"
+      ref: "8.2(a)"
+      quote: "concurrently with the delivery of the financial statements referred to in Sections 8.1(a) and (b), a duly completed Compliance Certificate signed by a Responsible Officer of the Borrowing Agent"
+      form: "Exhibit H (not filed publicly)"
+      form_quote: "“Compliance Certificate” means a certificate substantially in the form of Exhibit H"
+      addback_schedule_quote: "Borrowing Agent shall provide with each applicable Compliance Certificate a schedule in reasonable detail describing all such items in this clause (vii)"
+    annual_projections:
+      due: "60 days after fiscal year end"
+      ref: "8.1(c)"
+      quote: "no later than sixty (60) days after the end of each Fiscal Year, an annual projection, budget and forecast"
+
+  test_period:
+    meaning: "covenants are tested on each fiscal quarter end, using the four fiscal quarters ending on that date (TTM) for EBITDA and interest; debt and cash as of that date"
+    nlr_quote: "Consolidated Adjusted EBITDA for the period of the four (4) prior Fiscal Quarters ending on or most recently prior to such date"
+    defined_term_quote: "“Test Period” means, for any date of determination under this Agreement, the four consecutive Fiscal Quarters of the Borrowers most recently ended as of such date of determination for which financial statements have been delivered (or are required to be delivered) pursuant to Section 8.1(a) or (b), as applicable"
+    note: "the 9.16 ratios use their own 'four (4) prior Fiscal Quarters' wording; 'Test Period' (delivered statements) drives the (a)(vii) cap, Specified Acquisition size and the step-up pro forma test"
+
+  calculation_rules:
+    rounding:
+      ref: "1.6"
+      rule: "compute to one more decimal than the covenant (3 places for x.xx), then round half up"
+      quote: "carrying the result to one place more than the number of places by which such ratio is expressed herein and rounding the result up or down to the nearest number (with a rounding-up if there is no nearest number)"
+    face_value:
+      ref: "1.8"
+      quote: "all calculations shall be made based on the face value of the relevant Obligation and not at any discounted value"
+    frozen_gaap_leases:
+      ref: "1.3(c)"
+      rule: "operating leases (pre-ASC 842) are not Capitalized Leases, so they stay out of Attributable Indebtedness"
+      quote: "shall not be accounted for as Capitalized Leases for purposes of this Agreement regardless of any change in GAAP"
+    captive_insurance_excluded:
+      ref: "1.3(d)"
+      rule: "CP Risk Management (captive insurer) is carved out of every ratio"
+      quote: "the Captive Insurance Company shall be excluded from the calculation of any financial ratio (including the Consolidated Interest Coverage Ratio and the Consolidated Net Leverage Ratio)"
+      introduced_by: ca (text updated by a5 to name ICR)
+    convertible_valuation:
+      ref: "1.3(a), Indebtedness"
+      introduced_by: a6
+      quote: "Permitted Convertible Indebtedness shall at all times prior to the repurchase, conversion (or exchange, as the case may be) or payment thereof be valued at the full stated principal amount thereof"
+    pro_forma:
+      ref: "1.5"
+      rule: "EBITDA pro forma for Specified Acquisitions/Dispositions (target EBITDA >= $500K) as of day one of the period; when EBITDA is pro forma'd, the other ratio components are too"
+      quote: "Consolidated Adjusted EBITDA will be calculated after giving pro forma effect to any Specified Dispositions or Specified Acquisitions occurring during the relevant period, as if such Dispositions or Acquisitions occurred on the first day of such period"
+      other_components_quote: "the other elements of the Consolidated Interest Coverage Ratio and Consolidated Net Leverage Ratio will also be calculated after giving pro forma effect to such Acquisition or Disposition"
+      size_quote: "has a Consolidated Adjusted EBITDA of at least $500,000 during the Test Period most recently ended on or prior to the date of such Acquisition"
+
+  elections:
+    leverage_step_up:
+      what: "Borrowing Agent may raise the NLR cap to 4.25x for the quarter of a Material Acquisition (or any of the next three) and the three following quarters, but only for quarters ending Jun 30 2028 and later"
+      ref: "9.16(a) proviso"
+      introduced_by: "ca (4.00x, any quarter); a5 moved availability to Sep 30 2027+; a6 moved it to Jun 30 2028+ and raised it to 4.25x"
+      available_from: 2028-06-30
+      value: 4.25
+      duration: "the election quarter + 3 following fiscal quarters"
+      conditions:
+        - "a Material Acquisition consummated in the current or any of the three preceding fiscal quarters"
+        - "notice + pro forma Compliance Certificate at least 5 Business Days before closing the acquisition"
+      limit: "none stated in the text (no cap on count, no cool-off period)"
+      used: unknown
+      quote: "provided that, for the fiscal quarter ending June 30, 202 8 and each fiscal quarter thereafter, at the Borrowing Agent's election, following a Material Acquisition"
+      value_quote: "the maximum permitted Consolidated Net Leverage Ratio shall be increased to 4. 25:1.00 (such increase, a “Leverage Step-Up”) for such Fiscal Quarter and the immediately following three Fiscal Quarters"
+      notice_quote: "at least five Business Days (or such shorter period as may be agreed to by the Administrative Agent) prior to the consummation of such Material Acquisition"
+      material_acquisition:
+        rule: "Post-Closing Permitted Acquisitions in the current + prior 3 fiscal quarters with aggregate consideration (excluding earnouts) >= $100M (was $75M before a6)"
+        quote: "have an aggregate consideration (excluding any earnouts) of at least $100,000,000"
+        post_closing_quote: "“Post-Closing Permitted Acquisition” means a Permitted Acquisition that is consummated after the Fifth Amendment Effective Date"
+
+  equity_cure:
+    ref: "10.3"
+    introduced_by: ca
+    effect: "net cash proceeds of common equity designated as Cure Amount increase Consolidated Adjusted EBITDA for the quarter and every test period that includes it; 9.16 only"
+    quote: "designate any portion of the net cash proceeds from a sale or issuance of Equity Interests constituting common stock or any cash contribution to the common capital of Construction Partners (the “Cure Amount”) as a dollar-for-dollar increase to Consolidated Adjusted EBITDA for the applicable Fiscal Quarter"
+    deadline: "received after quarter end and by the 10th Business Day after financial statements are due (Cure Expiration Date); irrevocable Notice of Intent to Cure in that window"
+    deadline_quote: "on or prior to the tenth (10 th) Business Day after the date on which financial statements are required to be delivered with respect to such applicable Fiscal Quarter (the “Cure Expiration Date”)"
+    mandatory_prepayment_quote: "the Borrowers shall prepay the Loans with such net cash proceeds pursuant to Section 5.3 on or prior to the Cure Expiration Date"
+    limits:
+      - rule: "two cure-free quarters in every four"
+        quote: "In each period of four consecutive Fiscal Quarters, there shall be at least two Fiscal Quarters in which no cure right set forth in this Section 10.3 is exercised"
+      - rule: "max one cure per fiscal year"
+        quote: "in each Fiscal Year, there shall not be more than one (1) cure right exercised pursuant to this Section 10.3"
+      - rule: "max three cure quarters over the life of the facilities"
+        quote: "There can be no more than three Fiscal Quarters in which the cure rights set forth in this Section 10.3 are exercised during the term of the Obligations hereunder"
+      - rule: "no more than needed to cure"
+        quote: "do not exceed the aggregate amount necessary to cure any Event of Default resulting from the failure to comply with Section 9.16 as of such date"
+      - rule: "no pro forma debt reduction / cash netting from the cure in the cured quarter"
+        quote: "there shall be no pro forma reduction in Indebtedness (through either netting of cash or the prepayment of the Loans) or related Consolidated Interest Charges or principal payments of Funded Debt with the Cure Amount"
+    cures_used: unknown
+
+  term_loan_b:
+    src: tlb
+    what: "separate Term Loan Credit Agreement (Bank of America, agent), $850M funded Nov 1 2024 for Lone Star Paving; refinanced + $300M incremental by Amendment No. 1 (Jun 18 2026); matures Nov 1 2031; pari passu first-lien with TLA/RCF"
+    quote: "AMENDMENT NO. 1 TO TERM LOAN CREDIT AGREEMENT, dated as of June 18, 2026"
+    original_quote: "that certain Term Loan Credit Agreement, dated as of November 1, 2024"
+    maintenance_covenant: none     # VERIFIED: README said "assumed not, unverified"
+    evidence:
+      - what: "Section 9.16 (the slot where the TLA/RCF agreement puts its financial covenants) is reserved, unmarked in the Amendment No. 1 blackline, so reserved before and after"
+        quote: "9.16 [Reserved]. 9.17 ERISA."
+      - what: "TLB Event of Default for a TLA/RCF 9.16 breach only after the revolving lenders actually accelerate (cross-acceleration, not cross-default)"
+        quote: "fails to comply with the financial covenants set forth in Section 9.16 of the Existing Credit Agreement"
+        proviso_quote: "shall not constitute a Default or Event of Default with respect to any Loans or Commitments hereunder unless and until the Required Revolving Lenders (as defined in the Existing Credit Agreement) have actually declared all Revolving Loans"
+      - what: "TLB borrows the TLA/RCF covenant by reference: 'Existing Credit Agreement' floats with future TLA/RCF amendments"
+        quote: "as the same may be further amended, restated, supplemented, increased or otherwise modified from time to time (including any amendment and restatement thereof)"
+    pricing_ratio: "Consolidated First Lien Net Leverage Ratio, 2.95x grid (pricing only, from Sep 30 2026)"
+    pricing_quote: "“Consolidated First Lien Net Leverage Ratio” means, as of any date of determination, the ratio of (a) Consolidated First Lien Debt, minus Qualifying Cash, as of such date to (b) Consolidated Adjusted EBITDA"
+
+# ---------------------------------------------------------------- covenants
+covenants:
+
+  - id: net_leverage
+    name: Consolidated Net Leverage Ratio
+    kind: ratio
+    ref: "9.16(a)"
+    src: a6
+    current_text_from: a6
+    introduced_by: "ca (flat 3.50x); schedule by a1_a4 (inferred, likely 4th); reset by a5; current schedule by a6"
+    direction: max
+    tested: "quarterly, last day of each fiscal quarter (from FQ ending Jun 30 2025 under the current text)"
+    formula: {numerator: consolidated_funded_debt_net, denominator: consolidated_adjusted_ebitda}
+    expression: "(consolidated_funded_debt - qualifying_cash) / consolidated_adjusted_ebitda (TTM)"
+    definition_quote: "“Consolidated Net Leverage Ratio” means, as of any date of determination, the ratio of (a) Consolidated Funded Debt, minus Qualifying Cash, as of such date to (b) Consolidated Adjusted EBITDA for the period of the four (4) prior Fiscal Quarters ending on or most recently prior to such date"
+    row_dates: "from/to are fiscal quarter-end test dates (inclusive)"
+    thresholds:
+      - {from: 2025-06-30, to: 2025-12-31, value: 4.50, note: "each FQ ending on or before Dec 31 2025 (a5 text, unchanged by a6)"}
+      - {from: 2026-03-31, to: 2026-03-31, value: 4.25, note: "single quarter row; a6 split it out of the a5 Mar-26..Sep-26 4.25x row"}
+      - {from: 2026-06-30, to: 2026-09-30, value: 4.75, note: "a6 relief (was 4.25x)"}
+      - {from: 2026-12-31, to: 2027-06-30, value: 4.50, note: "a6 (was 4.00x)"}
+      - {from: 2027-09-30, to: 2028-03-31, value: 4.25, note: "a6 (was 3.75x thereafter)"}
+      - {from: 2028-06-30, to: null, value: 4.00, note: "a6 new final step"}
+      # election overlay (ignored by the schedule check): Leverage Step-Up, see agreement.elections
+      - {from: 2028-06-30, to: null, value: 4.25, regime: step_up, note: "only if elected after a Material Acquisition; election quarter + 3 following"}
+    regime_rule: "standard schedule by test date; from Jun 30 2028 the cap is 4.25x for four quarters if a Leverage Step-Up is elected"
+    effective_cap:
+      2026-03-31: 4.25
+      2026-06-30: 4.75
+      2026-09-30: 4.75
+      2026-12-31: 4.50
+    quotes:
+      covenant: "Permit the Consolidated Net Leverage Ratio to exceed, as of the last day of any Fiscal Quarter (commencing with the Fiscal Quarter ending June 30, 2025), the corresponding ratio set forth below for such fiscal quarter"
+      table: "Each fiscal quarter ending on or prior to December 31, 2025 4.50 to 1.00 Fiscal quarter ending March 31, 2026 4.25 to 1.00 Each fiscal quarter ending June 3 0, 2026 and through and including September 30, 2026 4. 7 5 to 1.00 Each fiscal quarter ending December 31, 2026 and through and including June 30, 2027 4. 5 0 to 1.00 Each fiscal quarter ending September 30, 2027 and through and including March 31, 2028 4. 2 5 to 1.00 Each fiscal quarter ending June 30, 2028 and thereafter 4.00 to 1.00"
+      schedule_confirmed:
+        src: q2
+        quote: "a maximum consolidated net leverage ratio determined as follows: (i) for each fiscal quarter ending June 30, 2026 through and including September 30, 2026, 4.75 -to-1.00; (ii) for each fiscal quarter ending December 31, 2026 through and including June 30, 2027, 4.50 -to-1.00; (iii) for each fiscal quarter ending September 30, 2027 through and including March 31, 2028, 4.25 -to-1.00; and (iv) for each fiscal quarter ending June 30, 2028 and thereafter, 4.00 -to-1.00, subject to certain adjustments"
+    reading: "<= Dec 31 2025: 4.50 | Mar 31 2026: 4.25 | Jun 30 2026 - Sep 30 2026: 4.75 | Dec 31 2026 - Jun 30 2027: 4.50 | Sep 30 2027 - Mar 31 2028: 4.25 | Jun 30 2028 and thereafter: 4.00 (live text splits digits per character)"
+    schedule_history:   # superseded schedules; kept for back-testing older quarters
+      - version: ca (2022)
+        rule: "3.50x every quarter from Jun 30 2022; step-up to 4.00x after a Material Acquisition (no start date)"
+        src: ca
+        quote: "Permit the Consolidated Net Leverage Ratio to exceed 3.50:1.00 as of the last day of any Fiscal Quarter (commencing with the Fiscal Quarter ending June 30, 2022)"
+        step_up_quote: "the maximum permitted Consolidated Net Leverage Ratio shall be increased to 4.00:1.00 (such increase, a “Leverage Step-Up”)"
+      - version: a1_a4 (struck in a5)
+        inferred: "read from a5's struck runs; the amending document is not in the folder"
+        rule: "<= Sep 30 2024: 3.50 | Dec 31 2024 - Sep 30 2025: 4.50 | Dec 31 2025 - Sep 30 2026: 4.00 | Dec 31 2026+: 3.50; step-up 4.00x from Dec 31 2026"
+        src: a5
+        blackline_quote: "Each fiscal quarter ending on or prior to S D e pt c ember 3 0 1, 202 4 5 3 4.50 to 1.00 Each fiscal quarter ending December March 31, 202 4 6 and through and including September 30, 202 5 6 4. 2 5 0 to 1.00"
+      - version: a5 (Jun 30 2025 - Jun 3 2026)
+        rule: "<= Dec 31 2025: 4.50 | Mar 31 2026 - Sep 30 2026: 4.25 | Dec 31 2026 - Jun 30 2027: 4.00 | Sep 30 2027+: 3.75; step-up 4.00x from Sep 30 2027"
+        src: q1
+        quote: "(i) for each fiscal quarter ending on or prior to December 31, 2025, 4.50 -to-1.00; (ii) for each fiscal quarter ending March 31, 2026 through and including September 30, 2026, 4.25 -to-1.00; (iii) for each fiscal quarter ending December 31, 2026 through and including June 30, 2027, 4.00 -to-1.00; and (iv) for each fiscal quarter ending September 30, 2027 and thereafter, 3.75 -to-1.00"
+    reported_history:    # borrower-reported ratios (not recomputed)
+      - {date: 2024-09-30, ratio: 1.81, cap: 3.50, src: k, quote: "our consolidated leverage ratio was 3.10-to-1.00 and 1.81-to-1.00, respectively", note: "10-Q Jun-25 reports 1.80 for the same date (flag F9)"}
+      - {date: 2025-06-30, ratio: 3.17, cap: 4.50, src: qp, quote: "the Company's consolidated net leverage ratio was 3.17 -to-1.00 and 1.80 -to-1.00, respectively"}
+      - {date: 2025-09-30, ratio: 3.10, cap: 4.50, src: q2, quote: "the Company's consolidated net leverage ratio was 3.17 -to-1.00 and 3.10 -to-1.00, respectively"}
+      - {date: 2025-12-31, ratio: 3.18, cap: 4.50, src: qd, quote: "the Company's consolidated net leverage ratio was 3.18 -to-1.00 and 2.96 -to-1.00, respectively"}
+      - {date: 2026-03-31, ratio: 3.23, cap: 4.25, src: q1, quote: "the Company's consolidated net leverage ratio was 3.23 -to-1.00 and 3.10 -to-1.00, respectively"}
+      - {date: 2026-06-30, ratio: 3.17, cap: 4.75, src: q2, quote: "the Company's consolidated net leverage ratio was 3.17 -to-1.00 and 3.10 -to-1.00, respectively"}
+
+  - id: interest_coverage
+    name: Consolidated Interest Coverage Ratio
+    kind: ratio
+    ref: "9.16(b)"
+    src: a6
+    current_text_from: a6
+    introduced_by: "a5 (replaced the 2022 Fixed Charge Coverage Ratio 1.20x); step-down to 2.75x by a6"
+    direction: min
+    tested: "quarterly, last day of each fiscal quarter (from FQ ending Jun 30 2025)"
+    formula: {numerator: consolidated_adjusted_ebitda, denominator: consolidated_interest_charges}
+    definition_quote: "“Consolidated Interest Coverage Ratio” means, at any date of determination, the ratio of (a) Consolidated Adjusted EBITDA to (b) Consolidated Interest Charges, in each case, for the most recently ended period of four (4) Fiscal Quarters ending on or most recently prior to such date"
+    thresholds:
+      - {from: 2025-06-30, to: 2026-03-31, value: 3.00}
+      - {from: 2026-06-30, to: null, value: 2.75, note: "a6; lower minimum = looser"}
+    effective_cap:
+      2026-06-30: 2.75
+    quote: "Permit the Consolidated Interest Coverage Ratio to be less than (i) 3.00:1.00 as of the last day of any Fiscal Quarter ending on or prior to March 31, 2026 (commencing with the Fiscal Quarter ending June 30, 2025), or (ii) 2.75:1.00 as of the last day of any Fiscal Quarter ending on or after June 30, 2026"
+    confirmed:
+      src: q2
+      quote: "a minimum consolidated interest coverage ratio of 2.75 -to-1.00"
+    schedule_history:
+      - version: ca (2022) - different covenant
+        rule: "Consolidated Fixed Charge Coverage Ratio >= 1.20x from Jun 30 2022 until replaced by a5"
+        src: ca
+        quote: "Permit the Consolidated Fixed Charge Coverage Ratio to be less than 1.20:1.00 as of the last day of any Fiscal Quarter (commencing with the Fiscal Quarter ending June 30, 2022)"
+    reported_history:
+      - {date: 2025-06-30, ratio: 6.45, floor: 3.00, src: qp, quote: "the Company's consolidated interest coverage ratio was 6.45 -to-1.00 and 11.32 -to-1.00, respectively"}
+      - {date: 2025-12-31, ratio: 5.54, floor: 3.00, src: qd, quote: "the Company's consolidated interest coverage ratio was 5.54 -to-1.00 and 11.20 -to-1.00, respectively"}
+      - {date: 2026-03-31, ratio: 5.34, floor: 3.00, src: q1, quote: "the Company's consolidated interest coverage ratio was 5.34 -to-1.00 and 5.76 -to-1.00, respectively"}
+      - {date: 2026-06-30, ratio: 5.37, floor: 2.75, src: q2, quote: "the Company's consolidated interest coverage ratio was 5.37 -to-1.00 and 5.76 -to-1.00, respectively"}
+    replay: not_disclosed
+
+  - id: leverage_cushion_incurrence
+    name: NLR cushion test (0.25x inside the current maximum)
+    kind: incurrence
+    ref: "Permitted Acquisition (b)(ii); 2.10 incrementals; 9.2(m) Specified Incremental Debt; 9.2(o) convertibles"
+    src: a6
+    current_text_from: a6
+    introduced_by: "ca for incrementals; acquisition test as a time-limited proviso in a1_a4 (inferred), extended by a5 to Sep 30 2026, made permanent by a6; 9.2(m) Specified Incremental Debt a1_a4 (inferred, tied to the TLB); converts a6"
+    direction: max
+    formula: {numerator: consolidated_funded_debt_net, denominator: consolidated_adjusted_ebitda, adjustment: "pro forma for the transaction"}
+    threshold_rule: "pro forma NLR <= (9.16(a) cap in effect, incl. any Leverage Step-Up) - 0.25"
+    applies_when: [permitted_acquisition, incremental_commitment, specified_incremental_debt (TLB incremental), permitted_convertible_indebtedness]
+    cash_netting_note: "for 9.2(m) and 9.2(o) the new debt proceeds may not be netted as Qualifying Cash"
+    quotes:
+      acquisition: "the Consolidated Net Leverage Ratio (on a pro forma basis) will be at least 0.25 to 1.00 less than the maximum Consolidated Net Leverage Ratio in effect pursuant to Section 9.16(a)"
+      incremental: "a Compliance Certificate demonstrating, in form and substance reasonably satisfactory to the Administrative Agent, that the Consolidated Net Leverage Ratio will be at least 0.25 to 1.00 less than the maximum Consolidated Net Leverage Ratio in effect as of the Increased Amount Date pursuant to Section 9.16(a)"
+      no_netting: "but without netting proceeds from any such Indebtedness for purposes of determining Qualifying Cash"
+      convert_basket: "any Permitted Convertible Indebtedness of Construction Partners in an aggregate principal amount outstanding not to exceed, at any one time, $550,000,000"
+
+  - id: acquisition_liquidity
+    name: Permitted Acquisition minimum cash + revolver availability
+    kind: incurrence
+    ref: "Permitted Acquisition (c)"
+    src: a6
+    current_text_from: a6
+    introduced_by: ca (unchanged)
+    direction: min
+    value: 20000000
+    units: usd
+    formula: {expression: "cash + revolving availability, immediately before and after the acquisition"}
+    quote: "Borrowers' cash and availability under the Revolving Credit Facility shall be equal to or greater than $20,000,000 immediately prior to and immediately after giving effect to such Acquisition"
+
+  - id: tlb_incurrence_tests
+    name: Term Loan B ratio-based incurrence tests (no maintenance covenant)
+    kind: incurrence
+    ref: "TLB: Incremental (ratio-based amount); 9.2 ratio debt; investments; restricted payments"
+    src: tlb
+    current_text_from: tlb
+    introduced_by: "TLB original; levels loosened by TLB Amendment No. 1"
+    direction: max
+    tests:
+      - {test: "incremental / incremental equivalent debt, pari or junior secured", measure: consolidated_secured_net_leverage, value: 4.00, was: 3.75}
+      - {test: "incremental / incremental equivalent debt, unsecured", measure: consolidated_net_leverage, value: 5.00, was: 4.75}
+      - {test: "ratio debt, pari or junior secured", measure: consolidated_secured_net_leverage, value: 3.25, was: 3.00}
+      - {test: "ratio debt, unsecured", measure: consolidated_net_leverage, value: 4.25, was: 4.00}
+      - {test: "general investments basket", measure: consolidated_net_leverage, value: 2.25, was: 2.00}
+      - {test: "unlimited restricted payments", measure: consolidated_net_leverage, value: 2.25, was: 2.00}
+      - {test: "available-amount restricted payments", measure: consolidated_net_leverage, value: 3.25, was: 3.00}
+      - {test: "permitted acquisition", measure: "TLA/RCF 9.16 pro forma (by reference)"}
+    note: "`was` values are the struck pre-Amendment No. 1 levels (see blackline_incremental); other was-values read from the redline, not separately quoted"
+    quotes:
+      incremental: "the Consolidated Secured Net Leverage Ratio calculated on a pro forma basis does not exceed 4.00 to 1.00 or (2) if such Incremental Loans or Incremental Equivalent Debt is unsecured, the Consolidated Net Leverage Ratio calculated on a pro forma basis does not exceed 5.00 to 1.00"
+      blackline_incremental: "the Consolidated Secured Net Leverage Ratio calculated on a pro forma basis does not exceed 3.75 4.00 to 1.00 or (2) if such Incremental Loans or Incremental Equivalent Debt is unsecured, the Consolidated Net Leverage Ratio calculated on a pro forma basis does not exceed 4.75 5.00 to 1.00"
+      ratio_debt: "the Consolidated Secured Net Leverage Ratio shall not exceed 3.25 to 1.00 after giving pro forma effect to such Indebtedness, or (y) in the event any such Indebtedness is unsecured, the Consolidated Net Leverage Ratio shall not exceed 4.25 to 1.00"
+      unlimited_rp: "the Consolidated Net Leverage Ratio calculated on a pro forma basis does not exceed 2.25 to 1.00 and (y) no Default or Event of Default"
+      available_amount_rp: "the Consolidated Net Leverage Ratio calculated on a pro forma basis does not exceed 3.25 to 1.00 and (y) no Default or Event of Default"
+      investments: "the Consolidated Net Leverage Ratio calculated on a pro forma basis does not exceed 2.25 to 1.00; and (r)"
+      acquisition: "the Borrowers shall be in compliance with the requirements of Section 9.16 of the Existing Credit Agreement, on a pro forma basis"
+
+  - id: tlb_cross_acceleration
+    name: TLB cross-acceleration to the TLA/RCF financial covenants
+    kind: other
+    ref: "TLB 10.1(b)(ii)"
+    src: tlb
+    direction: n/a
+    rule: "a TLA/RCF 9.16 breach is a TLB Event of Default only once the Required Revolving Lenders have accelerated the revolver and not rescinded"
+    quote: "shall not constitute a Default or Event of Default with respect to any Loans or Commitments hereunder unless and until the Required Revolving Lenders (as defined in the Existing Credit Agreement) have actually declared all Revolving Loans"
+
+# ---------------------------------------------------------------- terms
+# type: standard = everyday meaning / GAAP, nothing to map
+#       lookup   = points at a list, schedule or another defined term you have to fetch
+#       custom   = deal-specific formula; decompose into components
+terms:
+
+  - id: consolidated_funded_debt_net
+    name: Net debt (numerator of the NLR)
+    type: custom
+    src: a6
+    formula: "consolidated_funded_debt - qualifying_cash"
+    measured: "as of the test date"
+    quote: "(a) Consolidated Funded Debt, minus Qualifying Cash, as of such date"
+
+  - id: consolidated_funded_debt
+    name: Consolidated Funded Debt
+    type: custom
+    src: a6
+    current_text_from: a6
+    introduced_by: "ca; Holdback carve-outs a1_a4 (inferred); surety-backed LC carve-out a6"
+    scope: "Borrowing Agent and all Subsidiaries, consolidated (minus the captive insurer per 1.3(d)); no restricted/unrestricted split"
+    quote: "“Consolidated Funded Debt” means, as at any date of determination, without duplication, the following Indebtedness of the Borrowing Agent and its Subsidiaries, determined on a consolidated basis"
+    components:
+      - id: cfd.i.a
+        what: "borrowed money, bonds, notes, loan agreements (TLA, revolver, TLB, any converts at full principal)"
+        sign: +
+        input: balance_sheet_debt_schedule
+        quote: "(a) all obligations of such Person for borrowed money and all obligations of such Person evidenced by bonds, debentures, notes, loan agreements or other similar instruments"
+      - id: cfd.i.b
+        what: "letters of credit, bankers' acceptances, bank guaranties at MAXIMUM amount (drawn or not)"
+        sign: +
+        input: footnotes
+        flag: F2
+        quote: "(b) the maximum amount of all direct or contingent obligations of such Person arising under letters of credit (including standby and commercial), bankers' acceptances, bank guaranties, surety bonds and similar instruments"
+      - id: cfd.i.c
+        what: "net obligations under swaps (Swap Termination Value); ROAD's $300M swap is an asset at Jun 30 2026, so nil"
+        sign: +
+        input: footnotes
+        quote: "(c) net obligations of such Person under any Swap Contract"
+      - id: cfd.i.d
+        what: "deferred purchase price (excluding ordinary trade payables <= 60 days past due, GAAP earn-outs, payroll accruals)"
+        sign: +
+        input: borrower_schedule
+        quote: "(d) all obligations of such Person to pay the deferred purchase price of property or services (other than (i) trade accounts payable in the ordinary course of business and not past due for more than sixty (60) days"
+        earnout_exclusion_quote: "(ii) any earn-out or similar obligation to the extent treated as a liability under GAAP"
+      - id: cfd.i.excl
+        what: "carve-outs from (i): surety bonds, surety-backed LCs and similar (a6), guarantees of them, and the Lone Star Paving Holdback Amount"
+        sign: "-"
+        input: borrower_schedule
+        quote: "(other than (x) surety bonds, surety-backed letters of credit and similar instruments, and Guarantees of the foregoing and (y) any portion of the Holdback Amount constituting Indebtedness)"
+        holdback_quote: "“Holdback Amount” has the meaning specified in the Specified LSP Acquisition Agreement as in effect on October 20, 2024"
+      - id: cfd.ii
+        what: "Attributable Indebtedness (finance/capital leases on frozen pre-ASC 842 GAAP, synthetic leases) other than Holdback"
+        sign: +
+        input: footnotes
+        quote: "(ii) the aggregate outstanding amount of Attributable Indebtedness (other than any portion of the Holdback Amount constituting Attributable Indebtedness)"
+      - id: cfd.iii_iv
+        what: "purchase money debt; guarantees of others' debt of types (i)-(iii)"
+        sign: +
+        input: footnotes
+        quote: "(iii) all purchase money Indebtedness and (iv) all Guarantees in respect of any Indebtedness of the types described in clause (i), (ii) or (iii) above of any other Person"
+      - id: cfd.jv
+        what: "debt of general partnerships / non-corporate JVs where a group member is GP or joint venturer, unless non-recourse"
+        sign: +
+        input: borrower_schedule
+        quote: "in which such Person is a general partner or a joint venturer, unless such Indebtedness is expressly made non-recourse to such Person"
+    not_included: "Indebtedness clauses (e)-(h) (other people's debt secured on own property, Disqualified Equity, redemption obligations) unless caught by (iii)/(iv)"
+    convertibles_rule:
+      introduced_by: a6
+      quote: "For purposes hereof, the amount of any Permitted Convertible Indebtedness shall be the aggregate stated principal amount thereof"
+
+  - id: qualifying_cash
+    name: Qualifying Cash
+    type: custom
+    src: a6
+    current_text_from: a6
+    introduced_by: "ca (50% cap); lien carve-out for TLB agent a1_a4 (inferred); a6 cap = greater of $325M and 50% of EBITDA"
+    base: "unrestricted cash and Cash Equivalents of Borrowers / domestic Subsidiaries, in U.S. accounts at a qualifying U.S. Fed-member bank, free of liens other than the two agents"
+    cap:
+      type: greater_of
+      fixed: 325000000
+      pct_of_ebitda: 0.50
+      ebitda_basis: "Consolidated Adjusted EBITDA for the immediately preceding four Fiscal Quarter period"
+    input: balance_sheet + account-level detail (location/bank/lien status not in public filings)
+    quote: "“Qualifying Cash” means unrestricted cash and Cash Equivalents in an amount up to the greater of (i) $325,000,000 and (ii) fifty percent (50%) of Consolidated Adjusted EBITDA for the immediately preceding four Fiscal Quarter period"
+    location_quote: "held by any Borrower or their domestic Subsidiaries in a deposit account or securities account maintained in the United States"
+    lien_quote: "not subject to a Lien in favor of any Person other than the Administrative Agent or the Specified LSP Indebtedness Agent"
+    prior_cap:
+      src: ca
+      quote: "unrestricted cash and Cash Equivalents in an amount of up to fifty percent (50%) of Consolidated Adjusted EBITDA for the immediately preceding four Fiscal Quarter period"
+
+  - id: consolidated_adjusted_ebitda
+    name: Consolidated Adjusted EBITDA
+    type: custom
+    src: a6
+    current_text_from: a6
+    starts_from: consolidated_net_income
+    defined_in: "Section 1.1"
+    measured: "TTM (four fiscal quarters ending on the test date)"
+    scope: "Borrowing Agent and Subsidiaries, consolidated; captive insurer excluded (1.3(d))"
+    quote: "“Consolidated Adjusted EBITDA” means, for any period, for the Borrowing Agent and its Subsidiaries on a consolidated basis, an amount equal to Consolidated Net Income for such period plus (a) the following, in each case to the extent deducted (or not included) in calculating such Consolidated Net Income"
+    deductions: none   # unlike WEST there is no "minus (b)" clause: non-cash gains are not taken out
+    components:
+      - {id: ebitda.a.i, category: interest, sign: +, input: income_statement, introduced_by: ca, quote: "(i) Consolidated Interest Charges for such period"}
+      - {id: ebitda.a.ii, category: taxes, sign: +, input: income_statement, introduced_by: ca, quote: "(ii) the provision for federal, state, local and foreign income Taxes, paid or payable by the Borrowers and the Subsidiaries for such period"}
+      - {id: ebitda.a.iii, category: depreciation_amortization, sign: +, input: cash_flow_statement, introduced_by: ca, note: "text says depreciation and amortization; whether depletion and accretion (in ROAD's DD&A line) count is a reading call", quote: "(iii) depreciation and amortization expense"}
+      - {id: ebitda.a.iv, category: non_cash_equity_comp, sign: +, input: cash_flow_statement, introduced_by: ca, quote: "(iv) non-cash equity based compensation expense for such period"}
+      - {id: ebitda.a.v, category: sponsor_management_fees, sign: +, input: borrower_schedule, introduced_by: ca, quote: "(v) management fees and expenses paid to SunTx Capital Management Corp. pursuant to the Management Services Agreement for such period"}
+      - {id: ebitda.a.vi, category: financing_fees_this_facility_and_tlb, sign: +, input: borrower_schedule, introduced_by: a5, quote: "(vi) non-recurring transaction fees, costs and expenses paid in connection with this Agreement, the other Loan Documents, Specified LSP Indebtedness and any Specified LSP Refinancing Indebtedness"}
+      - id: ebitda.a.vii
+        category: transaction_costs_and_earnouts
+        sign: +
+        input: borrower_schedule
+        introduced_by: a5
+        review: human_signoff
+        trigger: "fees paid within 12 months of closing/abandonment of an equity issuance, restructuring, Permitted Acquisition or Investment (consummated or not); plus earn-out expense paid in the period"
+        cap:
+          type: pct_of_ebitda
+          value: 0.15
+          basis: "Consolidated Adjusted EBITDA BEFORE the (vii) add-backs, for the last delivered Test Period (not circular, unlike WEST)"
+        reporting: "itemised schedule with each Compliance Certificate"
+        quote: "(vii) all non-recurring transaction fees, charges and other amounts (including any financing fees, merger and acquisition fees, legal fees and expenses, due diligence fees or any other fees and expenses in connection therewith) in connection with any equity issuances"
+        cap_quote: "any amounts described in this clause (a)(vii) shall not exceed 15% of Consolidated Adjusted EBITDA (calculated prior to giving effect to all addbacks pursuant to this clause (vii))"
+      - id: ebitda.a.viii
+        category: lsp_acquisition_costs
+        sign: +
+        input: borrower_schedule
+        introduced_by: a5
+        cap: {type: time_window, rule: "paid within 12 months of Oct 30 2024, i.e. by Oct 30 2025; no dollar cap"}
+        status_2026_06_30: "window closed Oct 30 2025; a TTM to Jun 30 2026 can still include amounts paid Jul 1 - Oct 30 2025"
+        quote: "(viii) all non-recurring transaction fees, charges and other amounts paid in connection with the Specified LSP Acquisition, to the extent paid within twelve (12) months of the Fourth Amendment Effective Date"
+      - id: ebitda.a.ix
+        category: acquired_employee_costs
+        sign: +
+        input: borrower_schedule
+        introduced_by: ca
+        trigger: "comp/benefits of acquired-company staff terminated, re-hired at lower pay, or not hired, ending within 60 days of the acquisition"
+        quote: "(ix) compensation expense and benefit expense for any employees or management of an entity acquired in a Permitted Acquisition"
+        trigger_quote: "such compensation expense or benefit expense terminates within sixty (60) days after the date of such Permitted Acquisition"
+      - id: ebitda.a.x
+        category: agent_approved_non_recurring
+        sign: +
+        input: agent_approval
+        introduced_by: ca
+        review: human_signoff
+        cap: none
+        quote: "(x) other non-recurring costs and expenses approved by Administrative Agent, in its sole discretion"
+      - id: ebitda.a.xi
+        category: liquid_asphalt_terminal_run_rate
+        sign: +
+        input: borrower_projection
+        introduced_by: ca
+        review: human_signoff
+        trigger: "terminal completed and Specified Liquid Asphalt Terminal Certification delivered; first counted in the TTM ending with the completion quarter, pro forma for the full TTM"
+        decay: "reduced by 25% of the original amount each subsequent Test Period (gone after four further quarters)"
+        cap:
+          type: lesser_of
+          pct_of_ebitda: 0.10
+          fixed: 7500000
+          basis: "Consolidated Adjusted EBITDA before the terminal add-back; aggregate across all terminals"
+        approval: "Administrative Agent review and approval; certified projections; factually supportable, realizable within 12 months"
+        quote: "(xi) with respect to each Completed Specified Liquid Asphalt Terminal, the Specified Liquid Asphalt Terminal Increase"
+        cap_quote: "shall not exceed the lesser of (a) 10% of Consolidated Adjusted EBITDA (before giving effect to such inclusion) or (b) $7,500,000"
+        decay_quote: "shall be reduced by 25% of the original amount for each subsequent Test Period (i.e., at the end of each subsequent Fiscal Quarter)"
+        approval_quote: "the amount of any Specified Liquid Asphalt Terminal Increase shall be subject to the Administrative Agent's review and approval"
+        amount_quote: "an amount equal to the “run rate” pro forma projected Consolidated Adjusted EBITDA of such liquid asphalt terminal for the four-Fiscal Quarter period commencing with the Fiscal Quarter that includes the Specified Liquid Asphalt Terminal Completion Date"
+      # provisos and adjustments ----------------------------------------
+      - id: ebitda.pro_forma_acquisitions
+        category: acquired_or_disposed_ebitda
+        sign: "+/-"
+        input: borrower_schedule
+        trigger: "Specified Acquisition / Specified Disposition (target EBITDA >= $500K) during the TTM; see agreement.calculation_rules.pro_forma"
+        quote: "For the avoidance of doubt, Consolidated Net Income shall be calculated, including pro forma adjustments, in accordance with Section 1.5."
+      - id: ebitda.equity_cure
+        category: equity_cure
+        sign: +
+        input: agent_notice
+        trigger: "Cure Amount under 10.3; 9.16 only"
+        quote: "The Cure Amount shall be added to Consolidated Adjusted EBITDA for the applicable Fiscal Quarter and included in any test period that includes such Fiscal Quarter."
+
+  - id: consolidated_net_income
+    name: Consolidated Net Income
+    type: custom
+    src: a6
+    current_text_from: a6
+    introduced_by: ca (unchanged by a5/a6)
+    starts_from: "GAAP net income of Borrowing Agent + Subsidiaries"
+    quote: "the net income of the Borrowing Agent and its Subsidiaries (excluding extraordinary gains and extraordinary losses) for that period in accordance with GAAP"
+    exclusions:
+      - {id: cni.extraordinary, what: "extraordinary gains and losses (a GAAP category that no longer exists post ASU 2015-01; reading call)", quote: "(excluding extraordinary gains and extraordinary losses)"}
+      - {id: cni.a.i, what: "income/loss of non-Subsidiaries (e.g. ROAD's joint venture) except cash actually distributed", quote: "(i) any income (or loss) for such period for any Person that is not a Subsidiary except to the extent of the aggregate amount of such net income actually distributed in cash"}
+      - {id: cni.a.ii, what: "positive net income of a Subsidiary that cannot dividend it up", quote: "(ii) the net income (if positive) of any Subsidiary to the extent that the declaration or payment of dividends or similar distributions by such Subsidiary"}
+    inclusions:
+      - {id: cni.b, what: "cash distributions from non-Subsidiary investments not otherwise in net income", quote: "(b) Consolidated Net Income shall include any cash distributions received from or on account of an Investment in a Person that is not a Subsidiary"}
+    not_excluded_note: "no exclusions for non-cash gains/losses, impairments, debt extinguishment, hedging MTM or asset-sale gains (contrast WEST cni.a-p). Gain on sale of PP&E stays in."
+
+  - id: consolidated_interest_charges
+    name: Consolidated Interest Charges
+    type: custom
+    src: a6
+    current_text_from: a6
+    introduced_by: ca (unchanged)
+    gross_or_net: gross   # no netting of interest income
+    quote: "the sum of all interest, premium payments, if any, debt discount, if any, fees, charges and related expenses of the Borrowing Agent and its Subsidiaries in connection with Consolidated Funded Debt (including capitalized interest) or in connection with the deferred purchase price of assets, in each case to the extent treated as interest in accordance with GAAP"
+    components:
+      - {id: cic.interest, what: "interest on Consolidated Funded Debt incl. capitalized interest", sign: +, input: footnotes}
+      - {id: cic.premium_discount, what: "premium payments and debt discount (OID) amortization", sign: +, input: footnotes}
+      - {id: cic.fees, what: "fees, charges and related expenses treated as interest under GAAP (likely incl. deferred financing cost amortization and LC/commitment fees if booked to interest)", sign: +, input: footnotes, inferred: true}
+      - {id: cic.deferred_purchase, what: "interest on deferred purchase price of assets", sign: +, input: footnotes}
+    swap_note: "no explicit hedge netting; realized swap gains booked in GAAP interest expense would reduce it only if 'treated as interest' (reading call)"
+
+  - id: indebtedness
+    name: Indebtedness
+    type: lookup
+    src: a6
+    kind: list
+    items: [a borrowed money and notes, b LCs / BAs / guaranties / surety bonds (maximum amount), c net swap obligations, d deferred purchase price, e debt secured on own property, f Attributable Indebtedness, g Disqualified Equity Interests, h equity redemption obligations, i guarantees]
+    used_by_cfd: [a, b, c, d]
+    warrant_carve_out:
+      introduced_by: a6
+      quote: "the obligations of Construction Partners under any Permitted Warrant Transaction shall not constitute Indebtedness"
+    quote: "“Indebtedness” means, as to any Person at a particular time, without duplication, all of the following, whether or not included as indebtedness or liabilities in accordance with GAAP"
+
+  - id: attributable_indebtedness
+    name: Attributable Indebtedness
+    type: lookup
+    src: a6
+    points_to: capitalized_leases_frozen_gaap
+    quote: "(a) in respect of any Capitalized Lease of any Person, the capitalized amount thereof that would appear on a balance sheet of such Person prepared as of such date in accordance with GAAP"
+
+  - id: captive_insurance_company
+    name: Captive Insurance Company (excluded entity)
+    type: lookup
+    src: a6
+    points_to: "Construction Partners Risk Management, Inc. (CP Risk) while it meets the definition's conditions"
+    quote: "“Captive Insurance Company” means Construction Partners Risk Management, Inc., a corporation organized under the laws of the State of Alabama (“CP Risk”)"
+
+  - id: specified_lsp_indebtedness
+    name: Specified LSP Indebtedness (= the Term Loan B)
+    type: lookup
+    src: a6
+    points_to: term_loan_b
+    note: "included in Consolidated Funded Debt as borrowed money; pari passu secured"
+    quote: "“Specified LSP Indebtedness” means Indebtedness incurred on the Fourth Amendment Effective Date consisting of a senior secured term B loan credit facility"
+
+  # standard terms: everyday / GAAP meaning, nothing to decompose
+  - {id: gaap, name: GAAP, type: standard, note: "frozen for leases (1.3(c)); change-in-GAAP renegotiation clause 1.3(b)"}
+  - {id: subsidiary, name: Subsidiary, type: standard, note: "no unrestricted-subsidiary concept found in the TLA/RCF; all subsidiaries count except the captive insurer"}
+  - {id: cash_equivalents, name: Cash Equivalents, type: standard, note: "defined list (Treasuries, CDs at $500M+ banks, money market funds)"}
+  - {id: test_period, name: Test Period, type: standard, note: "see agreement.test_period"}
+
+# ---------------------------------------------------------------- lookups
+lookups:
+  - id: compliance_certificate_form
+    name: Exhibit H Compliance Certificate
+    status: missing
+    why: "exhibits are not filed with the amendment"
+  - id: holdback_amount
+    name: Holdback Amount under the LSP Unit Purchase Agreement (Oct 20 2024)
+    status: missing
+    why: "amount not disclosed in the 10-Q; needed to apply the carve-out"
+  - id: qualifying_cash_accounts
+    name: Account-level cash (location, bank, lien status)
+    status: missing
+    why: "10-Q gives only consolidated cash; Qualifying Cash needs domestic, qualifying-bank, unencumbered balances"
+  - id: specified_liquid_asphalt_terminals
+    name: Terminal certifications and approved run-rate amounts
+    status: missing
+  - id: missing_amendments
+    name: Amendments 1-4 and the Nov 17 2022 Consent
+    status: missing
+    why: "not in the folder; their effect on covenant text is visible only as a5 base (struck) text"
+
+# ---------------------------------------------------------------- replay test
+replay:
+  # The 10-Q (quarter ended Jun 30 2026) discloses only the reported ratios, not the
+  # covenant EBITDA, Funded Debt build or Qualifying Cash. Both entries are therefore
+  # not_disclosed; public components are listed (quoted) for a future proxy, NOT summed.
+  - covenant: net_leverage
+    test_date: 2026-06-30
+    status: not_disclosed
+    note: "only the ratio is published; covenant EBITDA is not the 10-Q Adjusted EBITDA (different add-backs), and LCs/Holdback/Qualifying Cash detail is missing (flags F1, F2, F4)"
+    reported:
+      ratio: 3.17
+      cap: 4.75
+      direction: max
+      src: q2
+      quote: "the Company's consolidated net leverage ratio was 3.17 -to-1.00 and 3.10 -to-1.00, respectively"
+      compliance_quote: "At both June 30, 2026 and September 30, 2025, the Company was in compliance with all covenants under the Term Loan A / Revolver Credit Agreement"
+    public_inputs:     # usd_thousands, as reported; not a replay
+      src: q2
+      debt_quote: "Term Loan A $570,000 $592,500 TLB Loans 1,137,250 843,625 Revolving Credit Facility 96,000 190,000 Total long-term debt 1,803,250 1,626,125"
+      lc_quote: "At June 30, 2026, the Company had aggregate letters of credit outstanding in the amount of $4.8 million"
+      cash_quote: "Cash and cash equivalents $94,547 $156,062"
+      ebitda_proxy_quote: "Adjusted EBITDA $163,022 $131,710 $368,542 $269,780"
+      ebitda_proxy_fy:
+        src: k
+        quote: "Adjusted EBITDA $423,718 $220,573"
+      ebitda_proxy_caveat: "company Adjusted EBITDA adds back share-based comp, debt extinguishment loss and 'transformative acquisition expenses'; covenant EBITDA adds (vi)-(xi) and pro forma acquisitions; not interchangeable"
+  - covenant: interest_coverage
+    test_date: 2026-06-30
+    status: not_disclosed
+    note: "only the ratio is published; GAAP 'interest expense, net' nets interest income, covenant Consolidated Interest Charges is gross (flag F5)"
+    reported:
+      ratio: 5.37
+      cap: 2.75
+      direction: min
+      src: q2
+      quote: "the Company's consolidated interest coverage ratio was 5.37 -to-1.00 and 5.76 -to-1.00, respectively"
+    public_inputs:
+      src: q2
+      interest_quote: "Interest expense, net (30,292) (25,239) (83,252) (64,961)"
+      fy_interest:
+        src: k
+        quote: "Interest expense, net 90,358 19,071"
+
+# ---------------------------------------------------------------- judgment flags
+flags:
+  - id: F1
+    topic: Which schedule applies on Jun 30 2026
+    issue: "The 10-K (Sep 2025) and 10-Qs through Mar 2026 describe the a5 schedule (4.25x for Mar-Sep 2026, 3.75x from Sep 2027). The 6th Amendment (Jun 3 2026) raised Jun 30 and Sep 30 2026 to 4.75x and moved every later step. An abstract built from the 10-K or a5 uses the wrong cap. Reported 3.17x passes under either (checker reported-only test vs 4.75x: pass, headroom 33.26%)."
+    impact: "caps: a6 4.75x vs a5 4.25x for 2026-06-30 and 2026-09-30; 4.50x vs 4.00x Dec-26..Jun-27; 4.25x vs 3.75x Sep-27..Mar-28"
+    owner: setup_agent (date logic) + human sign-off
+  - id: F2
+    topic: Letters of credit in Funded Debt
+    issue: "Indebtedness clause (b) counts the MAXIMUM amount of LCs, drawn or undrawn, and clause (b) is pulled into Funded Debt. Since a6 only surety bonds and surety-backed LCs are carved out. ROAD reports $4.8M of LCs (mainly insurance); whether the borrower includes them is unknown."
+    impact: "not computed (immaterial-looking vs. $1.8B of term/revolver debt, but the reading must be pinned)"
+    owner: credit_officer
+  - id: F3
+    topic: Blackline-only conformed copies
+    issue: "Neither a5 nor a6 is a clean conformed copy. Struck and inserted text are interleaved in the HTML; a naive text extract reads the NLR row as '4. 2 7 5 to 1.00'. Any agent that does not parse strike/underline styles will mis-read the schedule, the step-up level (4.00 vs 4.25), the step-up start (Sep-27 vs Jun-28) and Material Acquisition ($75M vs $100M)."
+    impact: "schedule and election terms wrong if read naively"
+    owner: setup_agent (document parsing) + human sign-off
+  - id: F4
+    topic: Qualifying Cash eligibility
+    issue: "Cap is no longer binding at ROAD's size (greater of $325M and 50% of EBITDA vs $94.5M consolidated cash), but eligibility is: only domestic, qualifying-bank, agent-lien-only accounts count. Cash at the captive insurer and any foreign or encumbered cash should be excluded. Account detail is not public."
+    impact: "not computed"
+    owner: request compliance certificate
+  - id: F5
+    topic: Interest Charges gross vs net
+    issue: "Consolidated Interest Charges is gross (no interest income netting) and includes fees, premium and debt discount 'treated as interest'. ROAD reports 'interest expense, net' and has a $300M swap whose realized gains run through interest. ICR replay needs the certificate."
+    owner: request compliance certificate
+  - id: F6
+    topic: Uncapped / discretionary add-backs
+    issue: "(x) agent-approved non-recurring costs have no cap; (xi) terminal run-rate needs agent approval; (vii) is capped at 15% of pre-(vii) EBITDA with an itemised schedule. None of the amounts are disclosed."
+    owner: credit_officer
+  - id: F7
+    topic: Step-up mechanics
+    issue: "Leverage Step-Up is available only from Jun 30 2028, at 4.25x (just 0.25x above the 4.00x floor), for four quarters, with no stated limit on the number of elections and no cool-off. Requires a $100M+ Material Acquisition (trailing 4 quarters, post-5th-Amendment deals only) and notice 5 Business Days before closing."
+    owner: credit_officer
+  - id: F8
+    topic: Term Loan B carries no maintenance covenant
+    issue: "VERIFIED: TLB 9.16 is '[Reserved]'. TLB lenders rely on cross-acceleration (only after revolver lenders accelerate) and on incurrence tests. TLB references the TLA/RCF agreement 'as amended from time to time', so TLA/RCF covenant amendments (like a6) flow into the TLB's acquisition test without TLB lender consent."
+    owner: credit_officer
+  - id: F9
+    topic: Inconsistent historical disclosure
+    issue: "Sep 30 2024 NLR is 1.81x in the 10-K but 1.80x in the Jun 2025 10-Q; the 10-K risk factor still says the agreement requires a 'fixed charge coverage ratio' (replaced by ICR in Jun 2025)."
+    src: k
+    quote: "The Term Loan A / Revolver Credit Agreement also requires us to maintain a fixed charge coverage ratio and a consolidated leverage ratio"
+    owner: note only
+  - id: F10
+    topic: Missing amendments 1-4
+    issue: "Amendments 1 (Nov 2022), 2 (May 2023), 3 (May 2024), 4 (Oct 2024) and the Nov 2022 Consent are not in the folder. a5's struck text proves covenant text changed between 2022 and a5 (3.50x flat -> step schedule peaking at 4.50x; Holdback carve-outs). Current text does not depend on them because a6 restates the whole agreement, but back-testing quarters before Jun 30 2025 does."
+    owner: request from EDGAR (8-K/10-Q exhibits)
+  - id: F11
+    topic: Depletion and accretion in D&A
+    issue: "EBITDA adds back 'depreciation and amortization expense'. ROAD's line is 'depreciation, depletion, accretion and amortization' (mineral reserves, ARO). Whether depletion/accretion are added back is a reading call."
+    owner: credit_officer
+  - id: F12
+    topic: Drafting defect in terminal definitions
+    src: a6
+    issue: "'Specified Liquid Asphalt Terminal Completion Quarter' refers to an undefined 'Specified Asphalt Termination Certification' (intended: Specified Liquid Asphalt Terminal Certification)."
+    quote: "the Fiscal Quarter during which the Administrative Agent has received the Specified Asphalt Termination Certification for such liquid asphalt terminal"
+    owner: note only
+  - id: F13
+    topic: Restricted group = whole consolidated group
+    issue: "No Unrestricted Subsidiary concept in the TLA/RCF; the only carve-out is the captive insurer (1.3(d)). Joint-venture income counts only as cash distributed."
+    owner: note only

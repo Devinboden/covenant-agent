@@ -1,0 +1,783 @@
+{
+ "borrower": "TRS",
+ "terms": [
+  {
+   "name": "Interest Expense Coverage Ratio",
+   "family": "ratio",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(a)",
+     "category": "numerator_term",
+     "ref_term": "Consolidated EBITDA",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(a) Consolidated EBITDA to (b) the sum of (i) Consolidated Cash Interest Expense and (ii) Preferred Dividends",
+     "needs_judgment": false,
+     "note": "Numerator: Consolidated EBITDA (EBITDA family, keyed separately).",
+     "caps": [],
+     "source": "n/a"
+    },
+    {
+     "clause": "(b)(i)",
+     "category": "denominator_term",
+     "ref_term": "Consolidated Cash Interest Expense",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(i) Consolidated Cash Interest Expense and (ii) Preferred Dividends, in each case for the period of four consecutive fiscal quarters then ended",
+     "needs_judgment": false,
+     "note": "Denominator part 1.",
+     "caps": [],
+     "source": "n/a"
+    },
+    {
+     "clause": "(b)(ii)",
+     "category": "denominator_term",
+     "ref_term": "Preferred Dividends",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(ii) Preferred Dividends, in each case for the period of four consecutive fiscal quarters then ended",
+     "needs_judgment": false,
+     "note": "Denominator part 2, ADDED to Consolidated Cash Interest Expense ('the sum of'). Preferred Dividends = cash dividends of Holdings permitted hereunder paid on Holdings preferred stock.",
+     "caps": [],
+     "source": "n/a"
+    },
+    {
+     "clause": "(b)(ii)",
+     "category": "measurement_period",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "in each case for the period of four consecutive fiscal quarters then ended",
+     "needs_judgment": false,
+     "note": "Tested as of the last day of any fiscal quarter; both sides measured for the four consecutive fiscal quarters then ended (trailing four quarters).",
+     "caps": [],
+     "source": "n/a"
+    }
+   ],
+   "notes": "Denominator is a SUM (Consolidated Cash Interest Expense + Preferred Dividends); a model that drops Preferred Dividends or treats it as numerator_less/denominator_less is wrong. Acceptable alternatives: measurement_period anchored to clause '(b)' or the lead-in ('as of the last day of any fiscal quarter') instead of (b)(ii); 'in each case' read as applying to the denominator only vs both sides (key reads both). Preferred Dividends is not a family_of() term so it is not keyed as its own term. | source filled by category default (#19); not scored against the key."
+  },
+  {
+   "name": "Total Net Leverage Ratio",
+   "family": "ratio",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(a)(i)",
+     "category": "numerator_term",
+     "ref_term": "Total Indebtedness",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(a) (i) Total Indebtedness as of such date less (ii) the aggregate amount in excess of $10,000,000",
+     "needs_judgment": false,
+     "note": "Gross Total Indebtedness as of the test date.",
+     "caps": [],
+     "source": "n/a"
+    },
+    {
+     "clause": "(a)(ii)",
+     "category": "numerator_less_term",
+     "ref_term": "Permitted Investments",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(ii) the aggregate amount in excess of $10,000,000 (but not to exceed $150,000,000 or, solely with respect to the financial covenants set forth in Section 6.13, not to exceed $240,000,000)",
+     "needs_judgment": false,
+     "note": "Cash netting: Freely Transferable unrestricted cash + unrestricted Permitted Investments of the Parent Borrower and its Subsidiaries as of such date, netted only to the extent it EXCEEDS $10,000,000 (first $10M never nets), and the netted amount is capped at $240,000,000 for the Section 6.13 maintenance covenant ($150,000,000 for every other use of the ratio: incurrence gates, RP grid, etc.). Netted amount = min(max(cash+PI - 10,000,000, 0), 240,000,000) for 6.13. Freely Transferable = located in or freely transferable to the US (term not defined in the live text). Unrestricted cash is not a defined term, so the single component carries ref_term Permitted Investments.",
+     "caps": [
+      {
+       "type": "other",
+       "value": "excess_over:10000000",
+       "from": "",
+       "to": "",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "(but not to exceed $150,000,000 or, solely with respect to the financial covenants set forth in Section 6.13, not to exceed $240,000,000)"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "150000000",
+       "from": "",
+       "to": "",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "(but not to exceed $150,000,000 or, solely with respect to the financial covenants set forth in Section 6.13, not to exceed $240,000,000)"
+      },
+      {
+       "type": "fixed_amount",
+       "value": "240000000",
+       "from": "",
+       "to": "",
+       "during": "",
+       "covenant": "Section 6.13",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "(but not to exceed $150,000,000 or, solely with respect to the financial covenants set forth in Section 6.13, not to exceed $240,000,000)"
+      }
+     ],
+     "source": "n/a"
+    },
+    {
+     "clause": "(b)",
+     "category": "denominator_term",
+     "ref_term": "Consolidated EBITDA",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(b) Consolidated EBITDA for the period of four consecutive fiscal quarters of Holdings ended on such date",
+     "needs_judgment": false,
+     "note": "Denominator: trailing four fiscal quarters of Consolidated EBITDA.",
+     "caps": [],
+     "source": "n/a"
+    },
+    {
+     "clause": "(b)",
+     "category": "measurement_period",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(or, if such date is not the last day of a fiscal quarter, ended on the last day of the fiscal quarter of Holdings most recently ended prior to such",
+     "needs_judgment": false,
+     "note": "Numerator (debt and cash) measured as of the test date; EBITDA for the four fiscal quarters ended on that date, or if not a quarter-end, the most recently ended quarter with financial statements available. 6.13 tests as of each fiscal quarter-end.",
+     "caps": [],
+     "source": "n/a"
+    }
+   ],
+   "notes": "Key reading of the cap: $240,000,000 is the cap that applies to the 6.13 maintenance covenant; $150,000,000 applies to all other uses; $10,000,000 is a threshold (only excess cash nets), not a cap. Acceptable alternatives: cap_type 'lesser_of'/'fixed_amount_per_period' or cap_value '150000000|240000000' if the note says 240M governs 6.13; the $10M threshold carried as a separate note/field; two numerator_less_term parts for cash vs Permitted Investments is not possible (unrestricted cash is not a defined term) - one part is correct; measurement_period anchored to (a) or lead-in. WRONG: using $150M as the 6.13 cap, netting all cash, or no cash netting. Pre-Tenth Amendment (before 2026-03-20) the 6.13 cap was $150M per the blackline; the live text has no date schedule, so no cap_schedule is keyed. | cash cap is dual: $150M generally, $240M solely for Section 6.13 (the covenant path) -> key keeps 240000000; spec needs covenant-specific variants. | multi-cap: $10M threshold recorded as excess_over cap (same convention as Indebtedness (k)). | source filled by category default (#19); not scored against the key."
+  },
+  {
+   "name": "Consolidated Cash Interest Expense",
+   "family": "interest",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(a)(i)",
+     "category": "interest_expense_gaap",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(i) the interest expense (including imputed interest expense in respect of Financing Lease Obligations) of Holdings, the Parent Borrower and the Subsidiaries",
+     "needs_judgment": false,
+     "note": "GAAP consolidated interest expense of Holdings, Parent Borrower and Subsidiaries incl. the Receivables Subsidiary, INCLUDING imputed interest on Financing Lease Obligations.",
+     "caps": [],
+     "source": "income_statement"
+    },
+    {
+     "clause": "(a)(ii)",
+     "category": "capitalized_interest",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(ii) any interest accrued during such period in respect of Indebtedness of Holdings, the Parent Borrower or any Subsidiary (including the Receivables Subsidiary) that is required to be capitalized",
+     "needs_judgment": false,
+     "note": "Interest on Indebtedness required by GAAP to be capitalized rather than expensed.",
+     "caps": [],
+     "source": "income_statement"
+    },
+    {
+     "clause": "(a)(iii)",
+     "category": "prior_period_cash_payments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(iii) any cash payments made during such period in respect of obligations referred to in clause (b)(iii) below that were amortized or accrued in a previous period",
+     "needs_judgment": false,
+     "note": "Cash paid this period on (b)(iii) items (OID / PIK) that were amortized or accrued in a previous period - the cash catch-up for the (b)(iii) deduction.",
+     "caps": [],
+     "source": "income_statement"
+    },
+    {
+     "clause": "(a)(iv)",
+     "category": "receivables_financing_costs",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(iv) interest-equivalent costs associated with any Permitted Receivables Financing or Specified Vendor Receivables Financing, whether accounted for as interest expense or loss on the sale of receivables",
+     "needs_judgment": false,
+     "note": "Interest-equivalent costs of Permitted Receivables Financing / Specified Vendor Receivables Financing, whether booked as interest or loss on sale of receivables.",
+     "caps": [],
+     "source": "income_statement"
+    },
+    {
+     "clause": "(b)(i)",
+     "category": "interest_income",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(i) interest income of Holdings, the Parent Borrower and the Subsidiaries (including the Receivables Subsidiary) for such period",
+     "needs_judgment": false,
+     "note": "Consolidated GAAP interest income netted (incl. Receivables Subsidiary).",
+     "caps": [],
+     "source": "income_statement"
+    },
+    {
+     "clause": "(b)(ii)",
+     "category": "excluded_financing_cost_amortization",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(ii) to the extent included in such consolidated interest expense for such period, noncash amounts attributable to amortization of financing costs paid in a previous period",
+     "needs_judgment": false,
+     "note": "Only to the extent included in interest expense: noncash amortization of financing costs paid in a previous period.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(iii)",
+     "category": "oid_pik_interest",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(iii) to the extent included in such consolidated interest expense for such period, noncash amounts attributable to amortization of debt discounts or accrued interest payable in kind",
+     "needs_judgment": false,
+     "note": "Only to the extent included in interest expense: noncash amortization of debt discount (OID) and PIK interest. Cash later paid on these is added back via (a)(iii).",
+     "caps": [],
+     "source": "income_statement"
+    },
+    {
+     "clause": "(b)(iv)",
+     "category": "excluded_other",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(iv) to the extent included in such consolidated interest expense for such period, all financing fees incurred in connection with the Transactions",
+     "needs_judgment": false,
+     "note": "Only to the extent included in interest expense: financing fees incurred in connection with the Transactions.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(v)",
+     "category": "excluded_other",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(v) annual agency fees paid to the administrative agents and collateral agents under any permitted credit facility of Holdings, the Parent Borrower or any Subsidiary",
+     "needs_judgment": false,
+     "note": "Annual agency/collateral agent fees under any permitted credit facility (no 'to the extent included' qualifier).",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(vi)",
+     "category": "excluded_hedge_breakage_and_costs",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(vi) costs associated with obtaining Hedging Agreements, plus (vii) any expense resulting from the discounting of any Indebtedness",
+     "needs_judgment": false,
+     "note": "Costs of obtaining Hedging Agreements.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(vii)",
+     "category": "excluded_non_cash_interest",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(vii) any expense resulting from the discounting of any Indebtedness in connection with the application of recapitalization accounting or, if applicable, purchase accounting",
+     "needs_judgment": false,
+     "note": "Expense from discounting Indebtedness under recapitalization or purchase accounting (non-cash accounting accretion).",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(viii)",
+     "category": "excluded_other",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(viii) penalties and interest relating to taxes, plus (ix) any expensing of bridge, commitment and other financing fees",
+     "needs_judgment": false,
+     "note": "Penalties and interest relating to taxes.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(ix)",
+     "category": "excluded_other",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(ix) any expensing of bridge, commitment and other financing fees and any other fees related to any acquisitions after the Third Restatement Date",
+     "needs_judgment": false,
+     "note": "Expensed bridge, commitment and other financing fees and other fees related to acquisitions after the Third Restatement Date.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(x)",
+     "category": "excluded_other",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(x) interest expense resulting from push-down accounting, plus (xi) any lease, rental or other expense in connection with a Non-Financing Lease Obligation",
+     "needs_judgment": false,
+     "note": "Interest expense resulting from push-down accounting.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(b)(xi)",
+     "category": "excluded_other",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(xi) any lease, rental or other expense in connection with a Non-Financing Lease Obligation",
+     "needs_judgment": false,
+     "note": "Lease, rental or other expense for Non-Financing (operating) Lease Obligations.",
+     "caps": [],
+     "source": "footnote"
+    }
+   ],
+   "notes": "Structure: excess of (a) sum of (i)-(iv) over (b) sum of (i)-(xi); every (b) item has sign '-'. starts_from '' (GAAP interest expense is clause (a)(i), not a defined base); 'Consolidated interest expense' acceptable as starts_from if (a)(i) is still keyed. Acceptable alternative categories: (a)(i) capital_lease_interest (it also includes imputed lease interest) or interest_expense_gaap; (b)(ii) excluded_non_cash_interest; (b)(iii) excluded_non_cash_interest; (b)(iv) excluded_financing_cost_amortization; (b)(vi) hedge_net_costs with '-'; (b)(vii) excluded_other or oid_pik_interest; (b)(ix) excluded_financing_cost_amortization or commitment_fees with '-'; (b)(x) excluded_non_cash_interest; (b)(xi) capital_lease_interest with '-' is wrong in substance (these are operating-lease costs) but excluded_other is the fit. Any (b) item with sign '+' is wrong. (a)(iii) could be read as referencing (b)(iii) via ref_clauses; key leaves ref_term empty because it is a self-reference within this definition. | source filled by category default (#19); not scored against the key."
+  },
+  {
+   "name": "Total Indebtedness",
+   "family": "debt",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(a)",
+     "category": "term_reference",
+     "ref_term": "Indebtedness",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(a) the aggregate principal amount of Indebtedness of Holdings, the Parent Borrower and the Subsidiaries outstanding as of such date, in the amount that would be reflected on a balance",
+     "needs_judgment": false,
+     "note": "On-balance-sheet Indebtedness (all clauses of the Indebtedness definition), at aggregate PRINCIPAL amount as it would appear on a consolidated GAAP balance sheet. Section 1.04 values convertibles at full stated principal and ignores fair value elections.",
+     "caps": [],
+     "source": "n/a"
+    },
+    {
+     "clause": "(b)",
+     "category": "receivables_financing",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(b) the aggregate \u201cNet Investment\u201d as defined in Annex A to the Receivables Transfer Agreement",
+     "needs_judgment": false,
+     "note": "Receivables securitization 'Net Investment' per Annex A to the Receivables Transfer Agreement (annex not public).",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(c)",
+     "category": "off_balance_sheet",
+     "ref_term": "Indebtedness",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(c) the aggregate principal amount of Indebtedness of Holdings, the Parent Borrower and the Subsidiaries outstanding as of such date that is not required to be reflected on a balance",
+     "needs_judgment": false,
+     "note": "Off-balance-sheet Indebtedness, consolidated; subject to the proviso exclusions (c)(i) and (c)(ii).",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(c)(i)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(i) contingent obligations of Holdings, the Parent Borrower or any Subsidiary as an account party in respect of any letter of credit or letter of guaranty unless",
+     "needs_judgment": false,
+     "note": "For clause (c) only: contingent (undrawn) LC / letter of guaranty obligations excluded unless the LC supports an obligation that is itself Indebtedness.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "(c)(ii)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(ii) Indebtedness described in Section 6.01(a)(xi).",
+     "needs_judgment": false,
+     "note": "For clause (c) only: Section 6.01(a)(xi) Indebtedness = workers' compensation, self-insurance, performance/surety/appeal bonds, completion guarantees and similar ordinary-course obligations.",
+     "caps": [],
+     "source": "footnote"
+    }
+   ],
+   "notes": "Acceptable alternatives: (a) as borrowed_money/term-style with ref_term Indebtedness, or starts_from 'Indebtedness' with (a) still covered; (c) as term_reference with ref_term Indebtedness; (c)(i) as letters_of_credit_undrawn with sign '-'; (b) as off_balance_sheet. The proviso exclusions apply ONLY to clause (c) (stated 'for purposes of clause (c) above') - a note saying they apply to all of Total Indebtedness is a scoping error. No cash netting inside this definition (netting lives in the Total Net Leverage Ratio). | source filled by category default (#19); not scored against the key."
+  },
+  {
+   "name": "Indebtedness",
+   "family": "debt",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(a)",
+     "category": "borrowed_money",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(a) all obligations of such Person for borrowed money or with respect to advances of any kind",
+     "needs_judgment": false,
+     "note": "Borrowed money and advances of any kind.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(b)",
+     "category": "notes_bonds",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(b) all obligations of such Person evidenced by bonds, debentures, notes or similar instruments",
+     "needs_judgment": false,
+     "note": "Bonds, debentures, notes or similar instruments.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(c)",
+     "category": "interest_bearing_catch_all",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(c) all obligations of such Person upon which interest charges are customarily paid",
+     "needs_judgment": false,
+     "note": "Obligations on which interest charges are customarily paid.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(d)",
+     "category": "conditional_sale",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(d) all obligations of such Person under conditional sale or other title retention agreements relating to property acquired by such Person",
+     "needs_judgment": false,
+     "note": "Conditional sale / title retention obligations.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(e)",
+     "category": "deferred_purchase_price",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(e) all obligations of such Person in respect of the deferred purchase price of property or services (excluding current accounts payable",
+     "needs_judgment": false,
+     "note": "Deferred purchase price of property or services, excluding current accounts payable in the ordinary course.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(f)",
+     "category": "others_debt_secured_by_own_assets",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(f) all Indebtedness of others secured by (or for which the holder of such Indebtedness has an existing right, contingent or otherwise, to be secured by)",
+     "needs_judgment": false,
+     "note": "Indebtedness of others secured by a Lien on the Person's property, assumed or not.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(g)",
+     "category": "guarantees",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(g) all Guarantees by such Person of Indebtedness of others",
+     "needs_judgment": false,
+     "note": "Guarantees of Indebtedness of others.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(h)",
+     "category": "capital_finance_leases",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(h) all Financing Lease Obligations of such Person",
+     "needs_judgment": false,
+     "note": "Financing Lease Obligations.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(i)",
+     "category": "letters_of_credit_undrawn",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(i) all obligations, contingent or otherwise, of such Person as an account party in respect of letters of credit and letters of guaranty",
+     "needs_judgment": false,
+     "note": "LC / letter of guaranty obligations as account party, 'contingent or otherwise' - covers undrawn and drawn.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(j)",
+     "category": "bankers_acceptances_guaranties",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(j) all obligations, contingent or otherwise, of such Person in respect of bankers\u2019 acceptances",
+     "needs_judgment": false,
+     "note": "Bankers' acceptances, contingent or otherwise.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(k)",
+     "category": "hedge_obligations",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(k) obligations in respect of Swaps and Hedging Agreements in excess of $25,000,000 in the aggregate",
+     "needs_judgment": false,
+     "note": "Swap/hedge obligations count only to the extent they exceed $25,000,000 in aggregate (threshold, not a cap); measured at net termination value (maximum amount payable if all terminated, giving effect to netting).",
+     "caps": [
+      {
+       "type": "other",
+       "value": "excess_over:25000000",
+       "from": "",
+       "to": "",
+       "during": "",
+       "covenant": "all",
+       "pool": "",
+       "basis": "n/a",
+       "quote": "in excess of $25,000,000 in the aggregate"
+      }
+     ],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "partnership sentence",
+     "category": "partnership_jv_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "The Indebtedness of any Person shall include the Indebtedness of any other entity (including any partnership in which such Person is a general partner)",
+     "needs_judgment": false,
+     "note": "Includes debt of entities (e.g. general partnerships) the Person is liable for by ownership/relationship, unless the debt terms say it is not liable.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "exclusion (a)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(a) agreements providing for indemnification, purchase price adjustments or similar obligations incurred or assumed in connection with the acquisition or disposition",
+     "needs_judgment": false,
+     "note": "Indemnities, purchase price adjustments and similar M&A obligations.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "exclusion (b)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(b) trade payables and accrued expenses in each case arising in the ordinary course of business",
+     "needs_judgment": false,
+     "note": "Ordinary-course trade payables and accrued expenses.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "exclusion (c)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(c) earn-out obligations until any such obligation becomes a liability on the balance sheet",
+     "needs_judgment": false,
+     "note": "Earn-outs excluded only until they become a balance-sheet liability.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "exclusion (d)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(d) deferred or prepaid revenues; (e) purchase price holdbacks in respect of a portion of the purchase price",
+     "needs_judgment": false,
+     "note": "Deferred or prepaid revenues.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "exclusion (e)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(e) purchase price holdbacks in respect of a portion of the purchase price of an asset to satisfy warranty or other unperformed obligations",
+     "needs_judgment": false,
+     "note": "Purchase price holdbacks for warranty/unperformed seller obligations.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "exclusion (f)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(f) deferred compensation to employees of the Parent Borrower or any Subsidiary incurred in the ordinary course of business",
+     "needs_judgment": false,
+     "note": "Ordinary-course employee deferred compensation.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "exclusion (g)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(g) Non-Financing Lease Obligations and (h) indebtedness that has been defeased and/or discharged",
+     "needs_judgment": false,
+     "note": "Non-Financing (operating) Lease Obligations.",
+     "caps": [],
+     "source": "footnote"
+    },
+    {
+     "clause": "exclusion (h)",
+     "category": "excluded_debt",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "-",
+     "quote": "(h) indebtedness that has been defeased and/or discharged in accordance with its terms by the deposit of cash, cash equivalents and/or securities",
+     "needs_judgment": false,
+     "note": "Defeased / discharged indebtedness.",
+     "caps": [],
+     "source": "footnote"
+    }
+   ],
+   "notes": "Inclusions (a)-(k) plus the partnership sentence, then the 'Notwithstanding' exclusion list (a)-(h), labelled 'exclusion (x)' here because the code enumerator does not split the second (a)-(h) list (any label that distinguishes them, e.g. 'proviso (a)' / '(a) [exclusion]', is fine). Acceptable alternatives: (i) as letters_of_credit_drawn or split drawn/undrawn; (j) as letters_of_credit_drawn; (c) as borrowed_money; (k) with cap_type 'none' if the $25M threshold is in the note, or 'fixed_amount_per_period'; exclusion (c) as earnouts with '-'; exclusion (g) as capital_finance_leases '-' is WRONG (Non-Financing = operating leases). The partnership sentence may be omitted as a scope rule but the key counts it. $25M swap threshold was raised from $5M by the Tenth Amendment (blackline). | source filled by category default (#19); not scored against the key."
+  },
+  {
+   "name": "Permitted Investments",
+   "family": "cash",
+   "starts_from": "",
+   "components": [
+    {
+     "clause": "(a)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(a) direct obligations of, or obligations the principal of and interest on which are unconditionally guaranteed by, the United States of America",
+     "needs_judgment": false,
+     "note": "US government / full-faith-and-credit agency obligations maturing within one year.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(b)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(b) investments in commercial paper maturing within one year from the date of acquisition thereof and having, at such date of acquisition, the highest credit rating",
+     "needs_judgment": false,
+     "note": "Commercial paper maturing within one year with the highest S&P or Moody's rating.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(c)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(c) investments in certificates of deposit, banker\u2019s acceptances and time deposits maturing within one year from the date of acquisition thereof",
+     "needs_judgment": false,
+     "note": "CDs, bankers' acceptances, time deposits and money market deposit accounts at domestic offices of US banks with capital and surplus >= $500,000,000, maturing within one year.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(d)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(d) fully collateralized repurchase agreements with a term of not more than 30 days for securities described in clause (a) above",
+     "needs_judgment": false,
+     "note": "Fully collateralized repos (<= 30 days) on clause (a) securities with clause (c) banks.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(e)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(e) securities issued by any state of the United States of America or any political subdivision of any such state or any public instrumentality thereof",
+     "needs_judgment": false,
+     "note": "US state / municipal securities maturing within six months with the highest rating.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(f)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(f) securities issued by any foreign government or any political subdivision of any foreign government or any public instrumentality thereof",
+     "needs_judgment": false,
+     "note": "Foreign government securities maturing within six months with the highest rating.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(g)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(g) investments of the quality as those identified on Schedule 6.04 as \u201cQualified Foreign Investments\u201d made in the ordinary course of business",
+     "needs_judgment": false,
+     "note": "Investments of the quality of Schedule 6.04 'Qualified Foreign Investments' in the ordinary course (schedule not public).",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(h)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(h) cash; and (i) investments in funds that invest solely in one or more types of securities",
+     "needs_judgment": false,
+     "note": "Cash.",
+     "caps": [],
+     "source": "balance_sheet"
+    },
+    {
+     "clause": "(i)",
+     "category": "permitted_investments",
+     "ref_term": "",
+     "ref_clauses": "",
+     "sign": "+",
+     "quote": "(i) investments in funds that invest solely in one or more types of securities described in clauses (a), (e) and (f) above",
+     "needs_judgment": false,
+     "note": "Funds investing solely in clause (a), (e) and (f) securities.",
+     "caps": [],
+     "source": "balance_sheet"
+    }
+   ],
+   "notes": "Eligible-investment list (a)-(i); it has no cap, restriction or location test of its own: the 'Freely Transferable', 'unrestricted', $10M threshold and $150M/$240M cap all sit in the Total Net Leverage Ratio (a)(ii), so NO cap_on_total belongs here. Acceptable alternatives: (h) cash as cash_equivalents or permitted_investments; (c) as cash_equivalents; (i) permitted_investments with a note pointing to (a),(e),(f). Any component with sign '-' is wrong. | 2.3: (h) relabelled unrestricted_cash -> permitted_investments (list-item convention). | source filled by category default (#19); not scored against the key."
+  }
+ ]
+}

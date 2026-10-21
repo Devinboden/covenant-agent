@@ -1,0 +1,299 @@
+{
+ "A": {
+  "baseline": [
+   {
+    "ok": false,
+    "value": "150000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": false,
+    "value": "150000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": false,
+    "value": "150000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": false,
+    "value": "150000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": false,
+    "value": "150000000",
+    "note_mentions_240": true
+   }
+  ],
+  "told_covenant": [
+   {
+    "ok": true,
+    "value": "240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "240000000",
+    "note_mentions_240": true
+   }
+  ],
+  "two_value_slot": [
+   {
+    "ok": true,
+    "value": "150000000|240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "150000000|240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "150000000|240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "150000000|240000000",
+    "note_mentions_240": true
+   },
+   {
+    "ok": true,
+    "value": "150000000|240000000",
+    "note_mentions_240": true
+   }
+  ]
+ },
+ "B": {
+  "baseline": [
+   {
+    "ok": true,
+    "value": [
+     "borrowed_money"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "borrowed_money"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "borrowed_money"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "borrowed_money"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "borrowed_money"
+    ]
+   }
+  ],
+  "add_on_balance_sheet_part": [
+   {
+    "ok": true,
+    "value": [
+     "on_balance_sheet_debt"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "on_balance_sheet_debt"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "on_balance_sheet_debt"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "on_balance_sheet_debt"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "on_balance_sheet_debt"
+    ]
+   }
+  ],
+  "drop_scope_part": [
+   {
+    "ok": true,
+    "value": [
+     "term_reference"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "term_reference"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "term_reference"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "term_reference"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "term_reference"
+    ]
+   }
+  ]
+ },
+ "C": {
+  "baseline": [
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "excluded_earmarked_proceeds"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "excluded_earmarked_proceeds"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "excluded_earmarked_proceeds"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "excluded_earmarked_proceeds"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "excluded_earmarked_proceeds"
+    ]
+   }
+  ],
+  "unclaused_instruction": [
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "term_reference",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "excluded_earmarked_proceeds"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "custom"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "term_reference",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "excluded_earmarked_proceeds"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "custom"
+    ]
+   },
+   {
+    "ok": true,
+    "value": [
+     "unrestricted_cash",
+     "cash_equivalents",
+     "location_or_account_requirement",
+     "excluded_restricted_cash",
+     "excluded_cash_subject_to_liens",
+     "custom"
+    ]
+   }
+  ]
+ }
+}
