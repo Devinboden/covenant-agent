@@ -11,7 +11,8 @@ from covenant_engine import config
 from covenant_engine.mcp_server import create_server
 
 TOOLS = {"list_deals", "get_abstract", "list_review_items", "signoff_status", "run_status", "start_deal",
-         "resolve_item", "verify", "sign_off"}
+         "resolve_item", "verify", "sign_off", "open_review", "review_page", "review_decide", "review_verify", "review_sign"}
+SCREEN_ONLY = {"review_page", "review_decide", "review_verify", "review_sign"}
 
 
 def person(action="accept", decision="accept", confirm=True, seen=None):
@@ -50,6 +51,37 @@ def test_tools_and_who_decides(abs_dir, tmp_path):
         props = set(tools[name].input_schema.get("properties", {}))
         assert not props & {"answer", "by", "decision", "confirm"}, (name, props)
     assert tools["get_abstract"].annotations.read_only_hint
+    for name, t in tools.items():                                  # decisions in the screen are app-only tools
+        vis = ((t.meta or {}).get("ui") or {}).get("visibility", ["model", "app"])
+        assert (vis == ["app"]) == (name in SCREEN_ONLY), (name, vis)
+        if name in SCREEN_ONLY | {"open_review"}:
+            assert t.meta["ui"]["resourceUri"] == "ui://covenant-agent/review.html"
+        assert not {"by", "user", "reviewer"} & set(t.input_schema.get("properties", {})), name
+
+
+def test_review_screen(abs_dir, tmp_path):
+    async def go():
+        async with Client(srv(abs_dir, tmp_path)) as c:
+            res = await c.list_resources()
+            uri = next(r.uri for r in res.resources if str(r.uri).startswith("ui://"))
+            html = (await c.read_resource(uri)).contents[0]
+            return html
+    html = asyncio.run(go())
+    assert html.mime_type == "text/html;profile=mcp-app" and "Verify abstract" in html.text
+    s1, s2 = srv(abs_dir, tmp_path, user="Reviewer 1"), srv(abs_dir, tmp_path, user="Reviewer 2")
+    p = call(s1, "open_review", {"borrower": "MEC"}).structured_content["screen"]
+    assert p["viewer"] == "Reviewer 1" and p["status"] == "draft" and len(p["items"]) == p["open"] > 0
+    assert p["covs"] and all("loc" in r for c in p["covs"] for r in c["rows"])
+    for it in p["items"]:
+        p = call(s1, "review_decide", {"borrower": "MEC", "key": it["key"], "decision": "accept", "note": "ok"}).structured_content
+    assert p["open"] == 0 and all(i["resolution"]["by"] == "Reviewer 1" for i in p["items"])
+    assert call(s1, "review_decide", {"borrower": "MEC", "key": "nope", "decision": "accept"}).is_error
+    assert call(s1, "review_verify", {"borrower": "MEC"}).structured_content["status"] == "verified"
+    r = call(s1, "review_sign", {"borrower": "MEC"})
+    assert r.is_error and "different person" in r.content[0].text
+    done = call(s2, "review_sign", {"borrower": "MEC"}).structured_content
+    assert (done["status"], done["signed_by"]) == ("signed_off", "Reviewer 2")
+    assert [t["what"] for t in done["trail"]][-2:] == ["draft → verified", "verified → signed_off"]
 
 
 def test_reads(abs_dir, tmp_path):

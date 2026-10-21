@@ -22,6 +22,9 @@ covenant-mcp = "covenant_engine.mcp_server:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+covenant_engine = ["ui/*.html", "ui/*.js"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["live: calls models (claude -p); run with -m live", "data: needs fetched filings and intake bundles (scripts/fetch_filings.py)"]

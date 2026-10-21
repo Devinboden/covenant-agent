@@ -27,6 +27,7 @@ from pydantic import BaseModel, Field, create_model
 
 from mcp.server.mcpserver import (AcceptedElicitation, Context, Elicit, ElicitationResult, MCPServer, Resolve,
                                   authenticated_principal)
+from mcp.server.apps import Apps
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
@@ -34,6 +35,10 @@ from . import config
 from .abstract import signoff as SO
 from .abstract.new_deal import review_data
 from .store import store
+from . import review_view as RV
+
+UI_URI = "ui://covenant-agent/review.html"
+UI_DIR = Path(__file__).parent / "ui"
 
 TICKER = re.compile(r"^[A-Z][A-Z0-9.]{0,9}$")
 SECTIONS = ["summary", "covenants", "regimes", "flags", "loan", "terms", "pricing_grid", "calculation_rules",
@@ -147,13 +152,81 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     st = store(abs_dir)
     jobs = Jobs(runner, job_dir or config.ROOT / "data" / "jobs")
     user = user if user is not None else os.environ.get("COVENANT_USER")
+    apps = Apps()
+
+    # ---------------- the review screen (MCP App view) ----------------
+    # open_review is for the model and the view. The rest are app-only (_meta.ui.visibility = ["app"]): the model never
+    # sees them, so a decision recorded through them is a person's click in the view. Identity still comes from the
+    # connection, never from an argument.
+
+    def _view(ctx, b):
+        return RV.payload(b, who_or_none(ctx), abs_dir)
+
+    @apps.tool(resource_uri=UI_URI, annotations=READ)
+    def open_review(borrower: str, ctx: Context) -> dict[str, Any]:
+        """Open the review screen for a deal: open items with their evidence, the covenant schedules, and the agreement
+        page with each quote highlighted. The person resolves items, verifies and signs off in the screen."""
+        b = need(borrower)
+        p = _view(ctx, b)
+        return {k: p[k] for k in ("borrower", "name", "status", "open", "total", "verified_by", "signed_by")} | \
+            {"screen": p, "note": "The review screen shows this deal; decisions are made by the person in the screen."}
+
+    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=READ)
+    def review_page(borrower: str, page: int) -> dict[str, Any]:
+        """(screen only) One agreement page as an image."""
+        b = need(borrower)
+        try:
+            return {"page": page, "image": RV.page_image(b, page, abs_dir)}
+        except (FileNotFoundError, IndexError, ValueError) as e:
+            raise ToolError(str(e))
+
+    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=WRITE)
+    def review_decide(borrower: str, key: str, decision: Literal["accept", "correct", "reject", "defer"], ctx: Context,
+                      note: str = "", correction: str = "") -> dict[str, Any]:
+        """(screen only) Record the person's decision on one item."""
+        b = need(borrower)
+        try:
+            SO.resolve(b, key, decision, who(ctx), note, correction, abs_dir)
+        except SO.SignoffError as e:
+            raise ToolError(str(e))
+        return _view(ctx, b)
+
+    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=WRITE)
+    def review_verify(borrower: str, ctx: Context) -> dict[str, Any]:
+        """(screen only) Verify the abstract (first pair of eyes)."""
+        b = need(borrower)
+        try:
+            SO.verify(b, who(ctx), abs_dir)
+        except SO.SignoffError as e:
+            raise ToolError(str(e))
+        return _view(ctx, b)
+
+    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=WRITE)
+    def review_sign(borrower: str, ctx: Context) -> dict[str, Any]:
+        """(screen only) Sign off a verified abstract (second pair of eyes)."""
+        b = need(borrower)
+        try:
+            SO.sign(b, who(ctx), abs_dir)
+        except SO.SignoffError as e:
+            raise ToolError(str(e))
+        return _view(ctx, b)
+
+    html = (UI_DIR / "review.html").read_text(encoding="utf-8") if (UI_DIR / "review.html").exists() else \
+        "<p>Review screen not built: run npm run build:ui</p>"
+    apps.add_html_resource(UI_URI, html, name="Covenant review", title="Covenant review",
+                           description="Checker screen: open items, covenant schedules, highlighted source pages")
+
     server = MCPServer(
         "covenant-agent", version="0.1.0",
         instructions=("Covenant abstraction: credit agreement PDF in, checked covenant abstract out, human sign-off. "
                       "Code builds and checks the abstract; you explain it and route the person to open items. "
                       "Never do covenant arithmetic yourself: every value and date comes from get_abstract. "
                       "resolve_item, verify and sign_off ask the person directly with a form; you can propose a "
-                      "decision but only their answer counts."))
+                      "decision but only their answer counts. open_review shows the review screen."),
+        extensions=[apps])
+
+    def who_or_none(ctx):
+        return authenticated_principal(ctx.request_context) or user or None
 
     def who(ctx):
         p = authenticated_principal(ctx.request_context)
@@ -331,13 +404,30 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     return server
 
 
+def add_dev_host(server):
+    """A minimal MCP Apps host for trying the review screen locally: http://127.0.0.1:<port>/ . It connects back to
+    this server's /mcp endpoint, calls open_review and renders the view in a sandboxed iframe. For local testing only."""
+    from starlette.responses import HTMLResponse, Response
+
+    @server.custom_route("/", methods=["GET"])
+    async def host_page(request):
+        return HTMLResponse((UI_DIR / "dev_host.html").read_text(encoding="utf-8"))
+
+    @server.custom_route("/dev_host.js", methods=["GET"])
+    async def host_js(request):
+        return Response((UI_DIR / "dev_host.js").read_text(encoding="utf-8"), media_type="text/javascript")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--http", action="store_true", help="streamable HTTP instead of stdio")
     ap.add_argument("--port", type=int, default=8000)
+    ap.add_argument("--dev-host", action="store_true", help="also serve a local test host page at / (with --http)")
     a = ap.parse_args()
     s = create_server()
     if a.http:
+        if a.dev_host:
+            add_dev_host(s)
         s.run("streamable-http", host="127.0.0.1", port=a.port)
     else:
         s.run("stdio")

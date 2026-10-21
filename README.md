@@ -67,9 +67,23 @@ COVENANT_USER="Reviewer 1" covenant-mcp            # stdio; --http for streamabl
 | `start_deal`, `run_status` | abstract a PDF under `data/pdf/<TICKER>/` in the background and follow progress |
 | `resolve_item`, `verify`, `sign_off` | the person answers a form (MCP elicitation); the model can only propose |
 
+| `open_review` | shows the review screen (MCP App view): open items with evidence, covenant schedules, the agreement page with the quote highlighted |
+| `review_page`, `review_decide`, `review_verify`, `review_sign` | screen only (`_meta.ui.visibility: ["app"]`): the model never sees them, so a decision is a person's click |
+
 Who is acting comes from the connection (the authenticated principal, or `COVENANT_USER` locally), never from a tool
 argument, so four eyes holds through the agent. With no person to answer (a headless client), the form is cancelled
 and nothing is recorded.
+
+### Try the review screen locally
+```bash
+pip install -e ".[mcp]"
+SEC_USER_AGENT="Your Name you@example.com" python scripts/fetch_filings.py MEC --no-ingest   # optional: PDF pages
+COVENANT_USER="Reviewer 1" covenant-mcp --http --dev-host                 # open http://127.0.0.1:8000/
+COVENANT_USER="Reviewer 2" covenant-mcp --http --dev-host --port 8001     # a second reviewer, for sign-off
+```
+The dev host is a minimal MCP Apps host (`ui-src/dev_host.js`): it calls `open_review`, renders the screen in a sandboxed
+iframe and logs every call the screen makes. Without the PDF the screen works but shows no pages. The view is built
+from `ui-src/` with `npm install && npm run build:ui`; the built files in `src/covenant_engine/ui/` are committed.
 
 ## Layout
 - `src/covenant_engine/` ingest, abstract (steps, checks, scorers, sign-off), core (shared library parts), config,

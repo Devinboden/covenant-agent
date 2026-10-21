@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Covenant Agent · local host</title>
+<style>
+:root { --bg: #e9ecf1; --panel: #ffffff; --ink: #18202b; --muted: #5d6877; --line: #d5dbe3; --m: #0d5c75; --a: #8a4bb0; --err: #b02a1f; color-scheme: light; }
+:root[data-theme="dark"] { --bg: #0b0f14; --panel: #141b23; --ink: #e4e9ef; --muted: #96a2b1; --line: #27313d; --m: #66b8d2; --a: #c495e3; --err: #f08578; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+aside { background: var(--panel); border-right: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
+h1 { font-size: 15px; margin: 0; }
+small, .muted { color: var(--muted); font-size: 12px; }
+label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+select, button { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; }
+button { cursor: pointer; }
+button.go { background: var(--m); color: var(--panel); border: 0; font-weight: 600; }
+ul { margin: 0; padding-left: 16px; font-size: 12.5px; display: grid; gap: 2px; }
+code { font-size: 12px; }
+.m { color: var(--m); } .a { color: var(--a); } .err { color: var(--err); }
+#log { font: 11.5px/1.5 ui-monospace, Menlo, monospace; display: grid; gap: 2px; max-height: 40vh; overflow: auto; }
+main { padding: 20px; overflow: auto; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.chat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; max-width: 900px; }
+#stage { max-width: 900px; width: 100%; }
+#stage iframe { width: 100%; height: 760px; border: 1px solid var(--line); border-radius: 10px; background: transparent; display: block; }
+body[data-mode="fullscreen"] main { padding: 0; }
+body[data-mode="fullscreen"] .chat { display: none; }
+body[data-mode="fullscreen"] #stage { max-width: none; height: 100%; position: relative; }
+body[data-mode="fullscreen"] #stage iframe { height: 100%; border-radius: 0; border: 0; }
+body[data-mode="fullscreen"] #stage::after { content: "Chat composer (host overlay)"; position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); width: min(680px, 90%); height: 44px; border-radius: 22px; background: var(--panel); border: 1px solid var(--line); color: var(--muted); display: grid; place-items: center; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+</style>
+</head>
+<body>
+<aside>
+  <div><h1>Covenant Agent · local host</h1><small>A minimal MCP Apps host for trying the review screen. Server: <span id="server">connecting…</span></small></div>
+  <label>Deal <select id="deal"></select></label>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="go" id="open">Open review</button><button id="mode">Full screen</button></div>
+  <label>Host theme <select id="theme"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+  <div><small>Tools on this server</small><ul id="tools"></ul></div>
+  <div><small>Calls (newest first): <span class="m">model</span> · <span class="a">screen</span></small><div id="log"></div></div>
+</aside>
+<main>
+  <div class="chat"><b>You:</b> Open the review for this deal.<br><span class="muted">The assistant calls <code>open_review</code>; the host renders the screen below.</span></div>
+  <div id="stage"></div>
+</main>
+<script src="/dev_host.js"></script>
+</body>
+</html>

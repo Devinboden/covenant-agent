@@ -1,0 +1,12 @@
+{
+  "name": "covenant-agent-ui",
+  "private": true,
+  "type": "module",
+  "description": "Builds the MCP App view (ui://covenant-agent/review.html) and the local test host",
+  "scripts": { "build:ui": "node scripts/build_ui.mjs" },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.3.1",
+    "@modelcontextprotocol/ext-apps": "2.0.3",
+    "esbuild": "0.28.2"
+  }
+}

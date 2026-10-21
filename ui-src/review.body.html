@@ -1,0 +1,45 @@
+
+
+<header class="bar">
+  <div class="deal"><b id="dealName">Loading review…</b><span id="dealSub"></span></div>
+  <div class="pipeline" aria-label="Sign-off status">
+    <span class="stage" id="stDraft">Draft</span><span class="arrow">→</span>
+    <span class="stage" id="stVer">Verified</span><span class="arrow">→</span>
+    <span class="stage" id="stSign">Signed off</span>
+  </div>
+  <div class="who"><span>Signed in as</span> <b id="viewer">—</b>
+    <button class="ghost" id="fsBtn" hidden>Full screen</button></div>
+</header>
+
+<main class="desk">
+  <section class="work">
+    <div class="facts" id="facts"></div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-items" aria-selected="true">Open items<span class="n" id="nOpen"></span></button>
+      <button class="tab" role="tab" id="tab-cov" aria-selected="false">Covenants</button>
+      <button class="tab" role="tab" id="tab-trail" aria-selected="false">Trail</button>
+    </div>
+    <div id="view-items" class="items"></div>
+    <div id="view-cov" hidden></div>
+    <div id="view-trail" hidden></div>
+    <div class="loading" id="loading">Waiting for the review data from the host…</div>
+    <footer class="actions" id="actions">
+      <div class="prog"><div id="progText"></div><div class="meter"><i id="meter"></i></div></div>
+      <button class="primary" id="mainBtn"></button>
+      <div class="confirm" id="confirm" hidden></div>
+      <div class="msg" id="msg" hidden></div>
+    </footer>
+  </section>
+
+  <aside class="source" aria-label="Source document">
+    <div class="src-head">
+      <button class="nav" id="prev" aria-label="Previous cited page">‹</button>
+      <span class="pg" id="pgLabel"></span>
+      <button class="nav" id="next" aria-label="Next cited page">›</button>
+      <span class="file" id="file"></span>
+    </div>
+    <div class="page-scroll" id="scroller"><div class="page" id="page"><img id="pageImg" alt="Agreement page"></div></div>
+    <div class="src-cap" id="cap">Select a row or an item to see where it comes from.</div>
+  </aside>
+</main>
+
