@@ -2,6 +2,7 @@
 callback, as they would from a host's form; identity comes from the server's configured user."""
 import asyncio
 import re
+import threading
 import time
 
 import pytest
@@ -149,12 +150,12 @@ def test_start_deal_job(abs_dir, tmp_path, monkeypatch):
     (root / "data" / "pdf" / "ZZZ" / "credit.pdf").write_bytes(b"%PDF-1.4")
     (root / "secret.pdf").write_bytes(b"%PDF-1.4")
     monkeypatch.setattr(config, "ROOT", root)
-    calls = []
+    calls, release = [], threading.Event()
 
     def runner(b, pdf, progress, **kw):
         calls.append((b, pdf, kw))
         progress("ingest: ok")
-        time.sleep(0.3)
+        release.wait(10)          # held until the duplicate start has been refused (no timing race under load)
         return {"status": "ready_for_review", "deal": b}
     s = srv(abs_dir, tmp_path, runner=runner)
     for bad in ("../secret.pdf", "data/pdf/ZZZ/../../secret.pdf", "data/pdf/ZZZ/missing.pdf", "data/pdf/ZZZ"):
@@ -164,7 +165,8 @@ def test_start_deal_job(abs_dir, tmp_path, monkeypatch):
         async with Client(s) as c:
             j = (await c.call_tool("start_deal", {"borrower": "zzz", "pdf": "data/pdf/ZZZ/credit.pdf"})).structured_content
             again = await c.call_tool("start_deal", {"borrower": "ZZZ", "pdf": "data/pdf/ZZZ/credit.pdf"})
-            for _ in range(50):
+            release.set()
+            for _ in range(100):
                 st = (await c.call_tool("run_status", {"job_id": j["job_id"]})).structured_content
                 if st["state"] != "running":
                     break
