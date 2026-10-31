@@ -14,6 +14,7 @@ data/abstract/events/
 data/abstract/calc/
 data/abstract/pricing/
 data/spike/
+data/edgar/
 recordings/
 # Local only
 notes/
