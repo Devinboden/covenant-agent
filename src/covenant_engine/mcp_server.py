@@ -38,8 +38,23 @@ from .abstract.new_deal import review_data
 from .store import store
 from . import review_view as RV
 
-UI_URI = "ui://covenant-agent/review.html"
 UI_DIR = Path(__file__).parent / "ui"
+UI_LEGACY_URI = "ui://covenant-agent/review.html"     # pre-hash URI: still served so old conversations render
+
+
+def view_html():
+    p = UI_DIR / "review.html"
+    return p.read_text(encoding="utf-8") if p.exists() else "<p>Review screen not built: run npm run build:ui</p>"
+
+
+def view_uri(html):
+    """Content-hashed widget URI: hosts cache a ui:// resource by URI, so a new build gets a new URI and is fetched
+    fresh instead of a stale cached copy. Same HTML -> same URI (stable across restarts and machines)."""
+    import hashlib
+    return f"ui://covenant-agent/review-{hashlib.sha256(html.encode('utf-8')).hexdigest()[:12]}.html"
+
+
+UI_URI = view_uri(view_html())
 UI_DISPLAY_MODES_OPENAI = ["fullscreen"]   # ChatGPT is the primary surface: open the review screen full screen
 
 TICKER = re.compile(r"^[A-Z][A-Z0-9.]{0,9}$")
@@ -174,6 +189,11 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     apps = Apps()
 
     # ---------------- the review screen (MCP App view) ----------------
+    html = view_html()
+    ui_uri = view_uri(html)
+    # Every tool that renders the screen points at the hashed URI: _meta.ui.resourceUri (MCP Apps standard) and
+    # openai/outputTemplate (ChatGPT's alias, same value).
+    VIEW = dict(resource_uri=ui_uri, meta={"openai/outputTemplate": ui_uri})
     # open_review is for the model and the view. The rest are app-only (_meta.ui.visibility = ["app"]): the model never
     # sees them, so a decision recorded through them is a person's click in the view. Identity still comes from the
     # connection, never from an argument.
@@ -181,16 +201,17 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     def _view(ctx, b):
         return RV.payload(b, who_or_none(ctx), abs_dir)
 
-    @apps.tool(resource_uri=UI_URI, annotations=READ)
+    @apps.tool(**VIEW, annotations=READ)
     def open_review(borrower: str, ctx: Context) -> dict[str, Any]:
         """Open the review screen for a deal: open items with their evidence, the covenant schedules, and the agreement
         page with each quote highlighted. The person resolves items, verifies and signs off in the screen."""
         b = need(borrower)
         p = _view(ctx, b)
         return {k: p[k] for k in ("borrower", "name", "status", "open", "total", "verified_by", "signed_by")} | \
-            {"screen": p, "note": "The review screen shows this deal; decisions are made by the person in the screen."}
+            {"screen": p, "view": ui_uri,
+             "note": "The review screen shows this deal; decisions are made by the person in the screen."}
 
-    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=READ)
+    @apps.tool(**VIEW, visibility=["app"], annotations=READ)
     def review_page(borrower: str, page: int) -> dict[str, Any]:
         """(screen only) One agreement page as an image."""
         b = need(borrower)
@@ -199,7 +220,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         except (FileNotFoundError, IndexError, ValueError) as e:
             raise ToolError(str(e))
 
-    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=WRITE)
+    @apps.tool(**VIEW, visibility=["app"], annotations=WRITE)
     def review_decide(borrower: str, key: str, decision: Literal["accept", "correct", "reject", "defer"], ctx: Context,
                       note: str = "", correction: str = "") -> dict[str, Any]:
         """(screen only) Record the person's decision on one item."""
@@ -210,7 +231,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             raise ToolError(str(e))
         return _view(ctx, b)
 
-    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=WRITE)
+    @apps.tool(**VIEW, visibility=["app"], annotations=WRITE)
     def review_verify(borrower: str, ctx: Context) -> dict[str, Any]:
         """(screen only) Verify the abstract (first pair of eyes)."""
         b = need(borrower)
@@ -220,7 +241,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             raise ToolError(str(e))
         return _view(ctx, b)
 
-    @apps.tool(resource_uri=UI_URI, visibility=["app"], annotations=WRITE)
+    @apps.tool(**VIEW, visibility=["app"], annotations=WRITE)
     def review_sign(borrower: str, ctx: Context) -> dict[str, Any]:
         """(screen only) Sign off a verified abstract (second pair of eyes)."""
         b = need(borrower)
@@ -230,17 +251,15 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             raise ToolError(str(e))
         return _view(ctx, b)
 
-    html = (UI_DIR / "review.html").read_text(encoding="utf-8") if (UI_DIR / "review.html").exists() else \
-        "<p>Review screen not built: run npm run build:ui</p>"
     # Built by hand (add_html_resource can't carry extra _meta). "openai/ui".availableDisplayModes = ["fullscreen"]
     # tells ChatGPT to open the screen full screen straight away, with no inline loading state. Hosts that ignore the
     # openai/ keys use the standard bridge; the view declares inline+fullscreen there and asks for fullscreen on load.
-    apps.add_resource(TextResource(
-        uri=UI_URI, name="Covenant review", title="Covenant review", text=html,
-        description="Checker screen: open items, covenant schedules, highlighted source pages",
-        meta={"openai/ui": {"availableDisplayModes": UI_DISPLAY_MODES_OPENAI},
-              "openai/widgetDescription": "Covenant review screen: open items with evidence, covenant schedules and "
-                                          "the agreement page. The person decides, verifies and signs off here."}))
+    meta = {"openai/ui": {"availableDisplayModes": UI_DISPLAY_MODES_OPENAI},
+            "openai/widgetDescription": "Covenant review screen: open items with evidence, covenant schedules and "
+                                        "the agreement page. The person decides, verifies and signs off here."}
+    for uri in (ui_uri, UI_LEGACY_URI):   # current (hashed) + legacy alias serving the same, current HTML
+        apps.add_resource(TextResource(uri=uri, name="Covenant review", title="Covenant review", text=html, meta=meta,
+                                       description="Checker screen: open items, covenant schedules, highlighted source pages"))
 
     server = MCPServer(
         "covenant-agent", version="0.1.0",

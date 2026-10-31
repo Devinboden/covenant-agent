@@ -1,6 +1,7 @@
 """The MCP server, through a real MCP client (in memory). The person's answers arrive through the elicitation
 callback, as they would from a host's form; identity comes from the server's configured user."""
 import asyncio
+import re
 import time
 
 import pytest
@@ -8,7 +9,7 @@ from mcp import Client
 from mcp.types import ElicitResult
 
 from covenant_engine import config
-from covenant_engine.mcp_server import create_server
+from covenant_engine.mcp_server import UI_URI, create_server, view_uri
 
 TOOLS = {"list_deals", "get_abstract", "list_review_items", "signoff_status", "run_status", "start_deal",
          "resolve_item", "verify", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "review_page", "review_decide", "review_verify", "review_sign"}
@@ -55,15 +56,22 @@ def test_tools_and_who_decides(abs_dir, tmp_path):
         vis = ((t.meta or {}).get("ui") or {}).get("visibility", ["model", "app"])
         assert (vis == ["app"]) == (name in SCREEN_ONLY), (name, vis)
         if name in SCREEN_ONLY | {"open_review"}:
-            assert t.meta["ui"]["resourceUri"] == "ui://covenant-agent/review.html"
+            assert re.fullmatch(r"ui://covenant-agent/review-[0-9a-f]{12}\.html", t.meta["ui"]["resourceUri"])
+            assert t.meta["openai/outputTemplate"] == t.meta["ui"]["resourceUri"]
         assert not {"by", "user", "reviewer"} & set(t.input_schema.get("properties", {})), name
+
+
+def test_view_uri_is_a_content_hash():
+    assert view_uri("<p>a</p>") == view_uri("<p>a</p>") != view_uri("<p>b</p>")   # new build -> new URI
 
 
 def test_review_screen(abs_dir, tmp_path):
     async def go():
         async with Client(srv(abs_dir, tmp_path)) as c:
             res = await c.list_resources()
-            uri = next(r.uri for r in res.resources if str(r.uri).startswith("ui://"))
+            uris = sorted(str(r.uri) for r in res.resources if str(r.uri).startswith("ui://"))
+            assert uris == sorted([UI_URI, "ui://covenant-agent/review.html"])        # hashed + legacy alias
+            uri = UI_URI
             html = (await c.read_resource(uri)).contents[0]
             return html
     html = asyncio.run(go())
