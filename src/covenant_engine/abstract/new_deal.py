@@ -46,11 +46,9 @@ def gpt_check(borrower, out_dir="data/gpt_review"):
     return tally
 
 
-def review_data(borrower, abs_dir=ABSTRACT_DIR):
-    """Everything a reviewer needs, one row per item: key (stable, for the sign-off record), kind, where, what code /
-    GPT says, the evidence quote, plus the abstract's headline facts. Reads only."""
-    ab, rec, h = load(borrower, abs_dir)
-    its = items(ab)
+def review_rows(ab, rec):
+    """One row per review item: key (stable, for the sign-off record), kind, where, what code / GPT says, the evidence
+    quote, and what it points at (term / clause / id) so corrections can find the fields."""
     rows = []
     for f in ab.get("flags", []):
         from .signoff import item_key
@@ -76,8 +74,16 @@ def review_data(borrower, abs_dir=ABSTRACT_DIR):
         rows.append({"key": k, "kind": f"review/{r.get('step')}", "type": r.get("step"),
                      "where": " ".join(x for x in (r.get("term", ""), r.get("clause", "") or r.get("id", "")) if x),
                      "what": what, "gpt_reads": r.get("gpt_reads", ""), "evidence": evidence,
-                     "term": r.get("term", ""), "clause": r.get("clause", ""), "note": note,
+                     "term": r.get("term", ""), "clause": r.get("clause", ""), "id": r.get("id", ""), "note": note,
                      "resolution": rec["resolutions"].get(k)})
+    return rows
+
+
+def review_data(borrower, abs_dir=ABSTRACT_DIR):
+    """Everything a reviewer needs: the review rows plus the abstract's headline facts. Reads only."""
+    ab, rec, h = load(borrower, abs_dir)
+    its = items(ab)
+    rows = review_rows(ab, rec)
     cov = [{"id": c["id"], "ref": c["ref"], "name": c["name"], "metric": c["metric"], "direction": c["direction"],
             "frequency": c["frequency"], "event_tests": c.get("event_tests", []), "applies_during": c.get("applies_during", ""),
             "schedule": [{"from": r["start"].get("date") or f"{r['start']['count']} {r['start']['kind']} {r['start']['anchor']}".strip(),

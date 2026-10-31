@@ -12,6 +12,7 @@ from functools import lru_cache
 
 from . import config
 from .abstract import signoff as SO
+from .abstract import corrections as C
 from .abstract.new_deal import review_data
 from .store import store
 
@@ -191,11 +192,13 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     items = [{"key": i["key"], "kind": i["kind"], "type": i["type"], "where": i["where"], "what": i["what"],
               "evidence": i["evidence"], "resolution": i["resolution"],
               "why": WHY.get((i["what"] or "").split(". Model's reading")[0], ""), "reading": i.get("note", ""),
-              "detail": details.get((i.get("term"), i.get("clause")))} for i in rv["items"]]
+              "detail": details.get((i.get("term"), i.get("clause"))), "fields": C.fields(ab, i)} for i in rv["items"]]
     its, open_, deferred, _ = SO.summary(ab, rec)
     trail = [{"date": ab["header"].get("built"), "by": "system",
               "what": f"abstract built from {ab['header'].get('source_file')}; {len(its)} items for review"}]
     trail += [{"date": r["date"], "by": r["by"], "what": f"{r['decision']}: {r['item'][:90]}"} for r in rec["resolutions"].values()]
+    trail += [{"date": x["date"], "by": x["by"], "what": f"changed {x['group']}: {x['label']} {x['before']} → {x['after']}"}
+              for x in rec.get("corrections", [])]
     trail += [{"date": t["date"], "by": t["by"], "what": f"{t['from']} → {t['to']}" + (f" ({t['why']})" if t.get("why") else "")}
               for t in rec.get("transitions", [])]
     trail.sort(key=lambda t: t["date"] or "")

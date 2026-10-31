@@ -166,9 +166,10 @@ function items() {
       ${it.evidence ? (hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">Not found word for word in the PDF, so there is nothing to highlight.</div>' : ""}`) : ""}
       ${it.detail ? context(it) : ""}
       ${editable ? `<div class="fields"><textarea id="note-${it.key}" placeholder="Note for the sign-off record (optional)">${esc(r.note || "")}</textarea>
-        <div ${corr ? "" : "hidden"}>${it.detail ? correctTerm(it) : `<input id="corr-${it.key}" placeholder="Corrected value" value="${esc(r.correction || "")}">`} <button class="primary" data-save="1">Save correction</button></div></div>` : ""}
+        ${corr ? correctionForm(it, r) : ""}</div>` : ""}
       <div class="decide">${btn("accept", "Accept")}${btn("correct", "Correct")}${btn("reject", "Reject")}${btn("defer", "Defer")}
-        ${r.by ? `<span class="stamp">${esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}${r.correction ? " · → " + esc(r.correction) : ""}</span>` : ""}</div>
+        ${r.by ? `<span class="stamp">${esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}${r.correction && !(r.changes || []).length ? " · " + esc(r.correction) : ""}</span>` : ""}</div>
+      ${(r.changes || []).length ? `<ul class="changes">${r.changes.map(c => `<li><b>${esc(c.label)}</b> <s>${esc(c.before)}</s> → ${esc(c.after)} <small>${esc(c.group)}</small></li>`).join("")}</ul>` : ""}
     </article>`;
   }).join("");
   $("view-items").querySelectorAll(".item").forEach(card => {
@@ -186,11 +187,24 @@ function items() {
     });
     const save = card.querySelector("[data-save]");
     if (save) save.onclick = () => {
-      const v = it.detail ? termCorrection(it) : ($("corr-" + it.key).value || "").trim();
-      if (!v) { say(it.detail ? "Change the effect, category or cap first (or Accept if the stored reading is right)." : "Type the corrected value first."); return; }
-      correcting = null;
-      act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), correction: v });
+      if (it.fields && it.fields.length) {
+        const changes = [];
+        card.querySelectorAll("[data-path]").forEach(el => {
+          const f = it.fields[Number(el.dataset.i)];
+          if (String(el.value).trim() !== String(f.value)) changes.push({ path: f.path, value: el.value });
+        });
+        if (!changes.length) { say("Change at least one field, or Accept if the abstract is right."); return; }
+        correcting = null;
+        act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Correction applied to the abstract.");
+      } else {
+        const v = ($("corr-" + it.key).value || "").trim();
+        if (!v) { say("Describe the correction first."); return; }
+        correcting = null;
+        act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), correction: v });
+      }
     };
+    const cancel = card.querySelector("[data-cancel]");
+    if (cancel) cancel.onclick = () => { correcting = null; items(); };
   });
 }
 // ---------- term-check context: what the analyst needs to decide ----------
@@ -211,18 +225,21 @@ function context(it) {
     ${t ? `<details class="defn"><summary>Whole definition: ${esc(d.term)} (${t.rows.length} clauses, starts from ${esc(t.starts_from || "—")})</summary>
       <table><thead><tr><th>Clause</th><th>Effect</th><th>Category</th><th>Text</th></tr></thead><tbody>${rows}</tbody></table></details>` : ""}`;
 }
-function correctTerm(it) {
-  const d = it.detail, k = it.key;
-  const cats = (D.categories || []).map(c => `<option ${c === d.category ? "selected" : ""}>${esc(c)}</option>`).join("");
-  return `<span class="corr-term"><label>Effect <select id="corr-sign-${k}"><option value="+" ${d.effect.startsWith("Add") ? "selected" : ""}>add-back</option><option value="-" ${d.effect.startsWith("Ded") ? "selected" : ""}>deduction</option></select></label>
-    <label>Category <select id="corr-cat-${k}">${cats}</select></label>
-    <label>Cap <input id="corr-cap-${k}" placeholder="e.g. not to exceed $10M per year (blank = none)"></label></span>`;
-}
-function termCorrection(it) {
-  const k = it.key, sign = $("corr-sign-" + k).value, cat = $("corr-cat-" + k).value, cap = ($("corr-cap-" + k).value || "").trim();
-  const d = it.detail, was = { sign: d.effect.startsWith("Add") ? "+" : "-", cat: d.category };
-  if (sign === was.sign && cat === was.cat && !cap) return "";
-  return `${d.term} ${d.clause}: effect ${SIGN[sign]}; category ${cat}; cap ${cap || "none"}`;
+// Correct = the fields this item points at, pre-filled with what the abstract stores now. Saving applies the change.
+function correctionForm(it, r) {
+  if (!it.fields || !it.fields.length) {
+    return `<div class="corr-box"><label class="corr-free">What should it say? <small>(no structured field for this item: recorded in the sign-off note, not applied)</small>
+      <input id="corr-${it.key}" value="${esc(r.correction || "")}"></label>
+      <div class="corr-actions"><button class="primary" data-save="1">Save correction</button><button class="dbtn" data-cancel="1">Cancel</button></div></div>`;
+  }
+  const groups = {};
+  it.fields.forEach((f, i) => { (groups[f.group] = groups[f.group] || []).push([f, i]); });
+  const input = (f, i) => f.type === "enum"
+    ? `<select data-path data-i="${i}">${f.options.map(o => `<option value="${esc(o)}" ${o === f.value ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`
+    : `<input data-path data-i="${i}" type="${f.type === "date" ? "date" : "text"}" value="${esc(f.value)}">`;
+  return `<div class="corr-box"><div class="corr-head">Change what the abstract stores. Only fields you change are saved; the second reviewer sees before → after.</div>
+    ${Object.entries(groups).map(([g, fs]) => `<fieldset><legend>${esc(g)}</legend>${fs.map(([f, i]) => `<label><span>${esc(f.label)}</span>${input(f, i)}</label>`).join("")}</fieldset>`).join("")}
+    <div class="corr-actions"><button class="primary" data-save="1">Save correction</button><button class="dbtn" data-cancel="1">Cancel</button></div></div>`;
 }
 
 function chart(c) {

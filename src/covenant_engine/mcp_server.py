@@ -222,11 +222,12 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
 
     @apps.tool(**VIEW, visibility=["app"], annotations=WRITE)
     def review_decide(borrower: str, key: str, decision: Literal["accept", "correct", "reject", "defer"], ctx: Context,
-                      note: str = "", correction: str = "") -> dict[str, Any]:
-        """(screen only) Record the person's decision on one item."""
+                      note: str = "", correction: str = "", changes: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        """(screen only) Record the person's decision on one item. A correction with `changes` ([{path, value}] from the
+        item's fields) is applied to the abstract, re-validated and logged before -> after."""
         b = need(borrower)
         try:
-            SO.resolve(b, key, decision, who(ctx), note, correction, abs_dir)
+            SO.resolve(b, key, decision, who(ctx), note, correction, abs_dir, changes=changes)
         except SO.SignoffError as e:
             raise ToolError(str(e))
         return _view(ctx, b)

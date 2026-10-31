@@ -87,17 +87,33 @@ def save(b, ab, rec, abs_dir=ABSTRACT_DIR):
     st.save(b, "abstract", ab)
 
 
-def resolve(b, key, decision, by, note="", correction="", abs_dir=ABSTRACT_DIR):
+def resolve(b, key, decision, by, note="", correction="", abs_dir=ABSTRACT_DIR, changes=None):
+    """Record a decision. A 'correct' with `changes` ([{path, value}], from corrections.fields) is applied to the
+    abstract itself (re-validated, logged before -> after); a 'correct' without changes is only noted."""
     ab, rec, h = load(b, abs_dir)
     its = items(ab)
     if key not in its:
         raise SignoffError(f"no open item {key}")
     if decision not in DECISIONS:
         raise SignoffError(f"decision must be one of {DECISIONS}")
+    log = []
+    if decision == "correct" and changes:
+        from . import corrections as C
+        from .build import ABSTRACT_SCHEMA
+        from .new_deal import review_rows
+        row = next((r for r in review_rows(ab, rec) if r["key"] == key), None)
+        try:
+            ab, log = C.apply(ab, row or {}, changes, ABSTRACT_SCHEMA)
+        except C.CorrectionError as e:
+            raise SignoffError(str(e))
+        log = C.stamp(log, by)
+        correction = C.summary(log)
+        rec.setdefault("corrections", []).extend(x | {"key": key} for x in log)
     if decision == "correct" and not correction:
         raise SignoffError("a 'correct' decision needs the corrected value (--correction)")
     rec["resolutions"][key] = {"item": its[key]["text"], "kind": its[key]["kind"], "decision": decision, "by": by,
-                               "date": date.today().isoformat(), "note": note, "correction": correction}
+                               "date": date.today().isoformat(), "note": note, "correction": correction,
+                               "applied": bool(log), "changes": [{k: x[k] for k in ("group", "label", "before", "after")} for x in log]}
     save(b, ab, rec, abs_dir)
 
 

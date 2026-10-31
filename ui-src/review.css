@@ -212,8 +212,17 @@ body.fullscreen .actions { margin-top: auto; bottom: 0; }
 .defn td:nth-child(-n+3), .defn th:nth-child(-n+3) { white-space: nowrap; width: 1%; }
 .defn tr.this td { background: rgba(255, 200, 60, .25); font-weight: 600; }
 .defn tr.flagged td { background: rgba(255, 200, 60, .10); }
-.corr-term { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; }
-.corr-term label { display: inline-flex; gap: 6px; align-items: center; }
-.corr-term input { min-width: 280px; }
 @media (max-width: 640px) { .stored > div { grid-template-columns: 1fr; } }
+.corr-box { margin: 10px 0 12px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 13px; display: grid; gap: 10px; }
+.corr-head { color: var(--muted); }
+.corr-box fieldset { border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 12px; }
+.corr-box legend { font-weight: 600; padding: 0 0 6px; }
+.corr-box label { display: grid; gap: 4px; }
+.corr-box label span { color: var(--muted); font-size: 12px; }
+.corr-box input, .corr-box select { width: 100%; box-sizing: border-box; }
+.corr-free { display: grid; gap: 6px; }
+.corr-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.changes { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; }
+.changes s { color: var(--muted); }
+.changes small { color: var(--muted); margin-left: 6px; }
 </style>
