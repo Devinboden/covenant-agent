@@ -21,18 +21,21 @@ fast confirm in a batch. A person still clicks; no item is ever auto-resolved. C
 ## Accuracy so far (development deals, not a holdout)
 - Covenant schedules 350/351, regime fields 27/27 (WEST, ROAD, TRS, CARS, MEC vs answer keys)
 - Loan 51/51, events 15/15, calculation rules 9/9, deemed values 5/5, pricing 36/36
-- GPT second check, all 9 deals: agrees with 898 of 917 claims; 6 verified disagreements (UCTT), 2 not found, 11 with
-  no verdict (WEST). Every agreement but one carries a quote code found verbatim in the agreement.
-- Is GPT actually checking? Planted-error probe on CARS: 5 claims altered (two covenant levels, two add-backs flipped to
-  deductions, the step-up ceiling); GPT flagged all 5 and still agreed with the other 82.
-- Caveat: each claim shows GPT our quote, so GPT confirms rather than extracting blind.
+- GPT second check, **blind** (GPT answers the same questions without seeing Claude's answers; code compares), all 9
+  deals: same answer on 893 of 917 claims; 15 disagreements with a verbatim quote, 9 clauses GPT couldn't find. These 24
+  are review items. At least one is a real miss by Claude: CARS's $125M cap on the cash netted in Senior Secured Net
+  Leverage was not stored (the earlier confirm-mode check, which showed GPT Claude's answer, agreed with it).
+- Planted-error probe on the blind comparison: 36 errors planted in Claude's values (levels +0.25, add-backs flipped)
+  on CARS, TRS and MEC; the comparison caught 35.
+- The confirm-mode run (GPT sees Claude's claim and quote) agreed with 898/917 and caught 5/5 planted errors, but
+  missed the CARS cash cap: anchoring is real.
 - Term-clause accuracy: answer keys exist for MEC, TRS and WEST only. To be measured.
 
 ## Proposed levels
-| Level | Rule | Today's items (77 open across 9 deals) |
+| Level | Rule | Today's items (93 open across 9 deals) |
 |---|---|---|
-| **Decide** (full card, all context) | Tier 1 anything flagged; any GPT disagreement code verified; missing documents; ambiguous dates; conflicts | flags 35, GPT 8, calc/loan/pricing 3 |
-| **Confirm in a batch** ("Both models agree", one Accept-all) | Tier 2 clause flagged only because its category is custom, uncapped, and GPT agrees on effect, caps and quote | 17 custom uncapped clauses: GPT agrees on all 17 |
+| **Decide** (full card, all context) | Tier 1 anything flagged; any GPT disagreement code verified; missing documents; ambiguous dates; conflicts | flags 35, GPT 24 (blind), calc/loan/pricing 3 |
+| **Confirm in a batch** ("Both models agree", one Accept-all) | Tier 2 clause flagged only because its category is custom, uncapped, and GPT agrees on effect, caps and quote | 17 custom uncapped clauses: GPT gets the same answer on all 17 |
 | **Show, don't ask** | Tier 3 fields with the quote verbatim and GPT agreeing: visible in the tabs, no review item | none are items today |
 
 The other 14 term-check items (custom with a cap, or a clause that couldn't be checked) stay at **Decide**.

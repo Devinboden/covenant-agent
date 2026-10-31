@@ -1946,862 +1946,982 @@
    "step": "gpt",
    "id": "reg:material_acquisition_stepup",
    "claim": "The agreement has a step up called 'Material Acquisition leverage step-up' applying to secured_net_leverage",
-   "gpt_reads": "{\"type\":\"step_up\",\"name\":\"Material Acquisition leverage step-up\",\"level\":\"3.75\",\"increment\":\"\",\"ceiling\":\"\",\"duration\":{\"count\":\"4\",\"unit\":\"test_dates\"},\"max_uses\":\"\"}",
-   "evidence": "or (b) for any Reference Period in which a Material Acquisition is consummated, 3.75 to 1.00.",
-   "note": "The elevated threshold applies to each rolling four-quarter Reference Period containing the acquisition."
-  },
-  {
-   "step": "gpt",
-   "id": "term:Consolidated EBITDA:24",
-   "claim": "In the definition of Consolidated EBITDA, clause (i) is added; capped: pct_of_ebitda 0.25",
-   "gpt_reads": "{\"clause\":\"(i)\",\"sign\":\"+\",\"ref_term\":\"\",\"caps\":[{\"type\":\"pct_of_ebitda\",\"value\":\"0.25\",\"from\":\"\",\"to\":\"\",\"during\":\"clause (B) Expected Cost Savings only\"}],\"quote\":\"the aggregate amount of all Expect",
-   "evidence": "the aggregate amount of all Expected Cost Savings set forth in this clause (B) included in Consolidated EBITDA for any period shall not exceed 25%",
-   "note": "The cap applies to clause (B), rather than all amounts under clause (i)."
+   "gpt_reads": "duration 1 test_dates vs — Reference Period in which a Material Acquisition is consummated",
+   "evidence": "for any Reference Period in which a Material Acquisition is consummated, 3.75 to 1.00.",
+   "note": "No separate increment or maximum number of uses is stated."
   },
   {
    "step": "gpt",
    "id": "term:Consolidated EBITDA:27",
    "claim": "In the definition of Consolidated EBITDA, clause (l)(i) is subtracted",
-   "gpt_reads": "{\"clause\":\"(III)(A)(i)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(i) interest income\"}",
-   "evidence": "and minus, (III) (A) to the extent included in increasing Consolidated Net Income for such period, the sum of (i) interest income",
-   "note": "Clause (l) contains reimbursement add-backs."
+   "gpt_reads": "GPT could not find it in the agreement",
+   "evidence": "",
+   "note": ""
   },
   {
    "step": "gpt",
    "id": "term:Consolidated EBITDA:28",
    "claim": "In the definition of Consolidated EBITDA, clause (l)(ii) is subtracted",
-   "gpt_reads": "{\"clause\":\"(III)(A)(ii)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(ii) any extraordinary, unusual or non-recurring income or gains\"}",
-   "evidence": "the sum of (i) interest income, (ii) any extraordinary, unusual or non-recurring income or gains",
-   "note": "This subtraction belongs to (III)(A), rather than (l)."
+   "gpt_reads": "GPT could not find it in the agreement",
+   "evidence": "",
+   "note": ""
   },
   {
    "step": "gpt",
    "id": "term:Consolidated EBITDA:29",
    "claim": "In the definition of Consolidated EBITDA, clause (l)(iii) is subtracted",
-   "gpt_reads": "{\"clause\":\"(III)(A)(iii)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(iii) income tax credits (to the extent not netted from income tax expense)\"}",
-   "evidence": "(iii) income tax credits (to the extent not netted from income tax expense) and",
-   "note": "This subtraction belongs to (III)(A), rather than (l)."
+   "gpt_reads": "GPT could not find it in the agreement",
+   "evidence": "",
+   "note": ""
   },
   {
    "step": "gpt",
    "id": "term:Consolidated EBITDA:30",
    "claim": "In the definition of Consolidated EBITDA, clause (l)(iv) is subtracted",
-   "gpt_reads": "{\"clause\":\"(III)(A)(iv)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(iv) any other non-cash income\"}",
-   "evidence": "(iv) any other non-cash income (other than normal accruals in the ordinary course of business for non-cash income that represents an accrual for cash income in a future period)",
-   "note": "This subtraction belongs to (III)(A), rather than (l)."
+   "gpt_reads": "GPT could not find it in the agreement",
+   "evidence": "",
+   "note": ""
+  },
+  {
+   "step": "gpt",
+   "id": "term:Unrestricted Cash:3",
+   "claim": "In the definition of Unrestricted Cash, clause proviso is added and refers to the defined term Security Documents",
+   "gpt_reads": "GPT could not find it in the agreement",
+   "evidence": "",
+   "note": ""
+  },
+  {
+   "step": "gpt",
+   "id": "term:Consolidated Total Debt:4",
+   "claim": "In the definition of Consolidated Total Debt, clause base is added and refers to the defined term Indebtedness",
+   "gpt_reads": "refers to Indebtedness vs —",
+   "evidence": "letters of credit (but only to the extent drawn and not reimbursed), in each case of the Parent Borrower",
+   "note": ""
   },
   {
    "step": "gpt",
    "id": "loan:fiscal_year_end",
    "claim": "The fiscal year end is 12-26",
-   "gpt_reads": "not found",
-   "note": "The operative fiscal-year provision does not specify December 26."
+   "gpt_reads": "GPT could not find it in the agreement",
+   "evidence": "",
+   "note": ""
   }
  ],
  "second_model_review": {
   "tool": "codex exec",
+  "mode": "blind",
   "tally": {
    "claims": 113,
-   "agree": 106,
-   "disagree_verified": 6,
+   "agree": 105,
+   "disagree_verified": 2,
    "disagree_unsupported": 0,
-   "not_in_text": 1,
-   "missing_verdict": 0,
-   "unknown_id": 0,
-   "missed_verified": 8,
-   "missed_unsupported": 0
+   "not_found": 6,
+   "missing_answer": 0
   },
   "claims": {
    "cov:secured_net_leverage:metric": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "maximum; quarterly",
     "evidence": "Permit the Consolidated Secured Net Leverage Ratio as at the last day of any Reference Period",
-    "note": "Section 7.1 applies solely to the Revolving Facility."
+    "note": "Applies solely to the Revolving Facility.",
+    "mode": "blind"
    },
    "cov:secured_net_leverage:row0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(commencing with the first Reference Period ending after the Tenth Amendment Effective Date) to exceed (a) 3.25 to 1.00",
-    "note": ""
+    "value_in_text": "3.25",
+    "evidence": "to exceed (a) 3.25 to 1.00 or (b) for any Reference Period in which a Material Acquisition is consummated, 3.75 to 1.00.",
+    "note": "",
+    "mode": "blind"
    },
    "cov:cash_interest_coverage:metric": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "minimum; quarterly",
     "evidence": "Permit the Cash Interest Coverage Ratio as at the last day of any Reference Period",
-    "note": "Section 7.1 applies solely to the Revolving Facility."
+    "note": "Applies solely to the Revolving Facility.",
+    "mode": "blind"
    },
    "cov:cash_interest_coverage:row0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(commencing with the first Reference Period ending after the Tenth Amendment Effective Date) to be less than 3.00 to 1.00.",
-    "note": ""
+    "value_in_text": "3.00",
+    "evidence": "commencing with the first Reference Period ending after the Tenth Amendment Effective Date) to be less than 3.00 to 1.00.",
+    "note": "",
+    "mode": "blind"
    },
    "reg:material_acquisition_stepup": {
     "verdict": "disagree",
     "evidence_verbatim": true,
-    "value_in_text": "{\"type\":\"step_up\",\"name\":\"Material Acquisition leverage step-up\",\"level\":\"3.75\",\"increment\":\"\",\"ceiling\":\"\",\"duration\":{\"count\":\"4\",\"unit\":\"test_dates\"},\"max_uses\":\"\"}",
-    "evidence": "or (b) for any Reference Period in which a Material Acquisition is consummated, 3.75 to 1.00.",
-    "note": "The elevated threshold applies to each rolling four-quarter Reference Period containing the acquisition."
+    "value_in_text": "duration 1 test_dates vs — Reference Period in which a Material Acquisition is consummated",
+    "evidence": "for any Reference Period in which a Material Acquisition is consummated, 3.75 to 1.00.",
+    "note": "No separate increment or maximum number of uses is stated.",
+    "mode": "blind"
    },
    "term:Consolidated Secured Net Leverage Ratio:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Ratio of net secured debt to EBITDA",
     "evidence": "as at the last day of any Reference Period, the ratio of (a)(i) Consolidated Secured Debt on such day",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Net Leverage Ratio:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(a)(i) Consolidated Secured Debt on such day less (ii) the aggregate amount of Unrestricted Cash",
-    "note": ""
+    "value_in_text": "Consolidated Secured Debt; sign +; refers to Consolidated Secured Debt",
+    "evidence": "the ratio of (a)(i) Consolidated Secured Debt on such day less (ii) the aggregate amount of Unrestricted Cash",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Net Leverage Ratio:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "shall not exceed the greater of (x) $200,000,000 and (y) 100% of Consolidated EBITDA for such Reference Period",
-    "note": ""
+    "value_in_text": "Unrestricted Cash of Group Members; sign -; refers to Unrestricted Cash; caps fixed_amount 200000000, pct_of_ebitda 1.00, relative Greater of $200,000,000 and 100% of Consolidated EBITDA; solely for S",
+    "evidence": "such Unrestricted Cash shall not exceed the greater of (x) $200,000,000 and (y) 100% of Consolidated EBITDA for such Reference Period",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Net Leverage Ratio:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "the aggregate amount of Unrestricted Cash of the Group Members on such day",
-    "note": "Group Members identifies the scope of the cash deduction."
+    "value_in_text": "Unrestricted Cash of Group Members; sign -; refers to Unrestricted Cash; caps fixed_amount 200000000, pct_of_ebitda 1.00, relative Greater of $200,000,000 and 100% of Consolidated EBITDA; solely for S",
+    "evidence": "such Unrestricted Cash shall not exceed the greater of (x) $200,000,000 and (y) 100% of Consolidated EBITDA for such Reference Period",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Net Leverage Ratio:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Denominator: Consolidated EBITDA; refers to Consolidated EBITDA",
     "evidence": "100% of Consolidated EBITDA for such Reference Period) to (b) Consolidated EBITDA for such period.",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Net Leverage Ratio:5": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Denominator: Consolidated EBITDA; refers to Consolidated EBITDA",
     "evidence": "100% of Consolidated EBITDA for such Reference Period) to (b) Consolidated EBITDA for such period.",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Interest Coverage Ratio:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Ratio of EBITDA to cash interest expense",
     "evidence": "as of the last day of any Reference Period, the ratio of (a) Consolidated EBITDA for such period",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Interest Coverage Ratio:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Numerator: Consolidated EBITDA; refers to Consolidated EBITDA",
     "evidence": "the ratio of (a) Consolidated EBITDA for such period to (b) Consolidated Interest Expense for such period.",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Interest Coverage Ratio:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Denominator: Consolidated Interest Expense; refers to Consolidated Interest Expense",
     "evidence": "the ratio of (a) Consolidated EBITDA for such period to (b) Consolidated Interest Expense for such period.",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Elective addbacks of amounts deducted from net income; sign +; refers to Consolidated Net Income; caps relative Without duplication; to extent deducted and not added back, except clauses (i)(B) and (l",
     "evidence": "at the election of the Parent Borrower, but without duplication, and to the extent deducted (and not added back) in calculating such Consolidated Net Income",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "income tax expense, (b) interest expense, amortization or writeoff of debt discount and debt issuance costs",
-    "note": ""
+    "value_in_text": "Income tax expense; sign +",
+    "evidence": "the sum of: (a) income tax expense, (b) interest expense, amortization or writeoff of debt discount",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "depreciation and amortization expense, (d) non-cash charges, losses, expenses, accruals and provisions, including stock-based compensation",
-    "note": ""
+    "value_in_text": "Depreciation and amortization expense; sign +",
+    "evidence": "(c) depreciation and amortization expense, (d) non-cash charges, losses, expenses, accruals and provisions, including stock-based compensation",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "any extraordinary, unusual or non-recurring expenses or losses, (g) any fees and expenses incurred during such period in connection with any Investment",
-    "note": ""
+    "value_in_text": "Extraordinary, unusual or non-recurring expenses or losses; sign +",
+    "evidence": "(f) any extraordinary, unusual or non-recurring expenses or losses, (g) any fees and expenses incurred during such period",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Transaction fees and expenses; sign +; refers to Investment; caps other Transactions permitted under the Agreement",
     "evidence": "any fees and expenses incurred during such period in connection with any Investment (including any Permitted Acquisition), Disposition, issuance of Indebtedness or Capital Stock",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:5": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Cash charges for strategic reviews, bonuses, restructuring and discontinuance; sign +",
     "evidence": "any cash charges in respect of strategic market reviews, stay or sign-on bonuses, integration-related bonuses, restructuring, consolidation, severance or discontinuance",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:6": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Severance, recruiting, relocation, integration and business optimization expenses; sign +",
     "evidence": "any fees, charges and expenses in respect of severance, recruiting, relocation, integration, facilities opening or closing, consulting and other business optimization",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:7": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "shall not exceed 25% of Consolidated EBITDA (after giving effect to this clause (B) and all other permitted add-backs and pro forma adjustments) for such period",
-    "note": ""
+    "value_in_text": "Expected Cost Savings; sign +; refers to Expected Cost Savings; caps pct_of_ebitda 0.25, relative After giving effect to all permitted addbacks and pro forma adjustments; net of actual benefits, other",
+    "evidence": "the aggregate amount of all Expected Cost Savings set forth in this clause (B) included in Consolidated EBITDA for any period shall not exceed 25% of Consolidated EBITDA",
+    "note": "Savings must be reasonably identifiable, factually supportable and projected in good faith.",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:8": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "any expenses and charges that are reimbursed by indemnification or other similar provisions in connection with any investment or any sale, conveyance, transfer",
-    "note": ""
+    "value_in_text": "Expenses reimbursed by indemnification or similar provisions; sign +; caps relative Reimbursed expenses and charges for permitted investments or asset dispositions",
+    "evidence": "any expenses and charges that are reimbursed by indemnification or other similar provisions in connection with any investment",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:9": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "to the extent covered by insurance and actually reimbursed, or, so long as the Parent Borrower has made a determination that there exists reasonable evidence",
-    "note": ""
+    "value_in_text": "Insurance-covered liability, casualty and business interruption expenses; sign +; caps relative Covered by insurance and reimbursed or reasonably expected to be reimbursed, other Not denied in writing",
+    "evidence": "not denied by the applicable carrier in writing within 180 days and (B) in fact reimbursed within 365 days",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:10": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "the sum of (i) interest income, (ii) any extraordinary, unusual or non-recurring income or gains",
-    "note": ""
+    "value_in_text": "Interest income; sign -; refers to Consolidated Net Income; caps relative To extent included in increasing Consolidated Net Income",
+    "evidence": "to the extent included in increasing Consolidated Net Income for such period, the sum of (i) interest income",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:11": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Subsequent cash payments for previously added noncash charges; sign -",
     "evidence": "any cash payments made during such period in respect of items described in clause (d) above subsequent to the fiscal quarter",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:12": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "shall be reduced by an amount equal to the Consolidated EBITDA (if positive) attributable to the property that is the subject of such Material Disposition",
-    "note": "Negative EBITDA attributable to disposed property instead increases EBITDA."
+    "value_in_text": "Remove EBITDA attributable to Material Dispositions; sign +/-; refers to Consolidated EBITDA",
+    "evidence": "shall be reduced by an amount equal to the Consolidated EBITDA (if positive) attributable to the property",
+    "note": "Reduce positive EBITDA or add back negative EBITDA attributable to disposed property.",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:13": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "Consolidated EBITDA for such Reference Period shall be calculated after giving pro forma effect thereto as if such Material Acquisition occurred on the first day",
-    "note": ""
+    "value_in_text": "Pro forma effect for Material Acquisitions; sign +/-; refers to Material Acquisition",
+    "evidence": "shall be calculated after giving pro forma effect thereto as if such Material Acquisition occurred on the first day of such Reference Period.",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:14": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "provided that (w) actions in respect of such Expected Cost Savings have been, or will be, taken within 24 months of the applicable Initiative",
-    "note": ""
+    "value_in_text": "Conditions on Expected Cost Savings addbacks; sign +; refers to Expected Cost Savings; caps pct_of_ebitda 0.25, other Actions within 24 months; unrealized projections no more than four fiscal quarters",
+    "evidence": "actions in respect of such Expected Cost Savings have been, or will be, taken within 24 months of the applicable Initiative",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:15": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Income tax expense; sign +",
     "evidence": "the sum of: (a) income tax expense, (b) interest expense, amortization or writeoff of debt discount",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:16": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(b) interest expense, amortization or writeoff of debt discount and debt issuance costs and commissions, discounts and other fees and charges associated with Indebtedness",
-    "note": ""
+    "value_in_text": "Interest expense and debt financing costs; sign +; refers to Indebtedness",
+    "evidence": "interest expense, amortization or writeoff of debt discount and debt issuance costs and commissions, discounts and other fees and charges associated with Indebtedness",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:17": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Depreciation and amortization expense; sign +",
     "evidence": "(c) depreciation and amortization expense, (d) non-cash charges, losses, expenses, accruals and provisions, including stock-based compensation",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:18": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(d) non-cash charges, losses, expenses, accruals and provisions, including stock-based compensation and sale of assets not in the ordinary course of business",
-    "note": ""
+    "value_in_text": "Noncash charges, losses, expenses, accruals and provisions; sign +; caps other Excludes accruals or reserves for future cash expenses",
+    "evidence": "but excluding any such non-cash charge to the extent that it represents an accrual or reserve for cash expenses in any future period",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:19": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(e) amortization of intangibles (including, but not limited to, impairment of goodwill) and organization costs,",
-    "note": ""
+    "value_in_text": "Amortization of intangibles and organization costs; sign +",
+    "evidence": "amortization of intangibles (including, but not limited to, impairment of goodwill) and organization costs",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:20": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Extraordinary, unusual or non-recurring expenses or losses; sign +",
     "evidence": "(f) any extraordinary, unusual or non-recurring expenses or losses, (g) any fees and expenses incurred during such period",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:21": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(i) any such transactions undertaken but not completed and any transactions consummated prior to the Closing Date and",
-    "note": ""
+    "value_in_text": "Fees for incomplete and pre-Closing Date transactions; sign +; refers to Closing Date",
+    "evidence": "any such transactions undertaken but not completed and any transactions consummated prior to the Closing Date",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:22": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "in each case paid in cash during such period (collectively, “Advisory Fees”)",
-    "note": ""
+    "value_in_text": "Advisory Fees paid in cash; sign +; refers to Advisory Fees; caps other Paid in cash during the period",
+    "evidence": "any financial advisory fees, accounting fees, legal fees and other similar advisory and consulting fees, in each case paid in cash during such period",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:23": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(h) the amount of (x) any fees and expenses incurred in connection with the Transactions or the Tenth Amendment Transactions, in each case, including Advisory Fees",
-    "note": ""
+    "value_in_text": "Transaction expenses and specified cash restructuring charges; sign +; refers to Transactions",
+    "evidence": "any fees and expenses incurred in connection with the Transactions or the Tenth Amendment Transactions, in each case, including Advisory Fees",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:24": {
-    "verdict": "disagree",
+    "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "{\"clause\":\"(i)\",\"sign\":\"+\",\"ref_term\":\"\",\"caps\":[{\"type\":\"pct_of_ebitda\",\"value\":\"0.25\",\"from\":\"\",\"to\":\"\",\"during\":\"clause (B) Expected Cost Savings only\"}],\"quote\":\"the aggregate amount of all Expect",
+    "value_in_text": "Optimization expenses and Expected Cost Savings; sign +; refers to Expected Cost Savings; caps pct_of_ebitda 0.25, relative Cap applies to Expected Cost Savings after all addbacks and pro forma adjust",
     "evidence": "the aggregate amount of all Expected Cost Savings set forth in this clause (B) included in Consolidated EBITDA for any period shall not exceed 25%",
-    "note": "The cap applies to clause (B), rather than all amounts under clause (i)."
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:25": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(j) non-recurring cash expenses recognized for restructuring costs, integration costs and business optimization expenses in connection with any Initiative,",
-    "note": ""
+    "value_in_text": "Non-recurring cash restructuring, integration and optimization expenses; sign +; refers to Initiative",
+    "evidence": "non-recurring cash expenses recognized for restructuring costs, integration costs and business optimization expenses in connection with any Initiative",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:26": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(k) expenses and charges relating to non-controlling interests and equity income in non-Wholly Owned Subsidiaries and",
-    "note": ""
+    "value_in_text": "Non-controlling interests and equity income expenses; sign +",
+    "evidence": "expenses and charges relating to non-controlling interests and equity income in non-Wholly Owned Subsidiaries",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:27": {
-    "verdict": "disagree",
-    "evidence_verbatim": true,
-    "value_in_text": "{\"clause\":\"(III)(A)(i)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(i) interest income\"}",
-    "evidence": "and minus, (III) (A) to the extent included in increasing Consolidated Net Income for such period, the sum of (i) interest income",
-    "note": "Clause (l) contains reimbursement add-backs."
+    "verdict": "not_found",
+    "evidence_verbatim": false,
+    "value_in_text": "GPT could not find it in the agreement",
+    "evidence": "",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:28": {
-    "verdict": "disagree",
-    "evidence_verbatim": true,
-    "value_in_text": "{\"clause\":\"(III)(A)(ii)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(ii) any extraordinary, unusual or non-recurring income or gains\"}",
-    "evidence": "the sum of (i) interest income, (ii) any extraordinary, unusual or non-recurring income or gains",
-    "note": "This subtraction belongs to (III)(A), rather than (l)."
+    "verdict": "not_found",
+    "evidence_verbatim": false,
+    "value_in_text": "GPT could not find it in the agreement",
+    "evidence": "",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:29": {
-    "verdict": "disagree",
-    "evidence_verbatim": true,
-    "value_in_text": "{\"clause\":\"(III)(A)(iii)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(iii) income tax credits (to the extent not netted from income tax expense)\"}",
-    "evidence": "(iii) income tax credits (to the extent not netted from income tax expense) and",
-    "note": "This subtraction belongs to (III)(A), rather than (l)."
+    "verdict": "not_found",
+    "evidence_verbatim": false,
+    "value_in_text": "GPT could not find it in the agreement",
+    "evidence": "",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated EBITDA:30": {
-    "verdict": "disagree",
-    "evidence_verbatim": true,
-    "value_in_text": "{\"clause\":\"(III)(A)(iv)\",\"sign\":\"-\",\"ref_term\":\"\",\"caps\":[],\"quote\":\"(iv) any other non-cash income\"}",
-    "evidence": "(iv) any other non-cash income (other than normal accruals in the ordinary course of business for non-cash income that represents an accrual for cash income in a future period)",
-    "note": "This subtraction belongs to (III)(A), rather than (l)."
+    "verdict": "not_found",
+    "evidence_verbatim": false,
+    "value_in_text": "GPT could not find it in the agreement",
+    "evidence": "",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Debt:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Consolidated Total Debt secured by Collateral; sign +; refers to Consolidated Total Debt",
     "evidence": "at any date, Consolidated Total Debt at such date that is secured by a Lien on the Collateral",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Debt:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "that is secured by a Lien on the Collateral (it being understood that any Consolidated Total Debt that is secured by Liens on all or a portion of the Collateral",
-    "note": ""
+    "value_in_text": "Debt secured by Collateral; sign +; refers to Collateral",
+    "evidence": "any Consolidated Total Debt that is secured by Liens on all or a portion of the Collateral shall be considered Consolidated Secured Debt",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Debt:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "any Consolidated Total Debt that is secured by Liens on all or a portion of the Collateral shall be considered Consolidated Secured Debt",
-    "note": "This is a scope rule; its sign is not an amount subtraction."
+    "value_in_text": "Must be secured by a Lien on Collateral; refers to Lien; caps other Secured by all or a portion of Collateral",
+    "evidence": "at any date, Consolidated Total Debt at such date that is secured by a Lien on the Collateral",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Secured Debt:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "Consolidated Secured Debt shall include Consolidated Total Debt at such date that is secured by a Lien on any property of any Group Member.",
-    "note": ""
+    "value_in_text": "For Section 7.1(a), includes debt secured by any Group Member property; sign +; refers to Consolidated Total Debt",
+    "evidence": "Consolidated Secured Debt shall include Consolidated Total Debt at such date that is secured by a Lien on any property of any Group Member",
+    "note": "",
+    "mode": "blind"
    },
    "term:Unrestricted Cash:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Unrestricted cash and Cash Equivalents of Group Members; sign +; refers to Cash Equivalents",
     "evidence": "unrestricted cash and Cash Equivalents owned by any Group Member and not controlled by or subject to any Lien",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Unrestricted Cash:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Unrestricted cash and Cash Equivalents of Group Members; sign +; refers to Cash Equivalents",
     "evidence": "unrestricted cash and Cash Equivalents owned by any Group Member and not controlled by or subject to any Lien",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Unrestricted Cash:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "No creditor control, Lien or preferential arrangement, subject to stated exceptions; refers to Lien; caps other Except Security Document Liens and Liens under Section 7.3(u) or 7.3(x)",
     "evidence": "not controlled by or subject to any Lien or other preferential arrangement in favor of any creditor",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Unrestricted Cash:3": {
-    "verdict": "agree",
-    "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(other than Liens created under the Security Documents and Liens of the type referred to in Section 7.3(u) or Section 7.3(x)).",
-    "note": ""
+    "verdict": "not_found",
+    "evidence_verbatim": false,
+    "value_in_text": "GPT could not find it in the agreement",
+    "evidence": "",
+    "note": "",
+    "mode": "blind"
    },
    "term:Unrestricted Cash:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "not controlled by or subject to any Lien or other preferential arrangement in favor of any creditor",
-    "note": ""
+    "value_in_text": "No creditor control, Lien or preferential arrangement, subject to stated exceptions; refers to Lien; caps other Except Security Document Liens and Liens under Section 7.3(u) or 7.3(x)",
+    "evidence": "other than Liens created under the Security Documents and Liens of the type referred to in Section 7.3(u) or Section 7.3(x)",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "for any period, the Consolidated cash interest expense of the Parent Borrower and its Restricted Subsidiaries for such period with respect to all outstanding Indebtedness",
-    "note": ""
+    "value_in_text": "Consolidated cash interest expense on outstanding Indebtedness; sign +; refers to Indebtedness",
+    "evidence": "the Consolidated cash interest expense of the Parent Borrower and its Restricted Subsidiaries for such period with respect to all outstanding Indebtedness",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(i) including the interest component attributable to Capital Lease Obligations and (ii) excluding",
-    "note": ""
+    "value_in_text": "Interest component of Capital Lease Obligations; sign +; refers to Capital Lease Obligations",
+    "evidence": "including the interest component attributable to Capital Lease Obligations and (ii) excluding (A) amortization, accretion or accrual",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(A) amortization, accretion or accrual of deferred financing fees, original issue discount, debt issuance costs, discounted liabilities, commissions, fees and expenses",
-    "note": ""
+    "value_in_text": "Deferred financing fees, discounts and issuance cost amortization, accretion or accrual; sign -",
+    "evidence": "amortization, accretion or accrual of deferred financing fees, original issue discount, debt issuance costs, discounted liabilities, commissions, fees and expenses",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(B) any expense arising from any bridge, commitment, structuring and/or other financing fee (including fees and expenses associated with the Transactions and agency and trustee fees)",
-    "note": ""
+    "value_in_text": "Bridge, commitment, structuring and other financing fees; sign -; refers to Transactions",
+    "evidence": "any expense arising from any bridge, commitment, structuring and/or other financing fee (including fees and expenses associated with the Transactions and agency and trustee fees)",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(C) any expense resulting from the discounting of Indebtedness in connection with the application of recapitalization accounting or, if applicable, acquisition accounting",
-    "note": ""
+    "value_in_text": "Debt discounting expense from recapitalization or acquisition accounting; sign -; refers to Indebtedness",
+    "evidence": "any expense resulting from the discounting of Indebtedness in connection with the application of recapitalization accounting or, if applicable, acquisition accounting",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:5": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(D) fees and expenses associated with any Dispositions, acquisitions, Investments, issuances of Capital Stock or Indebtedness (in each case, whether or not consummated)",
-    "note": ""
+    "value_in_text": "Transaction and issuance fees and expenses; sign -; refers to Dispositions",
+    "evidence": "fees and expenses associated with any Dispositions, acquisitions, Investments, issuances of Capital Stock or Indebtedness (in each case, whether or not consummated)",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:6": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(E) costs associated with obtaining, or breakage costs in respect of, any Swap Agreement or any other derivative instrument other than any interest rate Swap Agreement",
-    "note": ""
+    "value_in_text": "Derivative obtaining and breakage costs, except interest rate derivatives on debt; sign -; refers to Swap Agreement; caps other Excludes interest rate Swap Agreements and interest rate derivatives wit",
+    "evidence": "costs associated with obtaining, or breakage costs in respect of, any Swap Agreement or any other derivative instrument",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:7": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(F) penalties and interest relating to Taxes, (G) any “additional interest” or “liquidated damages”",
-    "note": ""
+    "value_in_text": "Tax penalties and interest; sign -; refers to Taxes",
+    "evidence": "(F) penalties and interest relating to Taxes, (G) any “additional interest” or “liquidated damages” for failure to timely comply with registration rights obligations",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:8": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(G) any “additional interest” or “liquidated damages” for failure to timely comply with registration rights obligations",
-    "note": ""
+    "value_in_text": "Additional interest or liquidated damages for registration rights failures; sign -",
+    "evidence": "any “additional interest” or “liquidated damages” for failure to timely comply with registration rights obligations",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:9": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(H) any payments with respect to make-whole, prepayment or repayment premiums or other breakage costs of any Indebtedness",
-    "note": ""
+    "value_in_text": "Make-whole, prepayment, repayment premiums and debt breakage costs; sign -; refers to Indebtedness",
+    "evidence": "any payments with respect to make-whole, prepayment or repayment premiums or other breakage costs of any Indebtedness",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:10": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(I) any interest expense attributable to the exercise of appraisal rights or other rights of dissenting shareholders and the settlement of any claims or actions",
-    "note": ""
+    "value_in_text": "Appraisal and dissenting shareholder interest expense and settlements; sign -; refers to Investment; caps other In connection with permitted acquisitions or Investments",
+    "evidence": "any interest expense attributable to the exercise of appraisal rights or other rights of dissenting shareholders and the settlement of any claims or actions",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:11": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(J) any lease, rental or other expense in connection with any lease (other than with respect to any Capital Lease Obligation)",
-    "note": ""
+    "value_in_text": "Lease and rental expense other than Capital Lease Obligations; sign -; refers to Capital Lease Obligation",
+    "evidence": "any lease, rental or other expense in connection with any lease (other than with respect to any Capital Lease Obligation)",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:12": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(K) for the avoidance of doubt, any non-cash interest expense attributable to any movement in the mark to market valuation of any obligation under any Swap Agreement",
-    "note": ""
+    "value_in_text": "Noncash derivative valuation interest and specified derivative payment obligations; sign -; refers to Swap Agreement; caps other Payment obligation exclusion excepts interest rate derivatives with res",
+    "evidence": "any non-cash interest expense attributable to any movement in the mark to market valuation of any obligation under any Swap Agreement",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:13": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Capital lease interest at good faith implicit GAAP rate; sign +; refers to Capital Lease Obligations; caps other Rate implicit in applicable Capital Lease Obligation, determined in good faith in accor",
     "evidence": "interest in respect of any Capital Lease Obligations shall be deemed to accrue at an interest rate determined by such Person in good faith",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Interest Expense:14": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "interest expense shall be calculated after giving effect to any payments made or received under any Swap Agreement or any other derivative instrument with respect to Indebtedness.",
-    "note": ""
+    "value_in_text": "Give effect to derivative payments made or received; sign +/-; refers to Swap Agreement; caps other Unless already included; derivatives with respect to Indebtedness",
+    "evidence": "interest expense shall be calculated after giving effect to any payments made or received under any Swap Agreement",
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Total Debt:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Exclude Permitted Receivables Facility debt; sign -; refers to Permitted Receivables Facility",
     "evidence": "provided that, Consolidated Total Debt shall exclude Indebtedness in respect of any Permitted Receivables Facility.",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Total Debt:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Capital Lease Obligations; sign +; refers to Capital Lease Obligations",
     "evidence": "all Indebtedness constituting Capital Lease Obligations, Purchase Money Indebtedness, Indebtedness for borrowed money and letters of credit",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Total Debt:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Purchase Money Indebtedness; sign +; refers to Purchase Money Indebtedness",
     "evidence": "all Indebtedness constituting Capital Lease Obligations, Purchase Money Indebtedness, Indebtedness for borrowed money and letters of credit",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Total Debt:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Indebtedness for borrowed money; sign +; refers to Indebtedness",
     "evidence": "all Indebtedness constituting Capital Lease Obligations, Purchase Money Indebtedness, Indebtedness for borrowed money and letters of credit",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Total Debt:4": {
-    "verdict": "agree",
+    "verdict": "disagree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "refers to Indebtedness vs —",
     "evidence": "letters of credit (but only to the extent drawn and not reimbursed), in each case of the Parent Borrower",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Consolidated Total Debt:5": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Parent Borrower and Restricted Subsidiaries on consolidated GAAP basis; refers to Parent Borrower; caps other Consolidated basis in accordance with GAAP",
     "evidence": "in each case of the Parent Borrower and its Restricted Subsidiaries at such date, determined on a consolidated basis in accordance with GAAP",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Equivalents:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "marketable direct obligations issued by, or unconditionally guaranteed by, the United States Government or issued by any agency thereof and backed by the full faith and credit of the United States",
-    "note": ""
+    "value_in_text": "US government and fully backed agency obligations; sign +; caps other Maturity within two years of acquisition; full faith and credit backing",
+    "evidence": "backed by the full faith and credit of the United States, in each case maturing within two years from the date of acquisition",
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Equivalents:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Certificates and time or overnight bank deposits; sign +; refers to Lender; caps other Maturity six months or less; Lender or US bank with capital and surplus at least $250,000,000",
     "evidence": "certificates of deposit, time deposits, eurodollar time deposits or overnight bank deposits having maturities of six months or less from the date of acquisition",
-    "note": ""
+    "note": "The bank capital threshold is a minimum.",
+    "mode": "blind"
    },
    "term:Cash Equivalents:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "commercial paper of an issuer rated at least A-2 by Standard & Poor’s Ratings Services (“S&P”) or P-2 by Moody’s Investors Service, Inc. (“Moody’s”)",
-    "note": ""
+    "value_in_text": "Qualifying commercial paper; sign +; caps other At least A-2 by S&P or P-2 by Moody’s; equivalent agency rating if both cease ratings; maturity within nine months",
+    "evidence": "commercial paper of an issuer rated at least A-2 by Standard & Poor’s Ratings Services (“S&P”) or P-2 by Moody’s Investors Service, Inc.",
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Equivalents:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Qualifying repurchase obligations; sign +; refers to Lender; caps other Term no more than 30 days; qualifying Lender or clause (b) bank; US government securities",
     "evidence": "repurchase obligations of any Lender or of any commercial bank satisfying the requirements of clause (b) of this definition, having a term of not more than 30 days",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Equivalents:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "securities with maturities of two years or less from the date of acquisition issued or fully guaranteed by any state, commonwealth or territory of the United States",
-    "note": ""
+    "value_in_text": "Qualifying state, territorial and foreign government securities; sign +; caps other Maturity two years or less; rating at least A by S&P or Moody’s",
+    "evidence": "securities with maturities of two years or less from the date of acquisition issued or fully guaranteed by any state, commonwealth or territory",
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Equivalents:5": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "securities with maturities of six months or less from the date of acquisition backed by standby letters of credit issued by any Lender or any commercial bank satisfying the requirements of clause (b)",
-    "note": ""
+    "value_in_text": "Securities backed by qualifying standby letters of credit; sign +; refers to Lender; caps other Maturity six months or less; letters of credit issued by Lender or clause (b) bank",
+    "evidence": "securities with maturities of six months or less from the date of acquisition backed by standby letters of credit issued by any Lender",
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Equivalents:6": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Money market mutual or similar funds investing exclusively in qualifying assets; sign +; caps other Invest exclusively in assets satisfying clauses (a) through (f)",
     "evidence": "money market mutual or similar funds that invest exclusively in assets satisfying the requirements of clauses (a) through (f) of this definition",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Cash Equivalents:7": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "money market funds that (i) comply with the criteria set forth in SEC Rule 2a-7 under the Investment Company Act of 1940, as amended,",
-    "note": ""
+    "value_in_text": "Qualifying money market funds; sign +; caps other SEC Rule 2a-7 compliance; AAA by S&P and Aaa by Moody’s; portfolio assets at least $1,000,000,000",
+    "evidence": "are rated AAA by S&P and Aaa by Moody’s and (iii) have portfolio assets of at least $1,000,000,000.",
+    "note": "Portfolio assets threshold is a minimum.",
+    "mode": "blind"
    },
    "term:Cash Equivalents:8": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(i) comply with the criteria set forth in SEC Rule 2a-7 under the Investment Company Act of 1940, as amended,",
-    "note": ""
+    "value_in_text": "SEC Rule 2a-7 compliance; caps other Comply with SEC Rule 2a-7 under Investment Company Act of 1940, as amended",
+    "evidence": "comply with the criteria set forth in SEC Rule 2a-7 under the Investment Company Act of 1940, as amended",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(a) all indebtedness of such Person for borrowed money, (b) all obligations of such Person",
-    "note": ""
+    "value_in_text": "Borrowed money indebtedness; sign +",
+    "evidence": "of any Person at any date, without duplication, (a) all indebtedness of such Person for borrowed money",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "all obligations of such Person for the deferred purchase price of property or services",
-    "note": ""
+    "value_in_text": "Deferred purchase price obligations; sign +; caps other Excludes ordinary-course trade payables not over 90 days overdue, employee/director/officer deferred compensation, and adjustments or earnouts u",
+    "evidence": "all obligations of such Person for the deferred purchase price of property or services (other than (i) trade payables",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Notes, bonds, debentures and similar instruments; sign +",
     "evidence": "all obligations of such Person evidenced by notes, bonds, debentures or other similar instruments",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Conditional sale and title retention indebtedness; sign +",
     "evidence": "all indebtedness created or arising under any conditional sale or other title retention agreement with respect to property acquired by such Person",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(e) all Capital Lease Obligations of such Person, (f) all obligations of such Person, contingent or otherwise,",
-    "note": ""
+    "value_in_text": "Capital Lease Obligations; sign +; refers to Capital Lease Obligations",
+    "evidence": "(e) all Capital Lease Obligations of such Person, (f) all obligations of such Person, contingent or otherwise",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:5": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "all obligations of such Person, contingent or otherwise, as an account party or applicant under or in respect of acceptances, letters of credit, surety bonds or similar arrangements",
-    "note": ""
+    "value_in_text": "Acceptance, letter of credit, surety and similar obligations; sign +",
+    "evidence": "as an account party or applicant under or in respect of acceptances, letters of credit, surety bonds or similar arrangements",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:6": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "the liquidation value of all redeemable preferred Disqualified Capital Stock of such Person",
-    "note": ""
+    "value_in_text": "Liquidation value of redeemable preferred Disqualified Capital Stock; sign +; refers to Disqualified Capital Stock",
+    "evidence": "the liquidation value of all redeemable preferred Disqualified Capital Stock of such Person, (h) all Guarantee Obligations",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:7": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Guarantees of obligations in clauses (a) through (g); sign +; refers to Guarantee Obligations",
     "evidence": "all Guarantee Obligations of such Person in respect of obligations of the kind referred to in clauses (a) through (g) above",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:8": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Obligations secured by the Person’s property; sign +; refers to Lien; caps relative Lesser of amount of Indebtedness and fair market value of property",
     "evidence": "but only to the extent of the lesser of (i) the amount of such Indebtedness and (ii) the fair market value of such property",
-    "note": ""
+    "note": "Includes obligations not assumed by that Person.",
+    "mode": "blind"
    },
    "term:Indebtedness:9": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Other entity debt for which the Person is liable; sign +; refers to Indebtedness; caps relative To extent liable through ownership or relationship, except express non-liability",
     "evidence": "The Indebtedness of any Person shall include the Indebtedness of any other entity (including any partnership in which such Person is a general partner)",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:10": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "the amount of any Permitted Convertible Debt shall be the aggregate stated principal amount thereof without giving effect to any obligation to pay cash or deliver shares with value in excess",
-    "note": ""
+    "value_in_text": "Aggregate stated principal amount of Permitted Convertible Debt; sign +; refers to Permitted Convertible Debt; caps relative Stated principal only; disregard excess cash/share obligations and integrat",
+    "evidence": "the amount of any Permitted Convertible Debt shall be the aggregate stated principal amount thereof without giving effect to any obligation to pay cash",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:11": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Ordinary-course trade payables not more than 90 days overdue; sign -; caps other Incurred in ordinary course and not overdue more than 90 days",
     "evidence": "trade payables incurred in the ordinary course of such Person’s business and not overdue more than 90 days",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:12": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "deferred compensation payable to directors, officers or employees of any Group Member",
-    "note": ""
+    "value_in_text": "Deferred director, officer and employee compensation; sign -; refers to Group Member",
+    "evidence": "deferred compensation payable to directors, officers or employees of any Group Member and (iii) any purchase price adjustment",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:13": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Purchase price adjustments and earnouts until booked as GAAP liabilities; sign -; caps other Until liability on balance sheet in accordance with GAAP",
     "evidence": "any purchase price adjustment or earnout obligation until such adjustment or obligation becomes a liability on the balance sheet of such Person in accordance with GAAP",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:14": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "for the purposes of Section 8.1(e) only, all obligations of such Person in respect of Swap Agreements.",
-    "note": ""
+    "value_in_text": "Swap Agreement obligations solely for Section 8.1(e); sign +; refers to Swap Agreements; caps other For Section 8.1(e) only",
+    "evidence": "for the purposes of Section 8.1(e) only, all obligations of such Person in respect of Swap Agreements",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:15": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Debt amount limb of lesser-of limitation; refers to Indebtedness; caps relative Lesser of debt amount and property fair market value",
     "evidence": "but only to the extent of the lesser of (i) the amount of such Indebtedness and (ii) the fair market value of such property",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:16": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Property fair market value limb of lesser-of limitation; caps relative Lesser of debt amount and property fair market value",
     "evidence": "but only to the extent of the lesser of (i) the amount of such Indebtedness and (ii) the fair market value of such property",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:17": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(i) no Permitted Bond Hedge Transaction shall constitute Indebtedness of any Group Member",
-    "note": ""
+    "value_in_text": "Permitted Bond Hedge Transactions excluded; sign -; refers to Permitted Bond Hedge Transaction",
+    "evidence": "no Permitted Bond Hedge Transaction shall constitute Indebtedness of any Group Member and (ii) no obligations of any Group Member",
+    "note": "",
+    "mode": "blind"
    },
    "term:Indebtedness:18": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "(ii) no obligations of any Group Member under any Permitted Warrant Transaction shall constitute Indebtedness so long as the terms of such Permitted Warrant Transaction provide for",
-    "note": ""
+    "value_in_text": "Qualifying Permitted Warrant Transaction obligations excluded; sign -; refers to Permitted Warrant Transaction; caps other Default settlement method must be physical settlement or net share settlement",
+    "evidence": "no obligations of any Group Member under any Permitted Warrant Transaction shall constitute Indebtedness so long as the terms",
+    "note": "",
+    "mode": "blind"
    },
    "term:Purchase Money Indebtedness:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Purchase money debt and financing of property or capital assets; sign +; refers to Indebtedness",
     "evidence": "purchase money debt, including Indebtedness to finance the purchase, construction, repair, replacement, lease, installation, maintenance or improvement of property",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "loan:agreement_date": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "2018-08-27",
     "evidence": "this “Agreement”), dated as of August 27, 2018, among Ultra Clean Holdings, Inc., a Delaware corporation",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "loan:closing_date": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "2018-08-27",
     "evidence": "“Closing Date”: August 27, 2018. “Closing Date Acquisition”: as defined in the recitals.",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "loan:fiscal_year_end": {
-    "verdict": "not_in_text",
-    "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "The Parent Borrower shall maintain its fiscal year-end as in effect on the Closing Date",
-    "note": "The operative fiscal-year provision does not specify December 26."
+    "verdict": "not_found",
+    "evidence_verbatim": false,
+    "value_in_text": "GPT could not find it in the agreement",
+    "evidence": "",
+    "note": "",
+    "mode": "blind"
    },
    "loan:annual_days": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "90",
     "evidence": "within ninety (90) days after the end of each fiscal year of the Parent Borrower",
-    "note": "The clause permits a later date allowed by the applicable securities regulator."
+    "note": "A later date permitted by the SEC or analogous regulator is allowed.",
+    "mode": "blind"
    },
    "loan:quarterly_days": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "45",
     "evidence": "within forty-five (45) days after the end of each of the first three fiscal quarterly periods of each fiscal year",
-    "note": "The clause permits a later date allowed by the applicable securities regulator."
+    "note": "A later date permitted by the SEC or analogous regulator is allowed.",
+    "mode": "blind"
    },
    "loan:cure": {
     "verdict": "agree",
     "evidence_verbatim": false,
     "value_in_text": "",
     "evidence": "",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "price:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
-    "evidence": "Applicable Margin for ABR Loans | Commitment Fee Rate\n\nGreater than 1.50:1.00 | 1.75% | 0.75% | 0.25%",
-    "note": ""
+    "value_in_text": "Consolidated Secured Net Leverage Ratio >1.50",
+    "evidence": "Applicable Margin for Term SOFR Loans | Applicable Margin for ABR Loans | Commitment Fee Rate\n\nGreater than 1.50:1.00 | 1.75% | 0.75% | 0.25%",
+    "note": "",
+    "mode": "blind"
    },
    "price:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "1.00 < Consolidated Secured Net Leverage Ratio <=1.50",
     "evidence": "Less than or equal to 1.50:1.00 and greater than 1.00:1.00 | 1.50% | 0.50% | 0.20%",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    },
    "price:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "",
+    "value_in_text": "Consolidated Secured Net Leverage Ratio <=1.00",
     "evidence": "Less than or equal to 1.00:1.00 | 1.25% | 0.25% | 0.20%",
-    "note": ""
+    "note": "",
+    "mode": "blind"
    }
   }
  }

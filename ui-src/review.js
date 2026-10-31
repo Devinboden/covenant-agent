@@ -231,7 +231,7 @@ function gptLine(it) {
   const g = it.gpt;
   if (!g || !g.total) return "";
   const bad = g.claims.filter(c => c.verdict !== "agree");
-  const head = bad.length ? `GPT (independent check) disagrees on ${bad.length} of ${g.total}` : `GPT (independent check) agrees on ${g.total === 1 ? "this clause" : "all " + g.total + " related claims"}`;
+  const head = bad.length ? `GPT, answering on its own, differs on ${bad.length} of ${g.total}` : `GPT, answering on its own, gets the same answer${g.total === 1 ? "" : " on all " + g.total + " related claims"}`;
   return `<div class="gpt ${bad.length ? "gpt-no" : "gpt-ok"}">${bad.length ? "⚠" : "✓"} ${esc(head)}${bad.map(c => `<div class="gpt-d">${esc(c.id)}: reads “${esc(c.value_in_text || c.verdict)}”${c.evidence ? ` — <q>${esc(c.evidence.slice(0, 160))}</q>` : ""}${c.evidence_verbatim ? "" : " <small>(quote not found verbatim)</small>"}</div>`).join("")}</div>`;
 }
 

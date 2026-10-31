@@ -207,9 +207,11 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         page with each quote highlighted. The person resolves items, verifies and signs off in the screen."""
         b = need(borrower)
         p = _view(ctx, b)
+        pkg = RV.package(b, who_or_none(ctx), abs_dir)
         return {k: p[k] for k in ("borrower", "name", "status", "open", "total", "verified_by", "signed_by")} | \
-            {"screen": p, "view": ui_uri,
+            {"summary": RV.brief(pkg), "screen": p, "view": ui_uri,
              "note": "The review screen shows this deal; decisions are made by the person in the screen."}
+
 
     @apps.tool(**VIEW, visibility=["app"], annotations=READ)
     def review_page(borrower: str, page: int) -> dict[str, Any]:
@@ -291,6 +293,16 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         return b
 
     # ---------------- read ----------------
+
+    @server.tool(annotations=READ)
+    def view_covenant_package(borrower: str, ctx: Context) -> dict[str, Any]:
+        """Everything about one deal's review in a single call: status, covenants and schedules, step-up / relief
+        regimes, every review item with its evidence quote, GPT's independent answer, how it is stored, the fields a
+        correction can change and any decision or change already made, flagged definitions, and the recent trail.
+        Call it whenever the person asks about the deal or an item while reviewing (it reflects their latest clicks).
+        Reads only; values come from the abstract, never compute them."""
+        return RV.package(need(borrower), who_or_none(ctx), abs_dir)
+
 
     @server.tool(annotations=READ)
     def list_deals() -> dict[str, Any]:

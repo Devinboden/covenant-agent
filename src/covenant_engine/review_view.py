@@ -235,3 +235,45 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
         "categories": _categories() if terms else [],
         "covs": covs, "regs": regs, "items": items, "terms": terms, "trail": trail, "locs": locate(b, ab, rv, abs_dir),
     }
+
+
+def _fmt_cov(c):
+    rows = "; ".join(f"{r['value']} ({r['from']} to {r['to']})" for r in c["rows"]) or "no schedule"
+    return f"{c['ref']} {c['metric']} ({c['direction']}, {c['frequency']}): {rows}"
+
+
+def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
+    """Everything about a deal's review in one read, for the model to answer questions while the person reviews:
+    facts, status, covenants, regimes, every item (with evidence, GPT's independent answer, the fields a correction can
+    change and any decision or change made), flagged definitions, the second-model tally and the recent trail. Same data
+    as the screen, minus page images and highlight boxes. Reads only."""
+    p = payload(b, viewer, abs_dir)
+    ab = SO.load(b, abs_dir)[0]
+    smr = ab.get("second_model_review") or {}
+    items = [{k: it[k] for k in ("key", "kind", "where", "what", "evidence", "resolution")}
+             | {"why": it.get("why") or "", "stored": it.get("detail"), "gpt": it.get("gpt"),
+                "correctable_fields": [{"label": f["label"], "group": f["group"], "value": f["value"]} for f in it.get("fields") or []]}
+             for it in p["items"]]
+    open_ = [i for i in items if not i["resolution"]]
+    lines = [f"{p['name']} ({b}): status {p['status']}, {p['open']} of {p['total']} items open"
+             + (f", {p['deferred']} deferred" if p["deferred"] else "") + ".",
+             f"Source: {p['header']['source_file']} (built {p['header']['built']}).",
+             "Covenants: " + " | ".join(_fmt_cov(c) for c in p["covs"]),
+             *(f"Regime: {g['name']} ({g['type']}): increment {g['increment'] or '—'}, ceiling {g['ceiling'] or '—'}, level "
+               f"{g['level'] or '—'}, duration {(g.get('duration') or {}).get('count') or '—'} {(g.get('duration') or {}).get('unit') or ''}, "
+               f"max uses {g['max_uses'] or 'no limit stated'}" for g in p["regs"]),
+             (f"GPT independent check ({smr.get('mode', 'confirm')}): {smr['tally'].get('agree')}/{smr['tally'].get('claims')} claims agree."
+              if smr.get("tally") else "GPT independent check: not run."),
+             "Open items:", *(f"- [{i['key']}] §{i['where'] or '—'}: {i['what'][:160]}"
+                              + (f" GPT: {'agrees' if i['gpt']['agree'] == i['gpt']['total'] else 'disagrees'}." if i.get("gpt") and i["gpt"]["total"] else "")
+                              for i in open_)]
+    return {"borrower": b, "name": p["name"], "status": p["status"], "open": p["open"], "total": p["total"],
+            "verified_by": p["verified_by"], "signed_by": p["signed_by"], "summary": "\n".join(lines),
+            "facts": p["facts"], "header": p["header"], "covenants": p["covs"], "regimes": p["regs"], "items": items,
+            "definitions": p.get("terms", {}), "second_model": {k: smr.get(k) for k in ("tool", "mode", "tally")},
+            "trail": p["trail"][-15:]}
+
+
+def brief(pkg):
+    """The short version delivered with the screen: the summary text and where to get the rest."""
+    return pkg["summary"] + "\nFor every item's evidence, GPT's answer and the correctable fields, call view_covenant_package."

@@ -30,19 +30,22 @@ def register(borrower, pdf):
     DEALS.write_text(json.dumps(deals, indent=1), encoding="utf-8")
 
 
-def gpt_check(borrower, out_dir="data/gpt_review"):
+def gpt_check(borrower, out_dir="data/gpt_blind"):
+    """Blind second-model check (gpt_blind.py): GPT answers the abstract's questions without seeing its answers; code
+    compares. Needs the Codex CLI signed in (CODEX_HOME)."""
+    from . import gpt_blind as GB
     home = os.environ.get("CODEX_HOME")
     if not home or not CODEX or not os.path.exists(CODEX):
         return {"skipped": "Codex not signed in (set CODEX_HOME)"}
-    G.prepare([borrower], out_dir)
+    GB.prepare([borrower], out_dir)
     d = ROOT / out_dir / borrower
     with open(d / "prompt.md") as fin, open(d / "codex.log", "w") as log:
         r = subprocess.run([CODEX, "exec", "--skip-git-repo-check", "--ephemeral", "--output-schema", "schema.json",
-                            "-o", "verdicts.json", "-"], cwd=d, stdin=fin, stdout=log, stderr=subprocess.STDOUT,
+                            "-o", "answers.json", "-"], cwd=d, stdin=fin, stdout=log, stderr=subprocess.STDOUT,
                            timeout=2400)
-    if r.returncode or not (d / "verdicts.json").exists():
+    if r.returncode or not (d / "answers.json").exists():
         return {"error": f"codex exit {r.returncode}; see {d / 'codex.log'}"}
-    tally, _ = G.score(borrower, out_dir, write=True)
+    tally, _ = GB.score(borrower, out_dir, write=True)
     return tally
 
 

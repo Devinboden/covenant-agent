@@ -13,7 +13,7 @@ from covenant_engine import config
 from covenant_engine.mcp_server import UI_URI, create_server, view_uri
 
 TOOLS = {"list_deals", "get_abstract", "list_review_items", "signoff_status", "run_status", "start_deal",
-         "resolve_item", "verify", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "review_page", "review_decide", "review_verify", "review_sign"}
+         "resolve_item", "verify", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "view_covenant_package", "review_page", "review_decide", "review_verify", "review_sign"}
 SCREEN_ONLY = {"review_page", "review_decide", "review_verify", "review_sign"}
 
 
@@ -60,6 +60,21 @@ def test_tools_and_who_decides(abs_dir, tmp_path):
             assert re.fullmatch(r"ui://covenant-agent/review-[0-9a-f]{12}\.html", t.meta["ui"]["resourceUri"])
             assert t.meta["openai/outputTemplate"] == t.meta["ui"]["resourceUri"]
         assert not {"by", "user", "reviewer"} & set(t.input_schema.get("properties", {})), name
+
+
+def test_view_covenant_package(abs_dir, tmp_path):
+    s = srv(abs_dir, tmp_path)
+    pk = call(s, "view_covenant_package", {"borrower": "CARS"}).structured_content
+    assert pk["status"] == "draft" and len(pk["items"]) == pk["total"] >= 5
+    assert "7.11(a)" in pk["summary"] and "Open items:" in pk["summary"]
+    step = next(i for i in pk["items"] if i["kind"] == "flag")
+    assert any(f["label"].startswith("Max number") for f in step["correctable_fields"])
+    o = call(s, "open_review", {"borrower": "CARS"}).structured_content
+    assert "view_covenant_package" in o["summary"]                                   # the brief points to the full read
+    key = step["key"]
+    call(s, "review_decide", {"borrower": "CARS", "key": key, "decision": "accept", "note": "ok"})
+    pk2 = call(s, "view_covenant_package", {"borrower": "CARS"}).structured_content
+    assert next(i for i in pk2["items"] if i["key"] == key)["resolution"]["decision"] == "accept"   # reflects clicks
 
 
 def test_view_uri_is_a_content_hash():
