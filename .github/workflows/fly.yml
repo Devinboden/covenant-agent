@@ -18,6 +18,11 @@ jobs:
           python-version: "3.12"
       - run: pip install -e ".[dev,mcp,render]"
       - run: pytest -q
+      - name: SEC access check (diagnostic; never fails the deploy)
+        if: env.FLY_API_TOKEN != ''
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: python scripts/sec_access_check.py || true
       - name: Fetch and render each deal's agreement from SEC EDGAR (page images; skipped without SEC_USER_AGENT)
         if: env.FLY_API_TOKEN != ''
         env:
