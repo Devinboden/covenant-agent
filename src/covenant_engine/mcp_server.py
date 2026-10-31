@@ -243,8 +243,8 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
                       "Never do covenant arithmetic yourself: every value and date comes from get_abstract. "
                       "resolve_item, verify and sign_off ask the person directly with a form; you can propose a "
                       "decision but only their answer counts. open_review shows the review screen. "
-                      "For a borrower not yet abstracted, find_credit_agreements looks it up on SEC EDGAR and "
-                      "start_from_edgar starts the abstraction once the person picks the agreement."),
+                      "To start a new company, start_abstraction takes its name or ticker, finds its credit agreement on SEC "
+                      "EDGAR and starts the run; find_credit_agreements lists the options."),
         extensions=[apps])
 
     def who_or_none(ctx):
@@ -349,45 +349,57 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     WEB_WRITE = ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True)
 
     @server.tool(annotations=WEB_READ)
-    def find_credit_agreements(borrower: str, years: int = 5) -> dict[str, Any]:
-        """Look a public borrower up on SEC EDGAR: credit agreements and amendments it filed as exhibits (EX-10) in the
-        last `years`, newest first. Code types each one from its cover (credit_agreement / amendment / consent);
-        full_text_likely = the cover says it restates or attaches the whole agreement (a conformed copy), which is
-        what abstraction needs. Also says whether this borrower is already abstracted. Show the person the list."""
-        b = _ticker(borrower)
+    def find_credit_agreements(company: str, years: int = 5) -> dict[str, Any]:
+        """List a public company's credit agreements and amendments on SEC EDGAR (filed as exhibits to its 8-Ks, 10-Qs
+        and 10-Ks), newest first, each typed by code from its cover. Use when the person wants to see the options;
+        start_abstraction picks one itself."""
         try:
+            b, _, _ = edgar.resolve(company)
             r = edgar.find_agreements(b, years=max(1, min(int(years), 15)))
         except edgar.EdgarError as e:
             raise ToolError(str(e))
-        if st.exists(b, "abstract"):
-            rec = SO.load(b, abs_dir)[1]
-            r["already_abstracted"] = {"status": rec["status"], "source_file": st.load(b, "abstract")["header"]["source_file"],
-                                       "next": "open_review: this deal is already done"}
-        else:
-            r["already_abstracted"] = None
-            r["next"] = ("ask the person which agreement to use (prefer the newest full-text conformed copy), then "
-                         "call start_from_edgar with its url")
+        r["already_abstracted"] = _done(b)
         return r
 
+    def _done(b):
+        if not st.exists(b, "abstract"):
+            return None
+        return {"status": SO.load(b, abs_dir)[1]["status"], "source_file": st.load(b, "abstract")["header"]["source_file"]}
+
     @server.tool(annotations=WEB_WRITE)
-    def start_from_edgar(borrower: str, url: str, gpt_check: bool = False) -> dict[str, Any]:
-        """Start abstracting a borrower's credit agreement straight from SEC EDGAR: downloads the exhibit, renders it
-        to PDF and runs the same background job as start_deal (minutes; poll run_status). Only when the person has
-        asked for it and chosen the agreement (url from find_credit_agreements). Refuses a borrower that is already
-        abstracted. Nothing here marks the abstract verified."""
-        b = _ticker(borrower)
-        if st.exists(b, "abstract"):
-            rec = SO.load(b, abs_dir)[1]
-            raise ToolError(f"{b} is already abstracted (status {rec['status']}); use open_review. "
-                            "To abstract a newer agreement, a person runs start_deal on its PDF.")
+    def start_abstraction(company: str, url: str = "", gpt_check: bool = False) -> dict[str, Any]:
+        """Start the covenant abstraction for a public company ("start the covenant abstraction for Cars.com").
+        Takes a company name or ticker, looks it up on SEC EDGAR, finds its credit agreement among the exhibits to its
+        8-K / 10-Q / 10-K filings, picks the newest full-text agreement (code decides; pass url only if the person
+        chose a different one from find_credit_agreements), downloads it, renders it to PDF and starts the background
+        abstraction (minutes; poll run_status, then open_review). Refuses a company that is already abstracted.
+        Nothing here marks the abstract verified."""
         try:
-            edgar.check_url(b, url)
+            b, cik, name = edgar.resolve(company)
         except edgar.EdgarError as e:
             raise ToolError(str(e))
-        pdf = edgar.pdf_path(b, url)
-        j = jobs.start(b, pdf, run_ingest=True, gpt=gpt_check, fetch_url=url)
-        return {"job_id": j["job_id"], "borrower": b, "state": j["state"], "pdf": pdf, "source": url,
-                "next": "poll run_status; when ready_for_review, call open_review"}
+        done = _done(b)
+        if done:
+            raise ToolError(f"{name} ({b}) is already abstracted (status {done['status']}); use open_review.")
+        try:
+            if url:
+                edgar.check_url(b, url)
+                chosen, why, others = {"url": url}, "chosen by the person", []
+            else:
+                found = edgar.find_agreements(b)
+                chosen, why = edgar.pick(found["candidates"])
+                if chosen is None:
+                    return {"started": False, "company": name, "borrower": b, "reason": why,
+                            "candidates": found["candidates"],
+                            "next": "show the person the candidates; call again with the url they choose"}
+                others = [c for c in found["candidates"] if c is not chosen][:5]
+        except edgar.EdgarError as e:
+            raise ToolError(str(e))
+        pdf = edgar.pdf_path(b, chosen["url"])
+        j = jobs.start(b, pdf, run_ingest=True, gpt=gpt_check, fetch_url=chosen["url"])
+        return {"started": True, "job_id": j["job_id"], "company": name, "borrower": b, "document": chosen,
+                "why_this_one": why, "other_candidates": others, "pdf": pdf,
+                "next": "tell the person which agreement was picked; poll run_status; when ready_for_review, open_review"}
 
     # ---------------- decisions: the person answers, not the model ----------------
 

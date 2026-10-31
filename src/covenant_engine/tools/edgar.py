@@ -62,17 +62,46 @@ def _get(url, limit=None):
         raise EdgarError(f"can't reach SEC ({e.reason})") from None
 
 
-def company(ticker):
-    """(cik, name) for a ticker, from SEC's ticker list (cached for a week under data/edgar/)."""
+def _tickers():
     f = DATA / "edgar" / "company_tickers.json"
     if not f.exists() or time.time() - f.stat().st_mtime > 7 * 86400:
         f.parent.mkdir(parents=True, exist_ok=True)
         f.write_bytes(_get(TICKERS_URL))
+    return list(json.loads(f.read_text(encoding="utf-8")).values())
+
+
+def company(ticker):
+    """(cik, name) for a ticker, from SEC's ticker list (cached for a week under data/edgar/)."""
     t = ticker.upper().replace(".", "-")
-    for row in json.loads(f.read_text(encoding="utf-8")).values():
+    for row in _tickers():
         if row["ticker"].upper() == t:
             return int(row["cik_str"]), row["title"]
     raise EdgarError(f"{ticker} is not in SEC's ticker list")
+
+
+def resolve(name_or_ticker):
+    """A ticker or a company name -> (ticker, cik, name). An ambiguous name raises with the matches to choose from."""
+    q = (name_or_ticker or "").strip()
+    if not q:
+        raise EdgarError("give a company name or ticker")
+    rows = _tickers()
+    t = q.upper().replace(".", "-")
+    exact = [r for r in rows if r["ticker"].upper() == t]
+    if exact:
+        r = exact[0]
+        return r["ticker"].upper(), int(r["cik_str"]), r["title"]
+    words = [w for w in re.findall(r"[a-z0-9]+", q.lower()) if w not in {"inc", "corp", "co", "the", "company", "llc"}]
+    hits = [r for r in rows if words and all(re.search(rf"\b{re.escape(w)}", r["title"].lower()) for w in words)]
+    by_cik = {}
+    for r in hits:                                       # one line per company (SEC lists each share class)
+        by_cik.setdefault(int(r["cik_str"]), r)
+    if len(by_cik) == 1:
+        r = next(iter(by_cik.values()))
+        return r["ticker"].upper(), int(r["cik_str"]), r["title"]
+    if not by_cik:
+        raise EdgarError(f"no SEC registrant matches {q!r}; try the ticker")
+    opts = ", ".join(f"{r['title']} ({r['ticker']})" for r in list(by_cik.values())[:8])
+    raise EdgarError(f"{q!r} matches several companies: {opts}. Say which one (ticker).")
 
 
 def _text(raw, n=4000):
@@ -131,6 +160,18 @@ def find_agreements(ticker, years=5, limit=12):
     keep = [h for h in out if h["doc_type"] in ("credit_agreement", "amendment", "consent_or_waiver")]
     return {"ticker": ticker.upper(), "cik": cik, "name": name, "since": start, "candidates": keep,
             "skipped": len(out) - len(keep)}
+
+
+def pick(candidates):
+    """Code picks the document to abstract: the newest full-text agreement. An original credit agreement is full text;
+    an amendment only when its cover says it restates or attaches the whole agreement (a conformed copy).
+    Returns (candidate or None, reason)."""
+    full = [c for c in candidates if c["doc_type"] == "credit_agreement" or
+            (c["doc_type"] == "amendment" and c["full_text_likely"])]
+    if not full:
+        return None, "no full-text credit agreement or conformed amendment found; a person must choose"
+    c = full[0]                                          # candidates are newest first
+    return c, (f"newest full-text agreement: {c['title'][:120]} ({c['exhibit']} to the {c['form']} filed {c['filed']})")
 
 
 def check_url(ticker, url):

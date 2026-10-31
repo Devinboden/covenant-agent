@@ -73,11 +73,27 @@ def test_user_agent_required(monkeypatch):
         edgar._agent()
 
 
+def test_resolve_and_pick(sec):
+    assert edgar.resolve("trs")[:2] == ("TRS", 842633)
+    assert edgar.resolve("TriMas Corp")[:2] == ("TRS", 842633)                   # by name
+    with pytest.raises(edgar.EdgarError, match="no SEC registrant"):
+        edgar.resolve("Nonexistent Widgets")
+    c = edgar.find_agreements("TRS")["candidates"]
+    chosen, why = edgar.pick(c)
+    assert chosen["url"] == TRS_URL and "newest full-text" in why               # the conformed 10th amendment
+    assert edgar.pick([x | {"full_text_likely": False} for x in c if x["doc_type"] == "amendment"])[0] is None
+
+
 # ---------------- the MCP tools, with a stand-in EDGAR module ----------------
 
-def fake_edgar(fetched):
-    m = types.SimpleNamespace(EdgarError=edgar.EdgarError, pdf_path=edgar.pdf_path)
-    m.find_agreements = lambda b, years=5: {"ticker": b, "cik": 1, "name": b, "candidates": [{"url": TRS_URL}], "skipped": 0}
+CANDS = [{"url": TRS_URL, "doc_type": "amendment", "full_text_likely": True, "title": "TENTH AMENDMENT", "exhibit": "EX-10.1",
+          "form": "10-Q", "filed": "2026-04-30"}]
+
+
+def fake_edgar(fetched, cands=CANDS):
+    m = types.SimpleNamespace(EdgarError=edgar.EdgarError, pdf_path=edgar.pdf_path, pick=edgar.pick)
+    m.resolve = lambda q: (q.upper(), 1, q.upper() + " INC")
+    m.find_agreements = lambda b, years=5: {"ticker": b, "cik": 1, "name": b, "candidates": cands, "skipped": 0}
 
     def check(b, url):
         if not edgar.ARCHIVE.match(url or ""):
@@ -94,7 +110,16 @@ def call(server, tool, args):
     return asyncio.run(go())
 
 
-def test_edgar_tools(abs_dir, tmp_path):
+def wait(s, jid):
+    for _ in range(50):
+        st = call(s, "run_status", {"job_id": jid}).structured_content
+        if st["state"] != "running":
+            return st
+        time.sleep(0.05)
+    return st
+
+
+def test_start_abstraction(abs_dir, tmp_path):
     fetched, ran = [], []
 
     def runner(b, pdf, progress, **kw):
@@ -102,22 +127,22 @@ def test_edgar_tools(abs_dir, tmp_path):
         return {"status": "ready_for_review"}
     s = create_server(abs_dir=abs_dir, user="Reviewer 1", job_dir=tmp_path / "jobs", runner=runner, edgar=fake_edgar(fetched))
 
-    done = call(s, "find_credit_agreements", {"borrower": "CARS"}).structured_content
-    assert done["already_abstracted"]["status"] == "draft"                       # ours are done: say so
-    new = call(s, "find_credit_agreements", {"borrower": "TRS2"}).structured_content
-    assert new["already_abstracted"] is None and "start_from_edgar" in new["next"]
+    assert call(s, "find_credit_agreements", {"company": "CARS"}).structured_content["already_abstracted"]["status"] == "draft"
+    r = call(s, "start_abstraction", {"company": "cars"})
+    assert r.is_error and "already abstracted" in r.content[0].text              # ours are done: never re-run
+    assert call(s, "start_abstraction", {"company": "zzz", "url": "https://evil.example/a.htm"}).is_error
 
-    r = call(s, "start_from_edgar", {"borrower": "CARS", "url": TRS_URL})
-    assert r.is_error and "already abstracted" in r.content[0].text              # never re-runs a finished deal
-    assert call(s, "start_from_edgar", {"borrower": "ZZZ", "url": "https://evil.example/a.htm"}).is_error
-
-    j = call(s, "start_from_edgar", {"borrower": "zzz", "url": TRS_URL}).structured_content
+    j = call(s, "start_abstraction", {"company": "zzz"}).structured_content      # code picks the document
+    assert j["started"] and j["document"]["url"] == TRS_URL and "newest full-text" in j["why_this_one"]
     assert j["pdf"] == "data/pdf/ZZZ/edgar_000084263326000029_trs_03312026xexh101.pdf"
-    for _ in range(50):
-        st = call(s, "run_status", {"job_id": j["job_id"]}).structured_content
-        if st["state"] != "running":
-            break
-        time.sleep(0.05)
-    assert st["state"] == "ready_for_review"
+    assert wait(s, j["job_id"])["state"] == "ready_for_review"
     assert fetched == [("ZZZ", TRS_URL)]                                          # fetched inside the job, then abstracted
     assert ran == [("ZZZ", j["pdf"], {"run_ingest": True, "gpt": False})]
+
+
+def test_start_abstraction_without_a_clear_pick(abs_dir, tmp_path):
+    weak = [CANDS[0] | {"full_text_likely": False}]
+    s = create_server(abs_dir=abs_dir, user="Reviewer 1", job_dir=tmp_path / "jobs",
+                      runner=lambda b, pdf, progress, **kw: {"status": "ready_for_review"}, edgar=fake_edgar([], weak))
+    r = call(s, "start_abstraction", {"company": "yyy"}).structured_content
+    assert r["started"] is False and r["candidates"] == weak                     # nothing started; the person chooses

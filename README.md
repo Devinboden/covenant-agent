@@ -65,7 +65,7 @@ COVENANT_USER="Reviewer 1" covenant-mcp            # stdio; --http for streamabl
 |---|---|
 | `list_deals`, `get_abstract`, `list_review_items`, `signoff_status` | read (abstract summary, any section, open items with evidence) |
 | `start_deal`, `run_status` | abstract a PDF under `data/pdf/<TICKER>/` in the background and follow progress |
-| `find_credit_agreements`, `start_from_edgar` | look a public borrower up on SEC EDGAR (EX-10 credit agreements/amendments, typed by code from the cover) and, once the person picks one, download, render and abstract it as a `start_deal` job. Needs `SEC_USER_AGENT`, Playwright (`.[render]`) and the model backend; refuses deals already abstracted |
+| `start_abstraction`, `find_credit_agreements` | "start the covenant abstraction for Cars.com": company name or ticker -> SEC EDGAR -> its credit agreements among the exhibits to its 8-K / 10-Q / 10-K filings (typed by code from the cover) -> code picks the newest full-text agreement -> download, render, background abstraction. `find_credit_agreements` lists the options. Needs `SEC_USER_AGENT`, Playwright (`.[render]`) and the model backend; refuses companies already abstracted |
 | `resolve_item`, `verify`, `sign_off` | the person answers a form (MCP elicitation); the model can only propose |
 
 | `open_review` | shows the review screen (MCP App view): open items with evidence, covenant schedules, the agreement page with the quote highlighted |

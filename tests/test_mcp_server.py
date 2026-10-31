@@ -11,7 +11,7 @@ from covenant_engine import config
 from covenant_engine.mcp_server import create_server
 
 TOOLS = {"list_deals", "get_abstract", "list_review_items", "signoff_status", "run_status", "start_deal",
-         "resolve_item", "verify", "sign_off", "open_review", "find_credit_agreements", "start_from_edgar", "review_page", "review_decide", "review_verify", "review_sign"}
+         "resolve_item", "verify", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "review_page", "review_decide", "review_verify", "review_sign"}
 SCREEN_ONLY = {"review_page", "review_decide", "review_verify", "review_sign"}
 
 
