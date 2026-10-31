@@ -28,6 +28,7 @@ from pydantic import BaseModel, Field, create_model
 from mcp.server.mcpserver import (AcceptedElicitation, Context, Elicit, ElicitationResult, MCPServer, Resolve,
                                   authenticated_principal)
 from mcp.server.apps import Apps
+from mcp.server.mcpserver.resources import TextResource
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
@@ -39,6 +40,7 @@ from . import review_view as RV
 
 UI_URI = "ui://covenant-agent/review.html"
 UI_DIR = Path(__file__).parent / "ui"
+UI_DISPLAY_MODES_OPENAI = ["fullscreen"]   # ChatGPT is the primary surface: open the review screen full screen
 
 TICKER = re.compile(r"^[A-Z][A-Z0-9.]{0,9}$")
 SECTIONS = ["summary", "covenants", "regimes", "flags", "loan", "terms", "pricing_grid", "calculation_rules",
@@ -213,8 +215,15 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
 
     html = (UI_DIR / "review.html").read_text(encoding="utf-8") if (UI_DIR / "review.html").exists() else \
         "<p>Review screen not built: run npm run build:ui</p>"
-    apps.add_html_resource(UI_URI, html, name="Covenant review", title="Covenant review",
-                           description="Checker screen: open items, covenant schedules, highlighted source pages")
+    # Built by hand (add_html_resource can't carry extra _meta). "openai/ui".availableDisplayModes = ["fullscreen"]
+    # tells ChatGPT to open the screen full screen straight away, with no inline loading state. Hosts that ignore the
+    # openai/ keys use the standard bridge; the view declares inline+fullscreen there and asks for fullscreen on load.
+    apps.add_resource(TextResource(
+        uri=UI_URI, name="Covenant review", title="Covenant review", text=html,
+        description="Checker screen: open items, covenant schedules, highlighted source pages",
+        meta={"openai/ui": {"availableDisplayModes": UI_DISPLAY_MODES_OPENAI},
+              "openai/widgetDescription": "Covenant review screen: open items with evidence, covenant schedules and "
+                                          "the agreement page. The person decides, verifies and signs off here."}))
 
     server = MCPServer(
         "covenant-agent", version="0.1.0",

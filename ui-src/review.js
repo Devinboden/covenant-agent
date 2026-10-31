@@ -15,28 +15,51 @@ let D = null;                // the screen payload (from open_review / any revie
 let sel = null, curPage = null, busy = false, correcting = null;
 const pageCache = {};
 
-const app = new App({ name: "covenant-review", version: "0.1.0" }, {}, { autoResize: true });
+// Declare both modes in ui/initialize (MCP Apps) - ChatGPT asks for this alongside the resource's openai/ui meta.
+const MODES = ["inline", "fullscreen"];
+const app = new App({ name: "covenant-review", version: "0.1.0" }, { availableDisplayModes: MODES }, { autoResize: true });
+// ChatGPT's own globals (window.openai) - used only as a fallback when the standard bridge lacks something.
+const oai = () => (typeof window !== "undefined" && window.openai) || null;
 
 // ---------- host context: theme, display mode, safe area ----------
 function applyContext(ctx) {
   if (!ctx) return;
-  if (ctx.theme) document.documentElement.setAttribute("data-theme", ctx.theme);
-  const mode = ctx.displayMode || "inline";
+  const o = oai();
+  if (ctx.theme || (o && o.theme)) document.documentElement.setAttribute("data-theme", ctx.theme || o.theme);
+  const mode = ctx.displayMode || (o && o.displayMode) || "inline";
   document.body.classList.toggle("fullscreen", mode === "fullscreen");
   document.body.classList.toggle("inline", mode !== "fullscreen");
-  const ins = ctx.safeAreaInsets || {};
+  // Bottom inset: the chat composer overlays the frame in fullscreen. Standard field first, then ChatGPT's safeArea.
+  const ins = ctx.safeAreaInsets || (o && o.safeArea && o.safeArea.insets) || {};
   document.documentElement.style.setProperty("--safe-b", (ins.bottom || 0) + "px");
   const h = ctx.containerDimensions && (ctx.containerDimensions.height || ctx.containerDimensions.maxHeight);
   if (h) document.documentElement.style.setProperty("--frame-h", h + "px");
-  const modes = ctx.availableDisplayModes || [];
+  else document.documentElement.style.removeProperty("--frame-h");   // fall back to 100vh (the iframe itself)
+  const modes = ctx.availableDisplayModes || (o ? MODES : []);
   const fs = $("fsBtn");
   fs.hidden = !modes.includes("fullscreen");
   fs.textContent = mode === "fullscreen" ? "Exit full screen" : "Full screen";
   requestAnimationFrame(() => document.documentElement.style.setProperty("--bar-h", document.querySelector(".bar").offsetHeight + "px"));
 }
+
+// Standard ui/request-display-mode first; ChatGPT's window.openai.requestDisplayMode if the host rejects it.
+async function setMode(mode) {
+  try {
+    const r = await app.requestDisplayMode({ mode });
+    applyContext({ ...(app.getHostContext() || {}), displayMode: r.mode });
+    return r.mode;
+  } catch (e) {
+    const o = oai();
+    if (!o || !o.requestDisplayMode) throw e;
+    const r = await o.requestDisplayMode({ mode });
+    const got = (r && r.mode) || mode;
+    applyContext({ ...(app.getHostContext() || {}), displayMode: got });
+    return got;
+  }
+}
 $("fsBtn").onclick = async () => {
   const mode = document.body.classList.contains("fullscreen") ? "inline" : "fullscreen";
-  try { const r = await app.requestDisplayMode({ mode }); applyContext({ ...(app.getHostContext() || {}), displayMode: r.mode }); }
+  try { await setMode(mode); }
   catch (e) { say("This host can't switch display mode: " + e.message); }
 };
 
@@ -245,4 +268,16 @@ app.ontoolresult = r => {
 app.onhostcontextchanged = ctx => applyContext({ ...(app.getHostContext() || {}), ...ctx });
 app.onerror = e => say(String(e && e.message || e));
 document.body.classList.add("inline");
-app.connect().then(() => applyContext(app.getHostContext())).catch(e => { $("loading").textContent = "Couldn't connect to the host: " + e.message; });
+// The review screen is a full-screen tool. ChatGPT opens it full screen from the resource meta (openai/ui);
+// any host that still starts it inline gets one request to go full screen. Failure is fine: inline layout works.
+async function preferFullscreen() {
+  const ctx = app.getHostContext() || {};
+  const o = oai();
+  const mode = ctx.displayMode || (o && o.displayMode) || "inline";
+  const can = (ctx.availableDisplayModes || (o ? MODES : [])).includes("fullscreen");
+  if (mode !== "fullscreen" && can) { try { await setMode("fullscreen"); } catch (e) { /* stay inline */ } }
+}
+window.addEventListener("openai:set_globals", () => applyContext(app.getHostContext() || {}));
+app.connect()
+  .then(() => { applyContext(app.getHostContext()); return preferFullscreen(); })
+  .catch(e => { $("loading").textContent = "Couldn't connect to the host: " + e.message; });

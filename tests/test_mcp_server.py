@@ -68,6 +68,8 @@ def test_review_screen(abs_dir, tmp_path):
             return html
     html = asyncio.run(go())
     assert html.mime_type == "text/html;profile=mcp-app" and "Verify abstract" in html.text
+    assert html.meta["openai/ui"]["availableDisplayModes"] == ["fullscreen"]          # ChatGPT opens it full screen
+    assert '["inline","fullscreen"]' in html.text   # the view declares both modes in ui/initialize
     s1, s2 = srv(abs_dir, tmp_path, user="Reviewer 1"), srv(abs_dir, tmp_path, user="Reviewer 2")
     p = call(s1, "open_review", {"borrower": "MEC"}).structured_content["screen"]
     assert p["viewer"] == "Reviewer 1" and p["status"] == "draft" and len(p["items"]) == p["open"] > 0
