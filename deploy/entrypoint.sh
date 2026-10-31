@@ -1,0 +1,9 @@
+#!/bin/sh
+# Seed the volume on first boot; the image's data is the starting point, the volume keeps decisions across deploys.
+set -e
+H="${COVENANT_HOME:-/data/home}"
+mkdir -p "$H/data"
+[ -d "$H/data/abstract" ] || cp -r /app/data/abstract "$H/data/abstract"
+[ -f "$H/data/deals.json" ] || cp /app/data/deals.json "$H/data/deals.json"
+ln -sfn /app/data/pdf "$H/data/pdf"
+exec uvicorn covenant_engine.hosted:app --host 0.0.0.0 --port 8080 --proxy-headers --forwarded-allow-ips='*'

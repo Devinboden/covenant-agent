@@ -85,6 +85,14 @@ The dev host is a minimal MCP Apps host (`ui-src/dev_host.js`): it calls `open_r
 iframe and logs every call the screen makes. Without the PDF the screen works but shows no pages. The view is built
 from `ui-src/` with `npm install && npm run build:ui`; the built files in `src/covenant_engine/ui/` are committed.
 
+### Hosted demo (Fly)
+`covenant_engine.hosted` serves one MCP endpoint per reviewer at `https://<app>.fly.dev/r/<secret>/mcp`, for trying
+the review screen in claude.ai and ChatGPT as custom connectors. The secret in the URL is the access control and the
+identity (four eyes still applies); secrets are made on first boot in `/data/home/reviewers.json` and never logged.
+`.github/workflows/fly.yml` runs the tests and deploys on push to main once the repo has a `FLY_API_TOKEN` secret
+(app-scoped deploy token); with an `SEC_USER_AGENT` secret it also renders each deal's agreement from EDGAR for the
+page images. Real sign-in (Entra / Cognito) replaces the URL secrets at the AgentCore step.
+
 ## Layout
 - `src/covenant_engine/` ingest, abstract (steps, checks, scorers, sign-off), core (shared library parts), config,
   model gate, store

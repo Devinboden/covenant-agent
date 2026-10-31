@@ -1,0 +1,33 @@
+# Hosted demo for trying the review screen in claude.ai / ChatGPT before the AgentCore deployment.
+app = "covenant-agent-demo"
+primary_region = "iad"
+
+[build]
+  dockerfile = "deploy/Dockerfile"
+
+[env]
+  COVENANT_HOME = "/data/home"
+  COVENANT_ALLOWED_HOSTS = "covenant-agent-demo.fly.dev"
+
+[[mounts]]
+  source = "covenant_data"
+  destination = "/data"
+  initial_size = "1gb"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = "20s"
+    interval = "30s"
+    timeout = "5s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

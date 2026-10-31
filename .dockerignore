@@ -1,0 +1,17 @@
+.git
+.github
+node_modules
+ui-src
+tests
+docs
+.venv
+**/__pycache__
+data/intake
+data/filings
+data/gpt_review
+data/jobs
+data/abstract/*/*.signoff.json
+data/abstract/*/*.review.json
+data/abstract/*/*.run.json
+data/abstract/*/*.locs.json
+data/abstract/*/*.failed.json

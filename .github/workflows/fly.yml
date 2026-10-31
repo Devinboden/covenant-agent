@@ -1,0 +1,42 @@
+name: deploy-demo
+# Tests, then deploys the hosted demo to Fly. Skips the deploy until the FLY_API_TOKEN repo secret exists
+# (an app-scoped deploy token for covenant-agent-demo).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency: deploy-demo
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,mcp,render]"
+      - run: pytest -q
+      - name: Fetch and render each deal's agreement from SEC EDGAR (page images; skipped without SEC_USER_AGENT)
+        if: env.FLY_API_TOKEN != ''
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: |
+          if [ -z "$SEC_USER_AGENT" ]; then echo "no SEC_USER_AGENT secret: deploying without page images"; mkdir -p data/pdf; exit 0; fi
+          python -m playwright install --with-deps chromium
+          python scripts/fetch_demo_pdfs.py
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        if: env.FLY_API_TOKEN != ''
+      - name: Create the volume on first deploy
+        if: env.FLY_API_TOKEN != ''
+        run: |
+          n=$(flyctl volumes list --app covenant-agent-demo --json | python -c "import json,sys; print(len(json.load(sys.stdin) or []))")
+          [ "$n" -gt 0 ] || flyctl volumes create covenant_data --app covenant-agent-demo --region iad --size 1 --yes
+      - name: Deploy
+        if: env.FLY_API_TOKEN != ''
+        run: flyctl deploy --remote-only --ha=false
+      - name: Health check
+        if: env.FLY_API_TOKEN != ''
+        run: |
+          for i in $(seq 1 20); do curl -fsS https://covenant-agent-demo.fly.dev/health && exit 0; sleep 6; done; exit 1
