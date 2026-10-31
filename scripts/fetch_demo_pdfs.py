@@ -45,9 +45,10 @@ async def render_all(items):
 
 
 def main():
-    agent = os.environ.get("SEC_USER_AGENT")
-    if not agent:
-        sys.exit("set SEC_USER_AGENT to 'Your Name your@email' (SEC requires it)")
+    from covenant_engine.tools.edgar import UA_SHAPE
+    agent = (os.environ.get("SEC_USER_AGENT") or "").strip()
+    if not UA_SHAPE.fullmatch(agent):     # SEC returns 403 "Undeclared Automated Tool" otherwise
+        sys.exit("SEC_USER_AGENT must be 'Your Name your@email' (SEC requires a name and an email)")
     items = [(b, r, d) for b, r, d in wanted() if not d.exists()]
     ok = []
     for it in items:                                      # one refusal shouldn't lose the rest

@@ -71,6 +71,12 @@ def test_user_agent_required(monkeypatch):
     monkeypatch.delenv("SEC_USER_AGENT", raising=False)
     with pytest.raises(edgar.EdgarError, match="SEC_USER_AGENT"):
         edgar._agent()
+    for bad in ["devinboden25@gmail.com", "Devin Boden", "Devin <x@y>"]:          # SEC needs a name AND an email
+        monkeypatch.setenv("SEC_USER_AGENT", bad)
+        with pytest.raises(edgar.EdgarError):
+            edgar._agent()
+    monkeypatch.setenv("SEC_USER_AGENT", "Covenant Agent demo someone@example.com")
+    assert edgar._agent()
 
 
 def test_resolve_and_pick(sec):

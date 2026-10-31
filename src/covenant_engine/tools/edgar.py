@@ -28,6 +28,7 @@ ARCHIVE = re.compile(r"^https://www\.sec\.gov/Archives/edgar/data/(\d{1,10})/(\d
 FULL_TEXT = re.compile(r"amended and restated|conformed|composite|restated in its entirety|as amended hereby|annex a\b|exhibit a\b", re.I)
 ANCILLARY = re.compile(r"\b(GUARANT(Y|EE) AGREEMENT|SUBSIDIARY GUARANT|PROMISSORY NOTE|SECURITY AGREEMENT|PLEDGE AGREEMENT|"
                        r"JOINDER|INTERCREDITOR)\b|\bGUARANTY\b|FORM OF [A-Z ]*NOTE", re.I)
+UA_SHAPE = re.compile(r"\S+( \S+)* [^\s@]+@[^\s@]+\.[A-Za-z]{2,}")
 SPACING = 0.15                                  # seconds between SEC requests (< 10/s)
 
 _lock = threading.Lock()
@@ -40,8 +41,8 @@ class EdgarError(ValueError):
 
 def _agent():
     a = os.environ.get("SEC_USER_AGENT", "").strip()
-    if not a or "@" not in a:
-        raise EdgarError("set SEC_USER_AGENT to 'Your Name your@email' on the server (SEC requires it)")
+    if not UA_SHAPE.fullmatch(a):     # SEC answers 403 "Undeclared Automated Tool" to anything else
+        raise EdgarError("set SEC_USER_AGENT to 'Your Name your@email' on the server (SEC requires a name and an email)")
     return a
 
 
