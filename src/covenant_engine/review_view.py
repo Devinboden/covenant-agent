@@ -172,6 +172,27 @@ def term_context(ab):
     return details, terms
 
 
+def gpt_for(ab, item):
+    """GPT's independent verdicts on the claims this item is about (from the second-model check), or None if the check
+    hasn't run. A term clause -> its one claim; a flag / GPT item on a covenant -> that covenant's and its regimes' claims."""
+    smr = (ab.get("second_model_review") or {}).get("claims")
+    if not smr:
+        return None
+    ids = []
+    if item.get("term") and item.get("clause"):
+        for t in ab.get("terms", []):
+            if t["name"] == item["term"]:
+                ids += [f"term:{t['name']}:{i}" for i, c in enumerate(t["components"]) if c.get("clause") == item["clause"]]
+    elif item.get("id"):
+        ids.append(item["id"])
+    else:
+        covs = [c["id"] for c in ab["covenants"] if c["ref"] and c["ref"] == item.get("where")]
+        regs = [g["id"] for g in ab["regimes"] if set(g.get("applies_to", [])) & set(covs)]
+        ids += [k for k in smr if any(k.startswith(f"cov:{c}:") for c in covs) or any(k.split(":")[:2] == ["reg", g] for g in regs)]
+    out = [{"id": k, **smr[k]} for k in ids if k in smr]
+    return {"claims": out, "agree": sum(1 for x in out if x["verdict"] == "agree"), "total": len(out)}
+
+
 def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     ab, rec, h = SO.load(b, abs_dir)
     rv = review_data(b, abs_dir)
@@ -192,7 +213,7 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     items = [{"key": i["key"], "kind": i["kind"], "type": i["type"], "where": i["where"], "what": i["what"],
               "evidence": i["evidence"], "resolution": i["resolution"],
               "why": WHY.get((i["what"] or "").split(". Model's reading")[0], ""), "reading": i.get("note", ""),
-              "detail": details.get((i.get("term"), i.get("clause"))), "fields": C.fields(ab, i)} for i in rv["items"]]
+              "detail": details.get((i.get("term"), i.get("clause"))), "fields": C.fields(ab, i), "gpt": gpt_for(ab, i)} for i in rv["items"]]
     its, open_, deferred, _ = SO.summary(ab, rec)
     trail = [{"date": ab["header"].get("built"), "by": "system",
               "what": f"abstract built from {ab['header'].get('source_file')}; {len(its)} items for review"}]

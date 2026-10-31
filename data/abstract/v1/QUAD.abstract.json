@@ -41,7 +41,7 @@
   },
   "latest_amendment_date": {
    "value": "2025-08-20",
-   "quote": "THIS AMENDMENT NO. 10 (this \u201cAmendment\u201d) is made as of August 20, 2025"
+   "quote": "THIS AMENDMENT NO. 10 (this “Amendment”) is made as of August 20, 2025"
   },
   "closing_date": {
    "value": "",
@@ -49,38 +49,38 @@
   },
   "fiscal_year_end": {
    "value": "12-31",
-   "quote": "\u201cFiscal Year\u201d means, for the Loan Parties and their Subsidiaries, each calendar year ending on December 31st."
+   "quote": "“Fiscal Year” means, for the Loan Parties and their Subsidiaries, each calendar year ending on December 31st."
   },
   "facilities": [
    {
     "type": "revolver",
     "commitment": "339590077.07",
     "maturity": "",
-    "quote": "The aggregate amount of the Revolving Lenders\u2019 Revolving Commitments on the Amendment No. 10 Effective Date is U.S. $339,590,077.07."
+    "quote": "The aggregate amount of the Revolving Lenders’ Revolving Commitments on the Amendment No. 10 Effective Date is U.S. $339,590,077.07."
    },
    {
     "type": "revolver",
     "commitment": "",
     "maturity": "2029-10-18",
-    "quote": "\u201cExtended Maturity Date\u201d means October 18, 2029."
+    "quote": "“Extended Maturity Date” means October 18, 2029."
    },
    {
     "type": "revolver",
     "commitment": "",
     "maturity": "2026-11-02",
-    "quote": "\u201cNon-Extended Maturity Date\u201d means November 2, 2026."
+    "quote": "“Non-Extended Maturity Date” means November 2, 2026."
    },
    {
     "type": "term_loan_a",
     "commitment": "",
     "maturity": "",
-    "quote": "\u201cTerm A Loan Commitment\u201d means (a) as to any Lender, such Lender\u2019s Applicable Percentage of the Term A Loans and (b) as to all Lenders, the aggregate outstanding principal amount of the Term A Loans."
+    "quote": "“Term A Loan Commitment” means (a) as to any Lender, such Lender’s Applicable Percentage of the Term A Loans and (b) as to all Lenders, the aggregate outstanding principal amount of the Term A Loans."
    },
    {
     "type": "incremental",
     "commitment": "20000000",
     "maturity": "",
-    "quote": "an Incremental Term Loan (the \u201cAmendment No. 10 Term A Loan\u201d) for the Borrower in an aggregate principal amount equal to $20,000,000"
+    "quote": "an Incremental Term Loan (the “Amendment No. 10 Term A Loan”) for the Borrower in an aggregate principal amount equal to $20,000,000"
    }
   ],
   "reporting": {
@@ -159,7 +159,7 @@
     }
    ],
    "applies_during": "",
-   "quote": "The Borrower will not permit the ratio (the \u201cTotal Leverage Ratio\u201d), determined as of the end of each of its Fiscal Quarters, of (i) Consolidated Total Indebtedness to (ii) Consolidated EBITDA"
+   "quote": "The Borrower will not permit the ratio (the “Total Leverage Ratio”), determined as of the end of each of its Fiscal Quarters, of (i) Consolidated Total Indebtedness to (ii) Consolidated EBITDA"
   },
   {
    "id": "senior_secured_leverage",
@@ -191,7 +191,7 @@
     }
    ],
    "applies_during": "",
-   "quote": "The Borrower will not permit the ratio (the \u201cSenior Secured Leverage Ratio\u201d), determined as of the end of each of its Fiscal Quarters, of (i) Consolidated Senior Secured Net Indebtedness to (ii) Consolidated EBITDA"
+   "quote": "The Borrower will not permit the ratio (the “Senior Secured Leverage Ratio”), determined as of the end of each of its Fiscal Quarters, of (i) Consolidated Senior Secured Net Indebtedness to (ii) Consolidated EBITDA"
   },
   {
    "id": "interest_coverage",
@@ -279,7 +279,7 @@
      "caps": [],
      "source": "n/a",
      "needs_judgment": false,
-     "note": "Scope is the Borrower, Restricted Subsidiaries and certain \u226450%-owned equity/cost-method Persons; Unrestricted Subsidiaries excluded."
+     "note": "Scope is the Borrower, Restricted Subsidiaries and certain ≤50%-owned equity/cost-method Persons; Unrestricted Subsidiaries excluded."
     },
     {
      "clause": "lead-in",
@@ -728,7 +728,7 @@
      "ref_term": "",
      "ref_clauses": "",
      "sign": "+",
-     "quote": "\u201cMaterial Acquisition\u201d means any Acquisition that involves the payment of consideration (including, without limitation, assumptions of Indebtedness and issuances of seller notes)",
+     "quote": "“Material Acquisition” means any Acquisition that involves the payment of consideration (including, without limitation, assumptions of Indebtedness and issuances of seller notes)",
      "caps": [
       {
        "type": "other",
@@ -752,7 +752,7 @@
      "ref_term": "",
      "ref_clauses": "",
      "sign": "-",
-     "quote": "\u201cMaterial Disposition\u201d means any sale, transfer or Disposition of a subsidiary, a line of business, a division or an operating unit",
+     "quote": "“Material Disposition” means any sale, transfer or Disposition of a subsidiary, a line of business, a division or an operating unit",
      "caps": [
       {
        "type": "other",
@@ -848,7 +848,7 @@
      "ref_term": "",
      "ref_clauses": "",
      "sign": "+",
-     "quote": "plus the aggregate amount of Indebtedness of the Consolidated Financial Covenant Entities relating to the maximum drawing amount of all letters of credit outstanding and to all bankers\u2019 acceptances",
+     "quote": "plus the aggregate amount of Indebtedness of the Consolidated Financial Covenant Entities relating to the maximum drawing amount of all letters of credit outstanding and to all bankers’ acceptances",
      "caps": [],
      "source": "footnote",
      "needs_judgment": false,
@@ -1079,7 +1079,7 @@
      "ref_term": "",
      "ref_clauses": "",
      "sign": "+/-",
-     "quote": "\u201cIndebtedness\u201d of any Person means, without duplication, (a) all obligations of such Person for borrowed money or with respect to deposits or advances of any kind",
+     "quote": "“Indebtedness” of any Person means, without duplication, (a) all obligations of such Person for borrowed money or with respect to deposits or advances of any kind",
      "caps": [],
      "source": "n/a",
      "needs_judgment": false,
@@ -1259,7 +1259,7 @@
      "ref_term": "",
      "ref_clauses": "",
      "sign": "+",
-     "quote": "all obligations, contingent or otherwise, of such Person in respect of bankers\u2019 acceptances",
+     "quote": "all obligations, contingent or otherwise, of such Person in respect of bankers’ acceptances",
      "caps": [],
      "source": "footnote",
      "needs_judgment": false,
@@ -1467,7 +1467,7 @@
      "ref_term": "Indebtedness",
      "ref_clauses": "",
      "sign": "+",
-     "quote": "the aggregate amount of Indebtedness of the Consolidated Financial Covenant Entities relating to the maximum drawing amount of all letters of credit outstanding and to all bankers\u2019 acceptances",
+     "quote": "the aggregate amount of Indebtedness of the Consolidated Financial Covenant Entities relating to the maximum drawing amount of all letters of credit outstanding and to all bankers’ acceptances",
      "caps": [],
      "source": "n/a",
      "needs_judgment": false,
@@ -1601,7 +1601,7 @@
    "period_end": "2026-06-30",
    "value": "2.00",
    "threshold": "3.50",
-   "quote": "shall not exceed 3.50 to 1.00 (for the twelve months ended June 30, 2026, the Company\u2019s Total Leverage Ratio was 2.00 to 1.00)"
+   "quote": "shall not exceed 3.50 to 1.00 (for the twelve months ended June 30, 2026, the Company’s Total Leverage Ratio was 2.00 to 1.00)"
   },
   {
    "covenant_id": "senior_secured_leverage",
@@ -1609,7 +1609,7 @@
    "period_end": "2026-06-30",
    "value": "1.99",
    "threshold": "3.00",
-   "quote": "shall not exceed 3.00 to 1.00 for any fiscal quarter ending on or after September 30, 2024 (for the twelve months ended June 30, 2026, the Company\u2019s Senior Secured Leverage Ratio was 1.99 to 1.00)"
+   "quote": "shall not exceed 3.00 to 1.00 for any fiscal quarter ending on or after September 30, 2024 (for the twelve months ended June 30, 2026, the Company’s Senior Secured Leverage Ratio was 1.99 to 1.00)"
   },
   {
    "covenant_id": "interest_coverage",
@@ -1617,7 +1617,7 @@
    "period_end": "2026-06-30",
    "value": "5.23",
    "threshold": "3.00",
-   "quote": "shall not be less than 3.00 to 1.00 (for the twelve months ended June 30, 2026, the Company\u2019s Interest Coverage Ratio was 5.23 to 1.00)"
+   "quote": "shall not be less than 3.00 to 1.00 (for the twelve months ended June 30, 2026, the Company’s Interest Coverage Ratio was 5.23 to 1.00)"
   }
  ],
  "event_docs": [
@@ -2013,5 +2013,756 @@
    "clause": "(vii)",
    "why": "Transaction Charges clause (ii) (Acquisitions) is capped at $10,000,000 after the Amendment No. 9 Effective Date (proviso in the Transaction Charges definition); the abstract carries no cap on (vii). Correct: split (vii) into ref_clauses (i),(iii) uncapped and (ii) capped (fixed 10000000 from Amendment No. 9 Effective Date). Found by the GPT check; model did not apply the split rule reliably."
   }
- ]
+ ],
+ "second_model_review": {
+  "tool": "codex exec",
+  "tally": {
+   "claims": 105,
+   "agree": 105,
+   "disagree_verified": 0,
+   "disagree_unsupported": 0,
+   "not_in_text": 0,
+   "missing_verdict": 0,
+   "unknown_id": 0,
+   "missed_verified": 8,
+   "missed_unsupported": 0
+  },
+  "claims": {
+   "cov:total_leverage:metric": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Maximum Total Leverage Ratio. The Borrower will not permit the ratio (the “Total Leverage Ratio”), determined as of the end of each of its Fiscal Quarters,",
+    "note": ""
+   },
+   "cov:total_leverage:row0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "to be greater than 3.50 to 1.00 for the Fiscal Quarter ending September 30, 2024 and each Fiscal Quarter thereafter.",
+    "note": ""
+   },
+   "cov:senior_secured_leverage:metric": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Maximum Senior Secured Leverage Ratio. The Borrower will not permit the ratio (the “Senior Secured Leverage Ratio”), determined as of the end of each of its Fiscal Quarters,",
+    "note": ""
+   },
+   "cov:senior_secured_leverage:row0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "to be greater than 3.00 to 1.00 for the Fiscal Quarter ending September 30, 2024 and each Fiscal Quarter thereafter.",
+    "note": ""
+   },
+   "cov:interest_coverage:metric": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Minimum Interest Coverage Ratio. The Borrower will not permit the Interest Coverage Ratio, determined as of the end of each of its Fiscal Quarters",
+    "note": ""
+   },
+   "cov:interest_coverage:row0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "for the period of the then most-recently ended four (4) consecutive Fiscal Quarters, to be less than 3.00 to 1.00.",
+    "note": ""
+   },
+   "term:Total Leverage Ratio:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "of (i) Consolidated Total Indebtedness to (ii) Consolidated EBITDA for the period of the then most-recently ended four (4) consecutive Fiscal Quarters",
+    "note": ""
+   },
+   "term:Total Leverage Ratio:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "of (i) Consolidated Total Indebtedness to (ii) Consolidated EBITDA for the period of the then most-recently ended four (4) consecutive Fiscal Quarters",
+    "note": ""
+   },
+   "term:Total Leverage Ratio:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the ratio (the “Total Leverage Ratio”), determined as of the end of each of its Fiscal Quarters",
+    "note": ""
+   },
+   "term:Total Leverage Ratio:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "all calculated for the Consolidated Financial Covenant Entities on a consolidated basis",
+    "note": ""
+   },
+   "term:Total Leverage Ratio:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "to be greater than 3.50 to 1.00 for the Fiscal Quarter ending September 30, 2024 and each Fiscal Quarter thereafter.",
+    "note": ""
+   },
+   "term:Senior Secured Leverage Ratio:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "of (i) Consolidated Senior Secured Net Indebtedness to (ii) Consolidated EBITDA for the period of the then most-recently ended four (4) consecutive Fiscal Quarters",
+    "note": ""
+   },
+   "term:Senior Secured Leverage Ratio:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "for the period of the then most-recently ended four (4) consecutive Fiscal Quarters",
+    "note": ""
+   },
+   "term:Senior Secured Leverage Ratio:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "all calculated for the Consolidated Financial Covenant Entities on a consolidated basis",
+    "note": ""
+   },
+   "term:Senior Secured Leverage Ratio:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "to be greater than 3.00 to 1.00 for the Fiscal Quarter ending September 30, 2024 and each Fiscal Quarter thereafter.",
+    "note": ""
+   },
+   "term:Senior Secured Leverage Ratio:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "of (i) Consolidated Senior Secured Net Indebtedness to (ii) Consolidated EBITDA for the period",
+    "note": ""
+   },
+   "term:Interest Coverage Ratio:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "“Interest Coverage Ratio” means, for any period of four consecutive Fiscal Quarters of the Borrower, the ratio of",
+    "note": ""
+   },
+   "term:Interest Coverage Ratio:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the ratio of (a) Consolidated EBITDA for such period to (b) cash Consolidated Interest Expense for such period.",
+    "note": ""
+   },
+   "term:Interest Coverage Ratio:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the ratio of (a) Consolidated EBITDA for such period to (b) cash Consolidated Interest Expense for such period.",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "to the extent deducted from revenues in determining Consolidated Net Income, (i) Consolidated Interest Expense",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(i) Consolidated Interest Expense, (ii) expense for taxes paid or accrued, (iii) depreciation, (iv) amortization,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(i) Consolidated Interest Expense, (ii) expense for taxes paid or accrued, (iii) depreciation, (iv) amortization,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(i) Consolidated Interest Expense, (ii) expense for taxes paid or accrued, (iii) depreciation, (iv) amortization,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(v) unusual or non-recurring non-cash expenses or losses incurred other than in the ordinary course of business, including any writedown of goodwill,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:5": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(vi) non-cash expenses related to stock based compensation, (vii) Transaction Charges,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:6": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "“MEPP Exit Expense” means expenses not in excess of the U.S. Dollar Amount of U.S. $150,000,000",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:7": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "“Permitted Cash Restructuring Charges” means an aggregate amount for any Fiscal Year in respect of cash restructuring charges not in excess of U.S. $100,000,000;",
+    "note": "The cap applies per Fiscal Year."
+   },
+   "term:Consolidated EBITDA:8": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(x) losses from defeasance, repurchase, redemption, retirement or acquisition of the Senior Secured Notes or other Indebtedness,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:9": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate amount added back to Consolidated EBITDA for any measurement period pursuant to this clause (xii) does not exceed 20% of Consolidated EBITDA",
+    "note": "The cap applies to clause (xii) in aggregate."
+   },
+   "term:Consolidated EBITDA:10": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate amount added back to Consolidated EBITDA for any measurement period pursuant to this clause (xii) does not exceed 20% of Consolidated EBITDA",
+    "note": "The cap applies to clause (xii) in aggregate."
+   },
+   "term:Consolidated EBITDA:11": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "minus, to the extent included in Consolidated Net Income, (xiii) interest income,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:12": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(xiii) interest income, (xiv) income tax credits and refunds (to the extent not netted from tax expense),",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:13": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(xv) income or gains from defeasance, repurchase, redemption, retirement or acquisition of the Senior Secured Notes or other Indebtedness",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:14": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(xvi) unusual or non-recurring income or gains realized other than in the ordinary course of business,",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:15": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the Consolidated EBITDA for such Reference Period shall be reduced by an amount equal to the Consolidated EBITDA (if positive) attributable to the property",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:16": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "a Consolidated Financial Covenant Entity shall have made a Material Acquisition, Consolidated EBITDA for such Reference Period shall be calculated on a Pro Forma Basis",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:17": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Any cash payment made with respect to any non-cash charge that is added back in computing Consolidated EBITDA for any period shall be subtracted",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:18": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "No non-cash gain shall be deducted from a computation of Consolidated EBITDA to the extent it represents the reversal of an accrual or reserve",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:19": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "by a Consolidated Financial Covenant Entity in excess of the U.S. Dollar Amount of U.S. $50,000,000;",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:20": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "by a Consolidated Financial Covenant Entity to any unrelated third party that yields gross proceeds in excess of the U.S. Dollar Amount of U.S. $50,000,000.",
+    "note": ""
+   },
+   "term:Consolidated EBITDA:21": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(vii) Transaction Charges, (viii) amounts paid with respect to MEPP Exit Expenses, (ix) Permitted Cash Restructuring Charges,",
+    "note": ""
+   },
+   "term:Consolidated Total Indebtedness:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate principal amount of all Indebtedness of the Consolidated Financial Covenant Entities at such date, determined on a consolidated basis in accordance with GAAP",
+    "note": ""
+   },
+   "term:Consolidated Total Indebtedness:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate principal amount of all Indebtedness of the Consolidated Financial Covenant Entities at such date,",
+    "note": ""
+   },
+   "term:Consolidated Total Indebtedness:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "plus the aggregate amount of Indebtedness of the Consolidated Financial Covenant Entities relating to the maximum drawing amount of all letters of credit outstanding and to all bankers’ acceptances",
+    "note": ""
+   },
+   "term:Consolidated Total Indebtedness:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "plus all Indebtedness described in the foregoing of another Person guaranteed by the Consolidated Financial Covenant Entities;",
+    "note": ""
+   },
+   "term:Consolidated Total Indebtedness:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "provided, however, that no Pension and Post-Employment Benefit Amounts shall be included in any determination hereof.",
+    "note": ""
+   },
+   "term:Consolidated Total Indebtedness:5": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "For the avoidance of doubt, Consolidated Total Indebtedness includes all Attributable Receivables Indebtedness.",
+    "note": ""
+   },
+   "term:Consolidated Senior Secured Net Indebtedness:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "that (x) is secured by a Lien on any property of the Consolidated Financial Covenant Entities",
+    "note": ""
+   },
+   "term:Consolidated Senior Secured Net Indebtedness:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "on any property of the Consolidated Financial Covenant Entities and (y) is not Subordinated Indebtedness.",
+    "note": ""
+   },
+   "term:Consolidated Senior Secured Net Indebtedness:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "that (x) is secured by a Lien on any property of the Consolidated Financial Covenant Entities",
+    "note": ""
+   },
+   "term:Consolidated Senior Secured Net Indebtedness:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "at any date and without duplication, the aggregate principal amount of Consolidated Net Indebtedness",
+    "note": ""
+   },
+   "term:Consolidated Senior Secured Net Indebtedness:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate principal amount of Consolidated Net Indebtedness that (x) is secured by a Lien on any property of the Consolidated Financial Covenant Entities",
+    "note": ""
+   },
+   "term:Consolidated Interest Expense:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the interest expense (including without limitation interest expense under Capital Lease Obligations that is treated as interest in accordance with GAAP) of the Consolidated Financial Covenant Entities",
+    "note": ""
+   },
+   "term:Consolidated Interest Expense:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "including without limitation interest expense under Capital Lease Obligations that is treated as interest in accordance with GAAP",
+    "note": ""
+   },
+   "term:Consolidated Interest Expense:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(a) all outstanding Indebtedness of the Consolidated Financial Covenant Entities allocable to such period in accordance with GAAP",
+    "note": ""
+   },
+   "term:Consolidated Interest Expense:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "all commissions, discounts and other fees and charges owed with respect to letters of credit and bankers acceptance financing",
+    "note": ""
+   },
+   "term:Consolidated Interest Expense:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "net costs under interest rate Swap Agreements to the extent such net costs are allocable to such period in accordance with GAAP",
+    "note": ""
+   },
+   "term:Consolidated Interest Expense:5": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(b) the interest component of all Attributable Receivables Indebtedness of the Consolidated Financial Covenant Entities for such period.",
+    "note": ""
+   },
+   "term:Consolidated Interest Expense:6": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the ratio of (a) Consolidated EBITDA for such period to (b) cash Consolidated Interest Expense for such period.",
+    "note": ""
+   },
+   "term:Indebtedness:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "“Indebtedness” of any Person means, without duplication, (a) all obligations of such Person for borrowed money",
+    "note": ""
+   },
+   "term:Indebtedness:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "all obligations of such Person for borrowed money or with respect to deposits or advances of any kind,",
+    "note": ""
+   },
+   "term:Indebtedness:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(b) all obligations of such Person evidenced by bonds, debentures, notes or similar instruments,",
+    "note": ""
+   },
+   "term:Indebtedness:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(c) all obligations of such Person upon which interest charges are customarily paid,",
+    "note": ""
+   },
+   "term:Indebtedness:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(d) all obligations of such Person under conditional sale or other title retention agreements relating to property acquired by such Person,",
+    "note": ""
+   },
+   "term:Indebtedness:5": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(e) all obligations of such Person in respect of the deferred purchase price of property or services",
+    "note": ""
+   },
+   "term:Indebtedness:6": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "excluding (1) current accounts payable incurred in the ordinary course of business,",
+    "note": ""
+   },
+   "term:Indebtedness:7": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(2) obligations to officers, directors and employees evidencing deferred compensation,",
+    "note": ""
+   },
+   "term:Indebtedness:8": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(3) guaranteed salary continuation amounts resulting from and which are payable upon the death of an officer, director or employee",
+    "note": ""
+   },
+   "term:Indebtedness:9": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(f) all Indebtedness of others secured by (or for which the holder of such Indebtedness has an existing right, contingent or otherwise, to be secured by) any Lien on property owned or acquired by such Person,",
+    "note": ""
+   },
+   "term:Indebtedness:10": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(g) all Guarantees by such Person of Indebtedness of others, (h) all Off-Balance Sheet Liabilities of such Person",
+    "note": ""
+   },
+   "term:Indebtedness:11": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(h) all Off-Balance Sheet Liabilities of such Person and all Attributable Receivables Indebtedness of such Person,",
+    "note": ""
+   },
+   "term:Indebtedness:12": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(h) all Off-Balance Sheet Liabilities of such Person and all Attributable Receivables Indebtedness of such Person,",
+    "note": ""
+   },
+   "term:Indebtedness:13": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(i) all Capital Lease Obligations of such Person, (j) all obligations, contingent or otherwise,",
+    "note": ""
+   },
+   "term:Indebtedness:14": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(j) all obligations, contingent or otherwise, of such Person as an account party in respect of letters of credit and letters of guaranty,",
+    "note": ""
+   },
+   "term:Indebtedness:15": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(k) all obligations, contingent or otherwise, of such Person in respect of bankers’ acceptances,",
+    "note": ""
+   },
+   "term:Indebtedness:16": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(l) the aggregate amount of all net obligations (whether absolute or contingent) under Swap Agreements of such Person",
+    "note": ""
+   },
+   "term:Indebtedness:17": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(m) earn-out payments to the extent fully and finally determined and (n) obligations of such Person under Sale and Leaseback Transactions;",
+    "note": ""
+   },
+   "term:Indebtedness:18": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "(m) earn-out payments to the extent fully and finally determined and (n) obligations of such Person under Sale and Leaseback Transactions;",
+    "note": ""
+   },
+   "term:Indebtedness:19": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "shall not constitute Indebtedness until such time as the aggregate obligations thereunder (whether or not drawn) exceed the U.S. Dollar Amount of U.S. $25,000,000.",
+    "note": "This is a trigger for inclusion, rather than a deduction of $25 million."
+   },
+   "term:Indebtedness:20": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "The Indebtedness of any Person shall include the Indebtedness of any other entity (including any partnership in which such Person is a general partner)",
+    "note": ""
+   },
+   "term:Indebtedness:21": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "The Indebtedness of the Borrower and the Restricted Subsidiaries shall exclude Pension and other Post-Employment Benefit Amounts and MEPP Exit Expenses.",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate principal amount of all Indebtedness of the Consolidated Financial Covenant Entities at such date, determined on a consolidated basis in accordance with GAAP",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "plus all Indebtedness described in the foregoing of another Person guaranteed by the Consolidated Financial Covenant Entities;",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "minus the aggregate amount of unrestricted cash and Permitted Investments of the Borrower and its Restricted Subsidiaries at such time maintained in accounts in the United States",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "that are not subject to any Liens other than Liens permitted pursuant to Section 6.02(a);",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "provided, however, that no Pension and Post-Employment Benefit Amounts shall be included in any determination hereof;",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:5": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "if Consolidated Net Indebtedness as so determined shall be less than zero at any time, Consolidated Net Indebtedness shall be deemed to be zero at such time.",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:6": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "For the avoidance of doubt, Consolidated Net Indebtedness includes all Attributable Receivables Indebtedness.",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:7": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate amount of Indebtedness of the Consolidated Financial Covenant Entities relating to the maximum drawing amount of all letters of credit outstanding and to all bankers’ acceptances",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:8": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "the aggregate principal amount of all Indebtedness of the Consolidated Financial Covenant Entities at such date, determined on a consolidated basis in accordance with GAAP",
+    "note": ""
+   },
+   "term:Consolidated Net Indebtedness:9": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "For the avoidance of doubt, Consolidated Net Indebtedness includes all Attributable Receivables Indebtedness.",
+    "note": ""
+   },
+   "term:Subordinated Indebtedness:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "that is not a Consolidated Financial Covenant Entity or an Affiliate thereof, and the payment of which is contractually subordinated to payment of the Secured Obligations.",
+    "note": ""
+   },
+   "term:Subordinated Indebtedness:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "“Subordinated Indebtedness” means any Indebtedness for borrowed money of any Loan Party or any Restricted Subsidiary",
+    "note": ""
+   },
+   "term:Subordinated Indebtedness:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "that is extended or offered by a Person that is not a Consolidated Financial Covenant Entity or an Affiliate thereof,",
+    "note": ""
+   },
+   "loan:agreement_date": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "SECOND AMENDED AND RESTATED CREDIT AGREEMENT (this “Agreement”) dated as of April 28, 2014 among QUAD/GRAPHICS, INC. as the Borrower,",
+    "note": ""
+   },
+   "loan:fiscal_year_end": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "“Fiscal Year” means, for the Loan Parties and their Subsidiaries, each calendar year ending on December 31st.",
+    "note": ""
+   },
+   "loan:annual_days": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "within ninety (90) days after the end of each Fiscal Year of the Borrower",
+    "note": "An earlier SEC filing deadline applies if applicable."
+   },
+   "loan:quarterly_days": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "within forty-five (45) days after the end of each of the first three Fiscal Quarters of each Fiscal Year of the Borrower",
+    "note": "An earlier SEC filing deadline applies if applicable."
+   },
+   "loan:cure": {
+    "verdict": "agree",
+    "evidence_verbatim": false,
+    "value_in_text": "",
+    "evidence": "",
+    "note": ""
+   },
+   "price:0": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Level 1 | Less than 1.75 to 1.00 | 2.00% | 1.00% | 0.25%",
+    "note": "This grid applies to Non-Extended Loans and Commitments."
+   },
+   "price:1": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Level 2 | Greater than or equal to 1.75 to 1.00 but less than 2.25 to 1.00 | 2.25% | 1.25% | 0.30%",
+    "note": "This grid applies to Non-Extended Loans and Commitments."
+   },
+   "price:2": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Level 3 | Greater than or equal to 2.25 to 1.00 but less than 2.75 to 1.00 | 2.50% | 1.50% | 0.35%",
+    "note": "This grid applies to Non-Extended Loans and Commitments."
+   },
+   "price:3": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Level 4 | Greater than or equal to 2.75 to 1.00 but less than 3.25 to 1.00 | 2.75% | 1.75% | 0.40%",
+    "note": "This grid applies to Non-Extended Loans and Commitments."
+   },
+   "price:4": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Level 5 | Greater than or equal to 3.25 to 1.00 but less than 3.50 to 1.00 | 3.00% | 2.00% | 0.45%",
+    "note": "This grid applies to Non-Extended Loans and Commitments."
+   },
+   "price:5": {
+    "verdict": "agree",
+    "evidence_verbatim": true,
+    "value_in_text": "",
+    "evidence": "Level 6 | Greater than or equal to 3.50 to 1.00 | 3.50% | 2.50% | 0.50%",
+    "note": "This grid applies to Non-Extended Loans and Commitments."
+   }
+  }
+ }
 }

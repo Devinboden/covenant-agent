@@ -1,6 +1,6 @@
 # Review policy (proposal): ask the analyst less, where it's safe
 
-Status: **proposal, not built.** The numbers below are measured on the stored abstracts, 2026-10-31.
+Status: **proposal, not built.** The numbers below are measured on the stored abstracts, 2026-10-31 (GPT check run on all 9 deals that evening).
 
 ## Principle
 What the analyst sees for a check depends on two things:
@@ -21,19 +21,23 @@ fast confirm in a batch. A person still clicks; no item is ever auto-resolved. C
 ## Accuracy so far (development deals, not a holdout)
 - Covenant schedules 350/351, regime fields 27/27 (WEST, ROAD, TRS, CARS, MEC vs answer keys)
 - Loan 51/51, events 15/15, calculation rules 9/9, deemed values 5/5, pricing 36/36
-- GPT agreement where run: CXT 97/97 claims, UCTT 106/113 (6 verified disagreements, 1 not found)
+- GPT second check, all 9 deals: agrees with 898 of 917 claims; 6 verified disagreements (UCTT), 2 not found, 11 with
+  no verdict (WEST). Every agreement but one carries a quote code found verbatim in the agreement.
+- Is GPT actually checking? Planted-error probe on CARS: 5 claims altered (two covenant levels, two add-backs flipped to
+  deductions, the step-up ceiling); GPT flagged all 5 and still agreed with the other 82.
+- Caveat: each claim shows GPT our quote, so GPT confirms rather than extracting blind.
 - Term-clause accuracy: answer keys exist for MEC, TRS and WEST only. To be measured.
 
 ## Proposed levels
-| Level | Rule | Today's items (76 open across 9 deals) |
+| Level | Rule | Today's items (77 open across 9 deals) |
 |---|---|---|
-| **Decide** (full card, all context) | Tier 1 anything flagged; any GPT disagreement code verified; missing documents; ambiguous dates; conflicts | flags 35, GPT 7, calc/loan/pricing 3 |
-| **Confirm in a batch** ("Both models agree", one Accept-all) | Tier 2 clause flagged only because its category is custom, uncapped, and GPT agrees on effect, caps and quote | up to 17 custom uncapped clauses, if GPT agrees |
+| **Decide** (full card, all context) | Tier 1 anything flagged; any GPT disagreement code verified; missing documents; ambiguous dates; conflicts | flags 35, GPT 8, calc/loan/pricing 3 |
+| **Confirm in a batch** ("Both models agree", one Accept-all) | Tier 2 clause flagged only because its category is custom, uncapped, and GPT agrees on effect, caps and quote | 17 custom uncapped clauses: GPT agrees on all 17 |
 | **Show, don't ask** | Tier 3 fields with the quote verbatim and GPT agreeing: visible in the tabs, no review item | none are items today |
 
 The other 14 term-check items (custom with a cap, or a clause that couldn't be checked) stay at **Decide**.
 
 ## What has to be true first
-1. GPT check run on all 9 deals, with per-claim verdicts saved (today only the tally and disagreements are kept).
+1. ~~GPT check run on all 9 deals, with per-claim verdicts saved.~~ Done 2026-10-31; the card shows GPT's verdict.
 2. Term-clause accuracy measured against the keys, and a second deal family, before trusting Tier 2 batching.
 3. Batch-confirm still records each item as accepted by the named reviewer.

@@ -158,13 +158,16 @@ def score(b, out_dir, abs_dir="data/abstract/v1", write=False, include_missed=Fa
     live = squash((d / "agreement.txt").read_text(encoding="utf-8"))
     tally = {"claims": len(cl), "agree": 0, "disagree_verified": 0, "disagree_unsupported": 0, "not_in_text": 0,
              "missing_verdict": 0, "unknown_id": 0, "missed_verified": 0, "missed_unsupported": 0}
-    review, seen = [], set()
+    review, seen, per_claim = [], set(), {}
     for v in res["verdicts"]:
         if v["id"] not in cl:
             tally["unknown_id"] += 1
             continue
         seen.add(v["id"])
         ok_ev = bool(v["evidence"]) and squash(v["evidence"])[:120] in live
+        # every verdict is kept per claim (agreements too), so the review screen can show what GPT read for an item
+        per_claim[v["id"]] = {"verdict": v["verdict"], "evidence_verbatim": ok_ev, "value_in_text": v["value_in_text"][:200],
+                              "evidence": v["evidence"][:300], "note": v["note"][:200]}
         if v["verdict"] == "agree":
             tally["agree"] += 1
         elif v["verdict"] == "disagree":
@@ -190,7 +193,7 @@ def score(b, out_dir, abs_dir="data/abstract/v1", write=False, include_missed=Fa
         p = ROOT / abs_dir / f"{b}.abstract.json"
         ab = json.loads(p.read_text(encoding="utf-8"))
         ab["review"] = [x for x in ab["review"] if x.get("step") != "gpt"] + review
-        ab["second_model_review"] = {"tool": "codex exec", "tally": tally}
+        ab["second_model_review"] = {"tool": "codex exec", "tally": tally, "claims": per_claim}
         p.write_text(json.dumps(ab, indent=1, ensure_ascii=False), encoding="utf-8")
     return tally, review
 

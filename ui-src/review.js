@@ -165,6 +165,7 @@ function items() {
       <div class="what">${esc(it.detail && it.reading ? "Model's reading: " + it.reading : it.what)}</div>
       ${it.evidence ? (hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">Not found word for word in the PDF, so there is nothing to highlight.</div>' : ""}`) : ""}
       ${it.detail ? context(it) : ""}
+      ${gptLine(it)}
       ${editable ? `<div class="fields"><textarea id="note-${it.key}" placeholder="Note for the sign-off record (optional)">${esc(r.note || "")}</textarea>
         ${corr ? correctionForm(it, r) : ""}</div>` : ""}
       <div class="decide">${btn("accept", "Accept")}${btn("correct", "Correct")}${btn("reject", "Reject")}${btn("defer", "Defer")}
@@ -225,6 +226,15 @@ function context(it) {
     ${t ? `<details class="defn"><summary>Whole definition: ${esc(d.term)} (${t.rows.length} clauses, starts from ${esc(t.starts_from || "—")})</summary>
       <table><thead><tr><th>Clause</th><th>Effect</th><th>Category</th><th>Text</th></tr></thead><tbody>${rows}</tbody></table></details>` : ""}`;
 }
+// What GPT independently read for the claims behind this item (second-model check), when it has run.
+function gptLine(it) {
+  const g = it.gpt;
+  if (!g || !g.total) return "";
+  const bad = g.claims.filter(c => c.verdict !== "agree");
+  const head = bad.length ? `GPT (independent check) disagrees on ${bad.length} of ${g.total}` : `GPT (independent check) agrees on ${g.total === 1 ? "this clause" : "all " + g.total + " related claims"}`;
+  return `<div class="gpt ${bad.length ? "gpt-no" : "gpt-ok"}">${bad.length ? "⚠" : "✓"} ${esc(head)}${bad.map(c => `<div class="gpt-d">${esc(c.id)}: reads “${esc(c.value_in_text || c.verdict)}”${c.evidence ? ` — <q>${esc(c.evidence.slice(0, 160))}</q>` : ""}${c.evidence_verbatim ? "" : " <small>(quote not found verbatim)</small>"}</div>`).join("")}</div>`;
+}
+
 // Correct = the fields this item points at, pre-filled with what the abstract stores now. Saving applies the change.
 function correctionForm(it, r) {
   if (!it.fields || !it.fields.length) {

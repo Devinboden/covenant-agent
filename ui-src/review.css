@@ -225,4 +225,8 @@ body.fullscreen .actions { margin-top: auto; bottom: 0; }
 .changes { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; }
 .changes s { color: var(--muted); }
 .changes small { color: var(--muted); margin-left: 6px; }
+.gpt { margin: 6px 0; padding: 6px 10px; border-radius: 6px; font-size: 12.5px; }
+.gpt-ok { background: rgba(40, 160, 90, .10); }
+.gpt-no { background: rgba(220, 120, 30, .14); }
+.gpt-d { margin-top: 4px; color: var(--muted); }
 </style>

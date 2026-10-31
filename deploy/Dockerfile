@@ -7,6 +7,7 @@ COPY src ./src
 RUN pip install --no-cache-dir ".[mcp]" "uvicorn>=0.30"
 COPY data ./data
 COPY deploy/entrypoint.sh /entrypoint.sh
+COPY deploy/sync_abstracts.py /app/deploy/sync_abstracts.py
 RUN chmod +x /entrypoint.sh
 EXPOSE 8080
 CMD ["/entrypoint.sh"]
