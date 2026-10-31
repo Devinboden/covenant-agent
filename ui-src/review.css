@@ -199,4 +199,21 @@ body.inline .work { padding-bottom: 16px; padding-right: max(16px, env(safe-area
 body.fullscreen .work { max-height: calc(var(--frame-h, 100vh) - var(--bar-h, 58px) - var(--safe-b, 0px)); overflow: auto; padding-bottom: 0; }
 body.fullscreen .actions { margin-top: auto; bottom: 0; }
 .err { color: var(--bad); }
+/* term-check context */
+.why { font-size: 12.5px; color: var(--muted); margin: 2px 0 4px; }
+.stored { display: grid; grid-template-columns: 1fr; gap: 4px; margin: 10px 0 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }
+.stored > div { display: grid; grid-template-columns: 150px 1fr; gap: 8px; }
+.stored dt { color: var(--muted); }
+.stored dd { margin: 0; }
+.defn { margin: 4px 0 8px; font-size: 12.5px; }
+.defn summary { cursor: pointer; color: var(--accent, #1f5fbf); }
+.defn table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.defn th, .defn td { text-align: left; vertical-align: top; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.defn td:nth-child(-n+3), .defn th:nth-child(-n+3) { white-space: nowrap; width: 1%; }
+.defn tr.this td { background: rgba(255, 200, 60, .25); font-weight: 600; }
+.defn tr.flagged td { background: rgba(255, 200, 60, .10); }
+.corr-term { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; }
+.corr-term label { display: inline-flex; gap: 6px; align-items: center; }
+.corr-term input { min-width: 280px; }
+@media (max-width: 640px) { .stored > div { grid-template-columns: 1fr; } }
 </style>

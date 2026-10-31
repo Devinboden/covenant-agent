@@ -161,10 +161,12 @@ function items() {
     const corr = correcting === it.key;
     return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
       <div class="item-top"><span class="kind${it.kind === "flag" ? "" : " review"}">${label}</span><span class="ref">§${esc(it.where || "—")}</span><span class="origin">${ORIGIN[it.kind] || esc(it.kind)}</span></div>
-      <div class="what">${esc(it.what)}</div>
+      ${it.detail && it.why ? `<div class="why">${esc(it.why)}</div>` : ""}
+      <div class="what">${esc(it.detail && it.reading ? "Model's reading: " + it.reading : it.what)}</div>
       ${it.evidence ? (hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">Not found word for word in the PDF, so there is nothing to highlight.</div>' : ""}`) : ""}
+      ${it.detail ? context(it) : ""}
       ${editable ? `<div class="fields"><textarea id="note-${it.key}" placeholder="Note for the sign-off record (optional)">${esc(r.note || "")}</textarea>
-        <div ${corr ? "" : "hidden"}><input id="corr-${it.key}" placeholder="Corrected value" value="${esc(r.correction || "")}"> <button class="primary" data-save="1">Save correction</button></div></div>` : ""}
+        <div ${corr ? "" : "hidden"}>${it.detail ? correctTerm(it) : `<input id="corr-${it.key}" placeholder="Corrected value" value="${esc(r.correction || "")}">`} <button class="primary" data-save="1">Save correction</button></div></div>` : ""}
       <div class="decide">${btn("accept", "Accept")}${btn("correct", "Correct")}${btn("reject", "Reject")}${btn("defer", "Defer")}
         ${r.by ? `<span class="stamp">${esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}${r.correction ? " · → " + esc(r.correction) : ""}</span>` : ""}</div>
     </article>`;
@@ -172,7 +174,11 @@ function items() {
   $("view-items").querySelectorAll(".item").forEach(card => {
     const it = D.items.find(i => i.key === card.dataset.key);
     const note = () => (card.querySelector("textarea") || {}).value || "";
-    card.addEventListener("click", e => { if (!e.target.closest("button,input,textarea")) show(card.dataset.loc, `§${it.where}`); });
+    card.addEventListener("click", e => {
+      const j = e.target.closest(".jump");
+      if (j) { e.preventDefault(); const t = j.dataset.key && document.querySelector(`.item[data-key="${j.dataset.key}"]`); if (t) { t.scrollIntoView({ block: "center" }); show("item:" + j.dataset.key, ""); } return; }
+      if (!e.target.closest("button,input,textarea,select,summary,details,a")) show(card.dataset.loc, `§${it.where}`);
+    });
     card.querySelectorAll(".dbtn").forEach(b => b.onclick = () => {
       if (b.dataset.d === "correct") { correcting = it.key; items(); const i = $("corr-" + it.key); if (i) i.focus(); return; }
       correcting = null;
@@ -180,13 +186,45 @@ function items() {
     });
     const save = card.querySelector("[data-save]");
     if (save) save.onclick = () => {
-      const v = ($("corr-" + it.key).value || "").trim();
-      if (!v) { say("Type the corrected value first."); return; }
+      const v = it.detail ? termCorrection(it) : ($("corr-" + it.key).value || "").trim();
+      if (!v) { say(it.detail ? "Change the effect, category or cap first (or Accept if the stored reading is right)." : "Type the corrected value first."); return; }
       correcting = null;
       act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), correction: v });
     };
   });
 }
+// ---------- term-check context: what the analyst needs to decide ----------
+const SIGN = { "+": "add-back", "-": "deduction" };
+function context(it) {
+  const d = it.detail, t = (D.terms || {})[d.term];
+  const relItem = c => D.items.find(i => i.detail && i.detail.term === d.term && i.detail.clause === c);
+  const rel = d.related.map(r => { const ri = relItem(r.clause);
+    return `<a href="#" class="jump" data-key="${ri ? ri.key : ""}">${esc(r.clause)}</a> (${SIGN[r.sign] || r.sign}, ${esc(r.category)}${r.flagged ? ", also flagged" : ""})`; }).join(", ");
+  const rows = t ? t.rows.map(r => `<tr class="${r.clause === d.clause ? "this" : r.flagged ? "flagged" : ""}"><td>${esc(r.clause)}</td><td>${SIGN[r.sign] || esc(r.sign)}</td><td>${esc(r.category)}</td><td>${esc(r.quote)}</td></tr>`).join("") : "";
+  return `<dl class="stored">
+      <div><dt>Stored as</dt><dd>${esc(d.effect)} · category <b>${esc(d.category)}</b></dd></div>
+      <div><dt>Caps / limits</dt><dd>${d.caps.length ? d.caps.map(esc).join("; ") : "None stored. Check the clause for a dollar or % limit."}</dd></div>
+      <div><dt>Number comes from</dt><dd>${esc(d.source)}</dd></div>
+      <div><dt>Feeds</dt><dd>${d.affects.map(esc).join("; ") || "—"}</dd></div>
+      ${rel ? `<div><dt>Shares wording with</dt><dd>${rel}</dd></div>` : ""}
+    </dl>
+    ${t ? `<details class="defn"><summary>Whole definition: ${esc(d.term)} (${t.rows.length} clauses, starts from ${esc(t.starts_from || "—")})</summary>
+      <table><thead><tr><th>Clause</th><th>Effect</th><th>Category</th><th>Text</th></tr></thead><tbody>${rows}</tbody></table></details>` : ""}`;
+}
+function correctTerm(it) {
+  const d = it.detail, k = it.key;
+  const cats = (D.categories || []).map(c => `<option ${c === d.category ? "selected" : ""}>${esc(c)}</option>`).join("");
+  return `<span class="corr-term"><label>Effect <select id="corr-sign-${k}"><option value="+" ${d.effect.startsWith("Add") ? "selected" : ""}>add-back</option><option value="-" ${d.effect.startsWith("Ded") ? "selected" : ""}>deduction</option></select></label>
+    <label>Category <select id="corr-cat-${k}">${cats}</select></label>
+    <label>Cap <input id="corr-cap-${k}" placeholder="e.g. not to exceed $10M per year (blank = none)"></label></span>`;
+}
+function termCorrection(it) {
+  const k = it.key, sign = $("corr-sign-" + k).value, cat = $("corr-cat-" + k).value, cap = ($("corr-cap-" + k).value || "").trim();
+  const d = it.detail, was = { sign: d.effect.startsWith("Add") ? "+" : "-", cat: d.category };
+  if (sign === was.sign && cat === was.cat && !cap) return "";
+  return `${d.term} ${d.clause}: effect ${SIGN[sign]}; category ${cat}; cap ${cap || "none"}`;
+}
+
 function chart(c) {
   if (c.frequency !== "quarterly" || isMoney(c)) return "";
   const rel = D.regs.flatMap(g => g.rows.filter(r => r.cov === c.id));

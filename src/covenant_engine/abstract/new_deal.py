@@ -76,6 +76,7 @@ def review_data(borrower, abs_dir=ABSTRACT_DIR):
         rows.append({"key": k, "kind": f"review/{r.get('step')}", "type": r.get("step"),
                      "where": " ".join(x for x in (r.get("term", ""), r.get("clause", "") or r.get("id", "")) if x),
                      "what": what, "gpt_reads": r.get("gpt_reads", ""), "evidence": evidence,
+                     "term": r.get("term", ""), "clause": r.get("clause", ""), "note": note,
                      "resolution": rec["resolutions"].get(k)})
     cov = [{"id": c["id"], "ref": c["ref"], "name": c["name"], "metric": c["metric"], "direction": c["direction"],
             "frequency": c["frequency"], "event_tests": c.get("event_tests", []), "applies_during": c.get("applies_during", ""),

@@ -117,6 +117,60 @@ def page_image(b, n, abs_dir=config.ABSTRACT_DIR):
     return _render(str(path), int(n), path.stat().st_mtime)
 
 
+SOURCE = {"income_statement": "the income statement", "borrower_schedule": "a borrower schedule (not in the financials)",
+          "cash_flow_statement": "the cash flow statement", "balance_sheet": "the balance sheet",
+          "compliance_certificate": "the compliance certificate"}
+WHY = {"no library part fits (custom)": "Not one of the standard EBITDA adjustments, so code can't check it on its own."}
+
+
+def _grams(t, n=5):
+    w = re.findall(r"[a-z0-9]+", (t or "").lower())
+    return {" ".join(w[i:i + n]) for i in range(len(w) - n + 1)}
+
+
+def _categories():
+    from .core.decompose_term import CATEGORIES
+    return list(CATEGORIES)
+
+
+def term_context(ab):
+    """What an analyst needs to decide a term-check item, from the abstract (code only): how each clause of a defined
+    term is stored, which covenants the term feeds, and clauses that share wording (e.g. an add-back and its matching
+    deduction). Returns ({(term, clause): detail}, {term: [component rows]})."""
+    metric = {c["id"]: f"{c['metric']} ({c['ref']})" for c in ab["covenants"]}
+    flagged = {(r.get("term"), r.get("clause")) for r in ab.get("review", []) if r.get("step") == 3}
+    details, terms = {}, {}
+    for t in ab.get("terms", []):
+        comps = t.get("components", [])
+        rows = [{"clause": c.get("clause", ""), "sign": c.get("sign", ""), "category": c.get("category", ""),
+                 "quote": (c.get("quote") or "")[:160], "flagged": (t["name"], c.get("clause")) in flagged} for c in comps]
+        if any(r["flagged"] for r in rows):
+            terms[t["name"]] = {"starts_from": t.get("starts_from", ""), "rows": rows}
+        g = {c.get("clause"): _grams(c.get("quote")) for c in comps}
+        df = {}                                    # phrases shared by only two clauses are a real link, not boilerplate
+        for v in g.values():
+            for x in v:
+                df[x] = df.get(x, 0) + 1
+        g = {k: {x for x in v if df[x] == 2} for k, v in g.items()}
+        for c in comps:
+            if (t["name"], c.get("clause")) not in flagged:
+                continue
+            related, seen = [], set()
+            for o in comps:
+                if o is not c and o.get("clause") not in seen and g[c.get("clause")] & g[o.get("clause")]:
+                    seen.add(o.get("clause"))
+                    related.append({"clause": o.get("clause"), "sign": o.get("sign"), "category": o.get("category"),
+                                    "flagged": (t["name"], o.get("clause")) in flagged})
+            details[(t["name"], c.get("clause"))] = {
+                "term": t["name"], "clause": c.get("clause"),
+                "effect": {"+": "Add-back (increases EBITDA)", "-": "Deduction (decreases EBITDA)"}.get(c.get("sign"), c.get("sign") or "—"),
+                "category": c.get("category", ""), "source": SOURCE.get(c.get("source"), c.get("source") or "—"),
+                "caps": [x.get("quote") or x.get("type") or "" for x in c.get("caps", [])],
+                "needs_judgment": bool(c.get("needs_judgment")),
+                "affects": [metric.get(u, u) for u in t.get("used_by", [])], "related": related}
+    return details, terms
+
+
 def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     ab, rec, h = SO.load(b, abs_dir)
     rv = review_data(b, abs_dir)
@@ -133,8 +187,11 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
              "rows": [{"cov": s["covenant_id"], "from": _dp(r["start"]), "to": _dp(r["end"]), "value": r["value"],
                        "loc": f"rrow:{g['id']}:{s['covenant_id']}:{k}"} for s in g["schedules"] for k, r in enumerate(s["rows"])]}
             for g in ab["regimes"]]
+    details, terms = term_context(ab)
     items = [{"key": i["key"], "kind": i["kind"], "type": i["type"], "where": i["where"], "what": i["what"],
-              "evidence": i["evidence"], "resolution": i["resolution"]} for i in rv["items"]]
+              "evidence": i["evidence"], "resolution": i["resolution"],
+              "why": WHY.get((i["what"] or "").split(". Model's reading")[0], ""), "reading": i.get("note", ""),
+              "detail": details.get((i.get("term"), i.get("clause")))} for i in rv["items"]]
     its, open_, deferred, _ = SO.summary(ab, rec)
     trail = [{"date": ab["header"].get("built"), "by": "system",
               "what": f"abstract built from {ab['header'].get('source_file')}; {len(its)} items for review"}]
@@ -151,5 +208,6 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
         "facts": {"agent": loan.get("agent"), "commitment": fac.get("commitment"), "facility": fac.get("type"),
                   "maturity": fac.get("maturity"), "latest_amendment": val(loan.get("latest_amendment_date")),
                   "closing": val(loan.get("closing_date"))},
-        "covs": covs, "regs": regs, "items": items, "trail": trail, "locs": locate(b, ab, rv, abs_dir),
+        "categories": _categories() if terms else [],
+        "covs": covs, "regs": regs, "items": items, "terms": terms, "trail": trail, "locs": locate(b, ab, rv, abs_dir),
     }
