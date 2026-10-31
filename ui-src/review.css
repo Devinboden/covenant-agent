@@ -146,6 +146,11 @@ blockquote mark { background: var(--marker); color: inherit; padding: 0 1px; }
 .page-scroll { overflow: auto; flex: 1; padding: 16px; }
 .page { position: relative; margin: 0 auto; max-width: 760px; background: #fff; box-shadow: var(--shadow); }
 .page img { display: block; width: 100%; height: auto; }
+.page[hidden], .no-pdf[hidden] { display: none; }
+.no-pdf { max-width: 520px; margin: 40px auto; display: flex; flex-direction: column; gap: 8px; color: var(--muted); font-size: 13.5px; }
+.no-pdf b { color: var(--ink); font-weight: 600; }
+.no-pdf blockquote { margin: 8px 0 0; padding: 10px 14px; border-left: 3px solid var(--line); background: var(--surface); color: var(--ink); font-family: Georgia, serif; }
+.no-pdf blockquote:empty { display: none; }
 .hl { position: absolute; background: rgba(255, 214, 10, 0.45); outline: 2px solid #d9a400; border-radius: 2px; mix-blend-mode: multiply; transition: opacity .2s; }
 .src-cap { padding: 8px 14px; border-top: 1px solid var(--line); background: var(--surface); font-size: 12.5px; color: var(--muted); }
 

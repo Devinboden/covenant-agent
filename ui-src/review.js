@@ -79,6 +79,7 @@ async function act(name, args, okText) {
 function setBusy(b) { document.querySelectorAll(".dbtn,.primary").forEach(x => x.toggleAttribute("aria-busy", b)); }
 
 // ---------- source pane ----------
+$("pageImg").onerror = () => { $("page").hidden = true; $("cap").innerHTML = '<span class="err">This page image could not be loaded.</span>'; };
 async function goPage(p) {
   curPage = p;
   $("pgLabel").textContent = `p. ${p + 1} / ${D.locs.npages}`;
@@ -87,14 +88,18 @@ async function goPage(p) {
     try { pageCache[p] = (await call("review_page", { borrower: D.borrower, page: p })).image; }
     catch (e) { $("cap").innerHTML = `<span class="err">${esc(e.message)}</span>`; return; }
   }
-  if (curPage === p) { $("pageImg").src = pageCache[p]; $("pageImg").alt = `Agreement page ${p + 1}`; }
+  if (curPage === p) { $("page").hidden = false; $("pageImg").src = pageCache[p]; $("pageImg").alt = `Agreement page ${p + 1}`; }
 }
 async function show(key, caption) {
   sel = key;
   document.querySelectorAll(".sel").forEach(e => e.classList.remove("sel"));
   document.querySelectorAll(`[data-loc="${CSS.escape(key)}"]`).forEach(e => e.classList.add("sel"));
   const l = D.locs.loc[key];
-  if (!D.locs.pdf) { $("cap").textContent = "The agreement PDF is not on this machine, so pages can't be shown."; return; }
+  if (!D.locs.pdf) {
+    const it = key.startsWith("item:") && D.items.find(i => "item:" + i.key === key);
+    $("noPdfQuote").textContent = it && it.evidence ? `${caption ? caption + " — " : ""}“${it.evidence}”` : "";
+    $("cap").textContent = "No agreement PDF on this server, so pages can't be shown."; return;
+  }
   if (!l) { $("cap").textContent = (caption ? caption + " · " : "") + "no quote from the agreement to highlight."; drawHL(null); return; }
   await goPage(l.page);
   drawHL(l);
@@ -126,6 +131,9 @@ function render(p) {
   $("dealName").textContent = `${p.name} (${p.borrower})`;
   $("dealSub").textContent = `${p.header.source_file} · built ${p.header.built} · spec ${p.header.spec}`;
   $("file").textContent = p.header.source_file;
+  // No PDF on the server: show an empty state instead of an empty <img> (which renders as a broken image).
+  $("noPdf").hidden = !!p.locs.pdf;
+  if (!p.locs.pdf) { $("page").hidden = true; $("pgLabel").textContent = ""; $("prev").hidden = $("next").hidden = true; }
   const f = p.facts;
   const facts = [["Agent", (f.agent || "—").replace(/, NATIONAL ASSOCIATION/i, "")],
     ["Facility", f.commitment ? `${money(f.commitment)} ${f.facility || ""}` : "—"], ["Matures", fmtD(f.maturity)],
@@ -154,7 +162,7 @@ function items() {
     return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
       <div class="item-top"><span class="kind${it.kind === "flag" ? "" : " review"}">${label}</span><span class="ref">§${esc(it.where || "—")}</span><span class="origin">${ORIGIN[it.kind] || esc(it.kind)}</span></div>
       <div class="what">${esc(it.what)}</div>
-      ${it.evidence ? (hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote><div class="nosrc">Not found word for word in the PDF, so there is nothing to highlight.</div>`) : ""}
+      ${it.evidence ? (hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">Not found word for word in the PDF, so there is nothing to highlight.</div>' : ""}`) : ""}
       ${editable ? `<div class="fields"><textarea id="note-${it.key}" placeholder="Note for the sign-off record (optional)">${esc(r.note || "")}</textarea>
         <div ${corr ? "" : "hidden"}><input id="corr-${it.key}" placeholder="Corrected value" value="${esc(r.correction || "")}"> <button class="primary" data-save="1">Save correction</button></div></div>` : ""}
       <div class="decide">${btn("accept", "Accept")}${btn("correct", "Correct")}${btn("reject", "Reject")}${btn("defer", "Defer")}

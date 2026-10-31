@@ -111,7 +111,7 @@ def call(server, tool, args):
 
 
 def wait(s, jid):
-    for _ in range(50):
+    for _ in range(200):
         st = call(s, "run_status", {"job_id": jid}).structured_content
         if st["state"] != "running":
             return st
