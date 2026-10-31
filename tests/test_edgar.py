@@ -128,8 +128,11 @@ def test_start_abstraction(abs_dir, tmp_path):
     s = create_server(abs_dir=abs_dir, user="Reviewer 1", job_dir=tmp_path / "jobs", runner=runner, edgar=fake_edgar(fetched))
 
     assert call(s, "find_credit_agreements", {"company": "CARS"}).structured_content["already_abstracted"]["status"] == "draft"
-    r = call(s, "start_abstraction", {"company": "cars"})
-    assert r.is_error and "already abstracted" in r.content[0].text              # ours are done: never re-run
+    r = call(s, "start_abstraction", {"company": "cars"}).structured_content    # on file: flow continues, no re-run
+    assert r["started"] and r["on_file"] and "already on file" in r["message"]
+    st = wait(s, r["job_id"])
+    assert st["state"] == "ready_for_review" and st["result"]["on_file"] and "not re-run" in st["progress"][0]
+    assert not fetched and not ran                                               # nothing downloaded, engine untouched
     assert call(s, "start_abstraction", {"company": "zzz", "url": "https://evil.example/a.htm"}).is_error
 
     j = call(s, "start_abstraction", {"company": "zzz"}).structured_content      # code picks the document

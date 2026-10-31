@@ -156,7 +156,13 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         from .tools import edgar
     abstract_runner = runner
 
-    def runner(b, pdf, progress, fetch_url=None, **kw):
+    def runner(b, pdf, progress, fetch_url=None, on_file=None, **kw):
+        # A deal already on file: report it and finish (state as the sign-off record has it); the engine doesn't run.
+        if on_file:
+            progress(f"on file: abstract built from {on_file['source_file']} (status {on_file['status']}); not re-run")
+            progress(f"edgar: {on_file['match']}")
+            return {"status": "ready_for_review" if on_file["status"] == "draft" else on_file["status"], "deal": b,
+                    "on_file": True, "next": "open_review"}
         # An EDGAR intake job fetches and renders the exhibit first, inside the background job, then abstracts it.
         if fetch_url:
             edgar.fetch_pdf(b, fetch_url, progress=progress)
@@ -366,39 +372,70 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             return None
         return {"status": SO.load(b, abs_dir)[1]["status"], "source_file": st.load(b, "abstract")["header"]["source_file"]}
 
+    def _on_file_url(b, source_file):
+        """EDGAR url of the document an on-file abstract was built from (data/manifest.csv), if known."""
+        import csv
+        f = config.DATA / "manifest.csv"
+        if not f.exists():
+            return None
+        stem = Path(source_file).stem
+        for r in csv.DictReader(open(f, encoding="utf-8")):
+            if r.get("ticker") == b and Path(r.get("local_path", "")).stem == stem:
+                return r.get("url")
+        return None
+
     @server.tool(annotations=WEB_WRITE)
     def start_abstraction(company: str, url: str = "", gpt_check: bool = False) -> dict[str, Any]:
         """Start the covenant abstraction for a public company ("start the covenant abstraction for Cars.com").
         Takes a company name or ticker, looks it up on SEC EDGAR, finds its credit agreement among the exhibits to its
         8-K / 10-Q / 10-K filings, picks the newest full-text agreement (code decides; pass url only if the person
         chose a different one from find_credit_agreements), downloads it, renders it to PDF and starts the background
-        abstraction (minutes; poll run_status, then open_review). Refuses a company that is already abstracted.
-        Nothing here marks the abstract verified."""
+        abstraction (minutes; poll run_status, then open_review).
+        A company already on file is not re-run: the job uses the abstract on file and finishes at once, so the flow
+        continues the same way (run_status -> open_review). Nothing here marks the abstract verified."""
         try:
             b, cik, name = edgar.resolve(company)
         except edgar.EdgarError as e:
             raise ToolError(str(e))
         done = _done(b)
-        if done:
-            raise ToolError(f"{name} ({b}) is already abstracted (status {done['status']}); use open_review.")
+        chosen, why, others, edgar_note = None, "", [], None
         try:
             if url:
                 edgar.check_url(b, url)
-                chosen, why, others = {"url": url}, "chosen by the person", []
+                chosen, why = {"url": url}, "chosen by the person"
             else:
                 found = edgar.find_agreements(b)
                 chosen, why = edgar.pick(found["candidates"])
-                if chosen is None:
+                others = [c for c in found["candidates"] if c is not chosen][:5]
+                if chosen is None and not done:
                     return {"started": False, "company": name, "borrower": b, "reason": why,
                             "candidates": found["candidates"],
                             "next": "show the person the candidates; call again with the url they choose"}
-                others = [c for c in found["candidates"] if c is not chosen][:5]
         except edgar.EdgarError as e:
-            raise ToolError(str(e))
+            if not done:
+                raise ToolError(str(e))
+            edgar_note = f"EDGAR lookup skipped ({e}); using the abstract on file"
+
+        if done:
+            # Already on file: don't re-run the engine. A job that finishes at once keeps the flow identical.
+            on_url = _on_file_url(b, done["source_file"])
+            if chosen and on_url:
+                match = "EDGAR's newest full-text agreement is the one on file" if chosen["url"] == on_url else \
+                    f"EDGAR has a different/newer agreement than the one on file: {chosen['url']}"
+            else:
+                match = edgar_note or "on-file source not matched to an EDGAR url"
+            pdf = f"data/pdf/{b}/{done['source_file']}"
+            j = jobs.start(b, pdf, on_file={"status": done["status"], "source_file": done["source_file"], "match": match})
+            return {"started": True, "on_file": True, "job_id": j["job_id"], "company": name, "borrower": b,
+                    "message": f"{name} is already on file (abstract built from {done['source_file']}, status "
+                               f"{done['status']}); using it instead of re-running.",
+                    "edgar_check": match, "document": chosen, "other_candidates": others,
+                    "next": "poll run_status (finishes at once), then open_review"}
+
         pdf = edgar.pdf_path(b, chosen["url"])
         j = jobs.start(b, pdf, run_ingest=True, gpt=gpt_check, fetch_url=chosen["url"])
-        return {"started": True, "job_id": j["job_id"], "company": name, "borrower": b, "document": chosen,
-                "why_this_one": why, "other_candidates": others, "pdf": pdf,
+        return {"started": True, "on_file": False, "job_id": j["job_id"], "company": name, "borrower": b,
+                "document": chosen, "why_this_one": why, "other_candidates": others, "pdf": pdf,
                 "next": "tell the person which agreement was picked; poll run_status; when ready_for_review, open_review"}
 
     # ---------------- decisions: the person answers, not the model ----------------
