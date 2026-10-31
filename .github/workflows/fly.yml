@@ -25,7 +25,8 @@ jobs:
         run: |
           if [ -z "$SEC_USER_AGENT" ]; then echo "no SEC_USER_AGENT secret: deploying without page images"; mkdir -p data/pdf; exit 0; fi
           python -m playwright install --with-deps chromium
-          python scripts/fetch_demo_pdfs.py
+          python scripts/fetch_demo_pdfs.py || echo "::warning::EDGAR fetch failed; deploying without page images"
+          mkdir -p data/pdf
       - uses: superfly/flyctl-actions/setup-flyctl@master
         if: env.FLY_API_TOKEN != ''
       - name: Create the volume on first deploy

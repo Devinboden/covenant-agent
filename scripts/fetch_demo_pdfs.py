@@ -49,7 +49,14 @@ def main():
     if not agent:
         sys.exit("set SEC_USER_AGENT to 'Your Name your@email' (SEC requires it)")
     items = [(b, r, d) for b, r, d in wanted() if not d.exists()]
-    download([r for _, r, _ in items], agent)
+    ok = []
+    for it in items:                                      # one refusal shouldn't lose the rest
+        try:
+            download([it[1]], agent)
+            ok.append(it)
+        except Exception as e:
+            print(f"{it[0]}: download failed: {e}")
+    items = ok
     asyncio.run(render_all(items))
 
 
