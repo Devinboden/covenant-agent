@@ -147,10 +147,21 @@ class Confirm(BaseModel):
     confirm: bool = Field(description="Tick to confirm")
 
 
-def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=None):
-    """Build the server. user = the configured person behind an unauthenticated (local) connection."""
+def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=None, edgar=None):
+    """Build the server. user = the configured person behind an unauthenticated (local) connection.
+    edgar = the EDGAR intake module (tests pass a stand-in; default covenant_engine.tools.edgar)."""
     if runner is None:
         from .abstract.new_deal import abstract_deal as runner
+    if edgar is None:
+        from .tools import edgar
+    abstract_runner = runner
+
+    def runner(b, pdf, progress, fetch_url=None, **kw):
+        # An EDGAR intake job fetches and renders the exhibit first, inside the background job, then abstracts it.
+        if fetch_url:
+            edgar.fetch_pdf(b, fetch_url, progress=progress)
+        return abstract_runner(b, pdf, progress=progress, **kw)
+
     st = store(abs_dir)
     jobs = Jobs(runner, job_dir or config.ROOT / "data" / "jobs")
     user = user if user is not None else os.environ.get("COVENANT_USER")
@@ -231,7 +242,9 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
                       "Code builds and checks the abstract; you explain it and route the person to open items. "
                       "Never do covenant arithmetic yourself: every value and date comes from get_abstract. "
                       "resolve_item, verify and sign_off ask the person directly with a form; you can propose a "
-                      "decision but only their answer counts. open_review shows the review screen."),
+                      "decision but only their answer counts. open_review shows the review screen. "
+                      "For a borrower not yet abstracted, find_credit_agreements looks it up on SEC EDGAR and "
+                      "start_from_edgar starts the abstraction once the person picks the agreement."),
         extensions=[apps])
 
     def who_or_none(ctx):
@@ -330,6 +343,51 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         j = jobs.start(b, str(p.relative_to(config.ROOT)), run_ingest=run_ingest, gpt=gpt_check)
         return {"job_id": j["job_id"], "borrower": b, "state": j["state"],
                 "next": "poll run_status; when ready_for_review, call list_review_items"}
+
+    # ---------------- EDGAR intake: find a borrower's agreement and start it, when the person asks ----------------
+    WEB_READ = ToolAnnotations(read_only_hint=True, open_world_hint=True)
+    WEB_WRITE = ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False, open_world_hint=True)
+
+    @server.tool(annotations=WEB_READ)
+    def find_credit_agreements(borrower: str, years: int = 5) -> dict[str, Any]:
+        """Look a public borrower up on SEC EDGAR: credit agreements and amendments it filed as exhibits (EX-10) in the
+        last `years`, newest first. Code types each one from its cover (credit_agreement / amendment / consent);
+        full_text_likely = the cover says it restates or attaches the whole agreement (a conformed copy), which is
+        what abstraction needs. Also says whether this borrower is already abstracted. Show the person the list."""
+        b = _ticker(borrower)
+        try:
+            r = edgar.find_agreements(b, years=max(1, min(int(years), 15)))
+        except edgar.EdgarError as e:
+            raise ToolError(str(e))
+        if st.exists(b, "abstract"):
+            rec = SO.load(b, abs_dir)[1]
+            r["already_abstracted"] = {"status": rec["status"], "source_file": st.load(b, "abstract")["header"]["source_file"],
+                                       "next": "open_review: this deal is already done"}
+        else:
+            r["already_abstracted"] = None
+            r["next"] = ("ask the person which agreement to use (prefer the newest full-text conformed copy), then "
+                         "call start_from_edgar with its url")
+        return r
+
+    @server.tool(annotations=WEB_WRITE)
+    def start_from_edgar(borrower: str, url: str, gpt_check: bool = False) -> dict[str, Any]:
+        """Start abstracting a borrower's credit agreement straight from SEC EDGAR: downloads the exhibit, renders it
+        to PDF and runs the same background job as start_deal (minutes; poll run_status). Only when the person has
+        asked for it and chosen the agreement (url from find_credit_agreements). Refuses a borrower that is already
+        abstracted. Nothing here marks the abstract verified."""
+        b = _ticker(borrower)
+        if st.exists(b, "abstract"):
+            rec = SO.load(b, abs_dir)[1]
+            raise ToolError(f"{b} is already abstracted (status {rec['status']}); use open_review. "
+                            "To abstract a newer agreement, a person runs start_deal on its PDF.")
+        try:
+            edgar.check_url(b, url)
+        except edgar.EdgarError as e:
+            raise ToolError(str(e))
+        pdf = edgar.pdf_path(b, url)
+        j = jobs.start(b, pdf, run_ingest=True, gpt=gpt_check, fetch_url=url)
+        return {"job_id": j["job_id"], "borrower": b, "state": j["state"], "pdf": pdf, "source": url,
+                "next": "poll run_status; when ready_for_review, call open_review"}
 
     # ---------------- decisions: the person answers, not the model ----------------
 
