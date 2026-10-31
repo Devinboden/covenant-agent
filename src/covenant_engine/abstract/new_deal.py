@@ -57,13 +57,25 @@ def review_data(borrower, abs_dir=ABSTRACT_DIR):
         k = item_key("flag", f)
         rows.append({"key": k, "kind": "flag", "type": f["type"], "where": f["ref"], "what": f["note"], "evidence": f["quote"],
                      "resolution": rec["resolutions"].get(k)})
+    # A term-check item names a clause of a defined term; its evidence is that clause's text from the agreement (so the
+    # screen can find and highlight it). The model's own reading ("note") is part of what to check, never the quote.
+    clause_quote = {(t["name"], c.get("clause")): c.get("quote", "") for t in ab.get("terms", []) for c in t.get("components", [])}
     for r in ab.get("review", []):
         from .signoff import item_key
         k = item_key("review", r)
+        what = r.get("why") or r.get("item") or r.get("claim") or ""
+        quote = r.get("evidence", "") or clause_quote.get((r.get("term"), r.get("clause")), "")
+        note = r.get("note", "")
+        if note and not quote:
+            evidence = ""
+            what = f"{what}. Model's reading: {note}" if what else note
+        else:
+            evidence = quote
+            if note:
+                what = f"{what}. Model's reading: {note}" if what else note
         rows.append({"key": k, "kind": f"review/{r.get('step')}", "type": r.get("step"),
                      "where": " ".join(x for x in (r.get("term", ""), r.get("clause", "") or r.get("id", "")) if x),
-                     "what": r.get("why") or r.get("item") or r.get("claim") or "",
-                     "gpt_reads": r.get("gpt_reads", ""), "evidence": r.get("evidence", "") or r.get("note", ""),
+                     "what": what, "gpt_reads": r.get("gpt_reads", ""), "evidence": evidence,
                      "resolution": rec["resolutions"].get(k)})
     cov = [{"id": c["id"], "ref": c["ref"], "name": c["name"], "metric": c["metric"], "direction": c["direction"],
             "frequency": c["frequency"], "event_tests": c.get("event_tests", []), "applies_during": c.get("applies_during", ""),

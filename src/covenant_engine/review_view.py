@@ -6,6 +6,7 @@
 Quote locations are found by text search in the PDF (PyMuPDF), cached next to the abstract as <B>.locs.json.
 """
 import base64
+import json
 import re
 from functools import lru_cache
 
@@ -62,7 +63,10 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
     """{key: {page, rects}} for every quote found in the PDF. Table rows quoted as 'cell | cell' are searched cell by
     cell on the same page. Cached per abstract hash."""
     st = store(abs_dir)
-    h = SO.content_hash(ab)
+    quotes = _quotes(ab, rv)
+    # The cache key covers the quotes too: a change in what the screen quotes (not just in the abstract) re-locates.
+    import hashlib
+    h = hashlib.sha256((SO.content_hash(ab) + json.dumps(quotes, sort_keys=True)).encode()).hexdigest()
     cached = st.load(b, "locs", default={})
     if cached.get("hash") == h:
         return cached
@@ -74,7 +78,7 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
     doc = pymupdf.open(path)
     out.update(npages=len(doc), pw=doc[0].rect.width, ph=doc[0].rect.height)
     flat = [_flat(page.get_text()) for page in doc]          # cheap pre-filter: only search pages that contain the text
-    for key, q in _quotes(ab, rv).items():
+    for key, q in quotes.items():
         parts = [x.strip() for x in (q or "").split("|") if x.strip()]
         if not parts:
             continue
