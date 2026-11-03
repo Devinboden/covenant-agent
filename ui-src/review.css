@@ -306,4 +306,6 @@ tr.ctx td { border-top: 0; padding-top: 0; font-size: 12px; color: var(--muted);
 .pgtag { position: absolute; top: 6px; right: 8px; z-index: 2; font: 500 11px var(--mono); background: var(--surface); color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; }
 .pgtag.cited { color: var(--accent); border-color: var(--accent); }
 .cnote { display: block; font-size: 12.5px; color: var(--ink); margin-top: 4px; padding: 4px 8px; background: var(--warn-soft); border-radius: 4px; }
+.details-body { padding: 0 14px 12px; font-size: 13.5px; }
+.lnk { cursor: pointer; color: var(--accent); }
 </style>

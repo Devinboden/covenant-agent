@@ -178,8 +178,7 @@ function items() {
   const open = D.items.filter(i => !i.resolution);
   const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
   const done = D.items.filter(i => i.resolution);
-  const head = `<div class="ihead"><b>${decide.length}</b> need your decision · <b>${confirm.length}</b> both models agree · <b>${done.length}</b> done
-    <details class="why-levels"><summary>Why only these?</summary>${levelsNote()}</details></div>`;
+  const head = `<div class="ihead"><b>${decide.length}</b> need your decision · <b>${confirm.length}</b> both models agree · <b>${done.length}</b> done</div>`;
   const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Both models agree <em>${confirm.length} item${confirm.length > 1 ? "s" : ""}: Claude and GPT, answering separately, read the same thing</em></h2>
       ${editable ? `<button class="primary" id="acceptAll">Accept all ${confirm.length}</button>` : ""}</div>
       <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(whereLabel(it))}</span>
@@ -209,13 +208,6 @@ function items() {
     catch (e) { say(e.message); }
     finally { busy = false; setBusy(false); if (last) { render(last); say(`Accepted ${confirm.length} items.`, true); } }
   });
-}
-function levelsNote() {
-  const a = D.accuracy || {};
-  return `<p>Every check is placed by two things: how much it can change a covenant result, and how often that kind of check is right.
-    A person still decides everything; items in "Both models agree" just take one click.</p>
-    <table class="acc"><thead><tr><th>Kind of check</th><th>Right</th><th>Basis</th></tr></thead><tbody>${Object.values(a).map(x =>
-      `<tr><td>${esc(x.label)}</td><td class="v">${(x.rate * 100).toFixed(x.rate < 1 ? 1 : 0)}%</td><td>${esc(x.basis)}</td></tr>`).join("")}</tbody></table>`;
 }
 // The statement as plain text (fields filled in with their current values).
 function plain(it) {
@@ -373,10 +365,10 @@ function covenants() {
     return `<article class="cov"><div class="cov-head row" data-loc="cov:${sc.id}" data-cap="§${esc(sc.ref)} ${esc(sc.metric)}"><b>${esc(sc.metric)}</b><span class="ref">§${esc(sc.ref)}</span><span class="tag">${sc.direction === "max" ? "Maximum" : "Minimum"} · tested ${esc(sc.frequency)}</span></div>
       <p class="sentence">${esc(sc.sentence)}</p>
       <dl class="sheet">
-        <div class="kv"><dt>How it's calculated</dt><dd>${formula}${defs ? `<ul class="defs">${defs}</ul>` : ""}</dd></div>
         <div class="kv"><dt>Step-ups and relief</dt><dd>${sc.regimes.length ? sc.regimes.map(x => `<p>${esc(x)}</p>`).join("") : "None in the agreement."}</dd></div>
         ${rep}
       </dl>
+      ${formula || defs ? `<details class="sched"><summary>Covenant details: definitions and add-backs</summary><div class="details-body">${formula}${defs ? `<ul class="defs">${defs}</ul>` : ""}</div></details>` : ""}
       <details class="sched"><summary>Schedule of levels and code checks (${c.rows.length + rel.length} row${c.rows.length + rel.length === 1 ? "" : "s"})</summary>
         ${chart(c)}<div class="tblwrap"><table><thead><tr><th>Test dates</th><th>Level</th><th>Schedule</th><th>Code checks</th></tr></thead><tbody>${rows}</tbody></table></div>
         <blockquote class="row" data-loc="cov:${sc.id}" data-cap="§${esc(sc.ref)}">${esc(sc.quote)}</blockquote></details></article>`;
@@ -388,7 +380,7 @@ function covenants() {
       ${d.reporting ? `<div class="kv"><dt>Reporting</dt><dd>${esc(d.reporting)}${d.fiscal_year_end ? ` Fiscal year ends ${esc(d.fiscal_year_end)}.` : ""}</dd></div>` : ""}
       <div class="kv"><dt>Equity cure</dt><dd>${esc(d.cure)}</dd></div>
       ${(d.deemed || []).length ? `<div class="kv"><dt>Deemed values</dt><dd>${d.deemed.map(esc).join("<br>")}</dd></div>` : ""}
-      ${(d.calc_rules || []).length ? `<div class="kv"><dt>Calculation rules</dt><dd><ul class="defs">${d.calc_rules.map(x => `<li>${esc(x)}</li>`).join("")}</ul></dd></div>` : ""}
+      ${(d.calc_rules || []).length ? `<div class="kv"><dt>Calculation rules</dt><dd><details><summary class="lnk">${d.calc_rules.length} rules (GAAP, pro forma)</summary><ul class="defs">${d.calc_rules.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></dd></div>` : ""}
       ${pg}</dl></article>`;
   const ot = d.other_tests || [];
   const other = ot.length ? `<article class="cov"><div class="cov-head"><b>Other ratio tests in the agreement</b><span class="tag">found by a code scan of the text · not part of the reviewed abstract</span></div>
