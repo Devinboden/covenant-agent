@@ -50,3 +50,14 @@ def test_incurrence_scan_skips_maintenance_and_grid():
     rows = I.scan(text, [], {"7.11"})
     assert [(r["section"], r["level"], r["test"], r["gates"]) for r in rows] == \
         [("7.07", "2.50", "max", "Paying dividends / restricted payments")]
+
+
+def test_reviewer_text_has_no_pipeline_jargon():
+    """What the reviewer reads describes the covenant, not the pipeline (no 'code can't check', 'ref_term', raw diffs)."""
+    import re
+    bad = re.compile(r"\bcode\b|library|ref_term|cap_on_total|extraction model|\benum\b|\bstored\b|verbatim| vs |\[\d|"
+                     r"\b[a-z]+_[a-z_]+\b|copy the opening|set ref", re.I)
+    for b in ("CARS", "WEST", "TRS", "MEC", "ROAD", "CXT", "QUAD", "SRI", "UCTT"):
+        for it in RV.payload(b, "x")["items"]:
+            for t in [it["what"], it["reading"], it["level_why"]] + [c["plain"] for c in (it["gpt"] or {}).get("claims", [])]:
+                assert not (t and bad.search(t)), (b, t)

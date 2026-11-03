@@ -14,6 +14,7 @@ from . import config
 from .abstract import signoff as SO
 from .abstract import corrections as C
 from . import brief as BR
+from . import plain as PL
 from .abstract.new_deal import review_data
 from .store import store
 
@@ -122,7 +123,7 @@ def page_image(b, n, abs_dir=config.ABSTRACT_DIR):
 SOURCE = {"income_statement": "the income statement", "borrower_schedule": "a borrower schedule (not in the financials)",
           "cash_flow_statement": "the cash flow statement", "balance_sheet": "the balance sheet",
           "compliance_certificate": "the compliance certificate"}
-WHY = {"no library part fits (custom)": "Not one of the standard EBITDA adjustments, so code can't check it on its own."}
+WHY = {}
 
 
 def _grams(t, n=5):
@@ -190,7 +191,8 @@ def gpt_for(ab, item):
         covs = [c["id"] for c in ab["covenants"] if c["ref"] and c["ref"] == item.get("where")]
         regs = [g["id"] for g in ab["regimes"] if set(g.get("applies_to", [])) & set(covs)]
         ids += [k for k in smr if any(k.startswith(f"cov:{c}:") for c in covs) or any(k.split(":")[:2] == ["reg", g] for g in regs)]
-    out = [{"id": k, **smr[k]} for k in ids if k in smr]
+    out = [{"id": k, **smr[k], "plain": PL.gpt_diff(smr[k].get("value_in_text")) if smr[k]["verdict"] != "agree" else ""}
+           for k in ids if k in smr]
     return {"claims": out, "agree": sum(1 for x in out if x["verdict"] == "agree"), "total": len(out)}
 
 
@@ -217,6 +219,9 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
               "detail": details.get((i.get("term"), i.get("clause"))), "fields": C.fields(ab, i), "gpt": gpt_for(ab, i)} for i in rv["items"]]
     comp = {(t["name"], c.get("clause")): c for t in ab.get("terms", []) for c in t["components"]}
     for it, raw in zip(items, rv["items"]):
+        it["check_detail"], it["what"] = it["what"], PL.item_text(raw, ab)
+        it["where_label"] = PL.where_label(raw)
+        it["reading"] = PL.reading(it.get("reading"))
         for f in it["fields"]:
             if f["label"] == "Category":
                 f["labels"] = {o: BR.cat_label(o) for o in f["options"]}
@@ -259,7 +264,7 @@ def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
     p = payload(b, viewer, abs_dir)
     ab = SO.load(b, abs_dir)[0]
     smr = ab.get("second_model_review") or {}
-    items = [{k: it[k] for k in ("key", "kind", "where", "what", "evidence", "resolution")}
+    items = [{k: it[k] for k in ("key", "kind", "where", "what", "check_detail", "evidence", "resolution")}
              | {"why": it.get("why") or "", "stored": it.get("detail"), "gpt": it.get("gpt"),
                 "level": it.get("level"), "tier": it.get("tier"), "level_why": it.get("level_why"),
                 "abstract_says": "".join(x["t"] if "t" in x else str(it["fields"][x["f"]]["value"] or "—") for x in it.get("statement") or []),

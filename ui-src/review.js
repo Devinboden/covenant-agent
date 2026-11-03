@@ -8,8 +8,8 @@ const money = v => "$" + (Number(v) / 1e6).toLocaleString("en-US", { maximumFrac
 const fmtD = d => /^\d{4}-\d{2}-\d{2}$/.test(d || "") ? new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : (d === "open" ? "thereafter" : (d || "—"));
 const isMoney = c => c.unit === "usd" || /Expenditure|Liquidity|Cash|Net Worth/i.test(c.metric) && !/Ratio/i.test(c.metric);
 const fmtV = (c, v) => isMoney(c) ? money(v) : Number(v).toFixed(2) + "x";
-const ORIGIN = { flag: "Flagged by the extraction model", "review/3": "Term check (code) could not confirm", "review/loan": "Loan step left for review", "review/gpt": "Second model disagreed", "review/calc": "Document not in the filings", "review/pricing": "Document not in the filings" };
-const TYPE = { ambiguous_date: "Ambiguous date", conflict: "Conflict", dangling_reference: "Dangling reference", missing_schedule: "Missing schedule", other: "Needs a look" };
+const ORIGIN = { flag: "Claude's question", "review/3": "Definition check", "review/loan": "Loan terms", "review/gpt": "Claude and GPT disagree", "review/calc": "Document not in the filings", "review/pricing": "Document not in the filings" };
+const TYPE = { ambiguous_date: "Ambiguous date", conflict: "Conflict", dangling_reference: "Missing reference", missing_schedule: "Missing schedule", other: "" };
 
 let D = null;                // the screen payload (from open_review / any review_* tool)
 let sel = null, curPage = null, busy = false, correcting = null;
@@ -179,10 +179,10 @@ function items() {
   const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
   const done = D.items.filter(i => i.resolution);
   const head = `<div class="ihead"><b>${decide.length}</b> need your decision · <b>${confirm.length}</b> both models agree · <b>${done.length}</b> done</div>`;
-  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Both models agree <em>${confirm.length} item${confirm.length > 1 ? "s" : ""}: Claude and GPT, answering separately, read the same thing</em></h2>
+  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Both models agree <em>${confirm.length} item${confirm.length > 1 ? "s" : ""}: Claude and GPT, reading separately, came to the same answer</em></h2>
       ${editable ? `<button class="primary" id="acceptAll">Accept all ${confirm.length}</button>` : ""}</div>
-      <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(whereLabel(it))}</span>
-        <span class="csent">${esc(plain(it))}${it.kind === "flag" ? `<span class="cnote">Model's note: ${esc(it.what)}</span>` : ""}</span><span class="cwhy">${esc(it.level_why)}</span>
+      <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
+        <span class="csent">${esc(plain(it))}${it.kind === "flag" ? `<span class="cnote">Claude's note: ${esc(it.what)}</span>` : ""}</span><span class="cwhy">${esc(it.level_why)}</span>
         ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Accept</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
   const dec = `<section class="group"><h2>Needs your decision <em>${decide.length ? "read the sentence, check it against the highlighted page, answer the question" : "nothing left to decide"}</em></h2>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
@@ -214,10 +214,13 @@ function plain(it) {
   if (!it.statement || !it.statement.length) return it.what;
   return it.statement.map(s => s.t != null ? s.t : fv(it.fields[s.f])).join("");
 }
-const fv = f => f.value === "none" && f.type === "enum" ? "" : (f.labels || {})[f.value] || f.value || "not stated";
+const usd = n => n >= 1000 ? "$" + (n / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M" : String(n);
+const capText = v => String(v).split("|").map(p => { const m = p.match(/^excess_over:([\d.]+)$/); return m ? `the amount above ${usd(+m[1])}` : /^[\d.]+$/.test(p) ? usd(+p) : p.replace(/_/g, " "); }).join(" or ");
+const fv = f => f.value === "none" && f.type === "enum" ? "" : (f.labels || {})[f.value] || (f.value && /^Cap /.test(f.label) ? capText(f.value) : f.value) || "not stated";
 function inlineField(it, i, on) {
   const f = it.fields[i];
-  if (!on) return `<b class="fval">${esc(fv(f))}</b>`;
+  // A compound limit (e.g. "the amount above $20M") reads as text; change it through the comment box.
+  if (!on || (/^Cap /.test(f.label) && f.value && !/^[\d.,]+$/.test(f.value))) return `<b class="fval">${esc(fv(f))}</b>`;
   if (f.type === "enum") return `<select class="inl" data-i="${i}" title="${esc(f.label)}">${f.options.map(o => `<option value="${esc(o)}" ${o === f.value ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`;
   const w = Math.max(4, Math.min(14, String(f.value || "").length + 2));
   return `<input class="inl" data-i="${i}" value="${esc(f.value)}" placeholder="${f.value ? "" : "none"}" style="width:${w + 1}ch" title="${esc(f.label)}" type="${f.type === "date" ? "date" : "text"}">`;
@@ -237,11 +240,11 @@ function card(it, editable) {
   const stated = !!(it.statement && it.statement.length);
   const btn = (k, t, cls = "") => `<button class="dbtn ${cls}" data-d="${k}" aria-pressed="${r.decision === k}" ${on ? "" : "disabled"}>${t}</button>`;
   return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
-    <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(whereLabel(it))}</span><span class="origin">${ORIGIN[it.kind] || esc(it.kind)}${it.kind === "flag" && TYPE[it.type] ? " · " + TYPE[it.type] : ""}</span></div>
+    <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(it.where_label || whereLabel(it))}</span><span class="origin">${ORIGIN[it.kind] || esc(it.kind)}${it.kind === "flag" && TYPE[it.type] ? " · " + TYPE[it.type] : ""}</span></div>
     ${stated ? `<div class="says"><small>What the abstract says${on ? " · edit any value in place" : ""}</small><p>${sentence}</p></div>` : ""}
-    <div class="asked"><small>${stated ? "Why you're asked" : "What needs a decision"}</small><p>${esc(it.kind === "review/3" && it.reading ? "Model's reading: " + it.reading + "." : it.what)}</p>
+    <div class="asked"><small>${stated ? "Why you're asked" : "What needs a decision"}</small><p>${esc(it.what)}</p>${it.reading && it.kind === "review/3" ? `<p class="rd">Claude's reading: ${esc(it.reading)}</p>` : ""}
       <p class="lw">${esc(it.level_why || "")}${it.why ? " " + esc(it.why) : ""}</p></div>
-    ${it.evidence ? `<div class="evid"><small>The agreement says${hasSrc ? " (highlighted on the page)" : ""}</small>${hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">Not found word for word in the PDF, so nothing is highlighted.</div>' : ""}`}</div>` : ""}
+    ${it.evidence ? `<div class="evid"><small>The agreement says${hasSrc ? " (highlighted on the page)" : ""}</small>${hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">This exact text couldn\'t be found in the PDF, so nothing is highlighted.</div>' : ""}`}</div>` : ""}
     ${gptLine(it)}
     ${it.detail || extra.length ? `<details class="more"><summary>More context${extra.length ? " and fields" : ""}</summary>
       ${it.detail ? context(it) : ""}
@@ -298,11 +301,11 @@ function context(it) {
     return `<a href="#" class="jump" data-key="${ri ? ri.key : ""}">${esc(r.clause)}</a> (${SIGN[r.sign] || r.sign}, ${esc(r.category)}${r.flagged ? ", also flagged" : ""})`; }).join(", ");
   const rows = t ? t.rows.map(r => `<tr class="${r.clause === d.clause ? "this" : r.flagged ? "flagged" : ""}"><td>${esc(r.clause)}</td><td>${SIGN[r.sign] || esc(r.sign)}</td><td>${esc(r.category)}</td><td>${esc(r.quote)}</td></tr>`).join("") : "";
   return `<dl class="stored">
-      <div><dt>Stored as</dt><dd>${esc(d.effect)} · category <b>${esc(d.category)}</b></dd></div>
-      <div><dt>Caps / limits</dt><dd>${d.caps.length ? d.caps.map(esc).join("; ") : "None stored. Check the clause for a dollar or % limit."}</dd></div>
-      <div><dt>Number comes from</dt><dd>${esc(d.source)}</dd></div>
-      <div><dt>Feeds</dt><dd>${d.affects.map(esc).join("; ") || "—"}</dd></div>
-      ${rel ? `<div><dt>Shares wording with</dt><dd>${rel}</dd></div>` : ""}
+      <div><dt>Recorded as</dt><dd>${esc(d.effect)} · category <b>${esc(d.category)}</b></dd></div>
+      <div><dt>Limits</dt><dd>${d.caps.length ? d.caps.map(esc).join("; ") : "None recorded. Check the clause for a dollar or % limit."}</dd></div>
+      <div><dt>Amount comes from</dt><dd>${esc(d.source)}</dd></div>
+      <div><dt>Used in</dt><dd>${d.affects.map(esc).join("; ") || "—"}</dd></div>
+      ${rel ? `<div><dt>Related clauses</dt><dd>${rel}</dd></div>` : ""}
     </dl>
     ${t ? `<details class="defn"><summary>Whole definition: ${esc(d.term)} (${t.rows.length} clauses, starts from ${esc(t.starts_from || "—")})</summary>
       <table><thead><tr><th>Clause</th><th>Effect</th><th>Category</th><th>Text</th></tr></thead><tbody>${rows}</tbody></table></details>` : ""}`;
@@ -313,8 +316,8 @@ function gptLine(it) {
   const g = it.gpt;
   if (!g || !g.total) return "";
   const bad = g.claims.filter(c => c.verdict !== "agree");
-  const head = bad.length ? `GPT, answering on its own, differs on ${bad.length} of ${g.total}` : `GPT, answering on its own, gets the same answer${g.total === 1 ? "" : " on all " + g.total + " related claims"}`;
-  return `<div class="gpt ${bad.length ? "gpt-no" : "gpt-ok"}">${bad.length ? "⚠" : "✓"} ${esc(head)}${bad.map(c => `<div class="gpt-d">${g.total > 1 ? esc(claimName(c.id)) + ": " : ""}GPT reads “${esc(c.value_in_text || c.verdict)}”${c.evidence ? ` — <q>${esc(c.evidence.slice(0, 160))}</q>` : ""}${c.evidence_verbatim ? "" : " <small>(quote not found verbatim)</small>"}</div>`).join("")}</div>`;
+  const head = bad.length ? `GPT, reading the agreement separately, differs on ${bad.length} of ${g.total}` : `GPT, reading the agreement separately, gets the same answer${g.total === 1 ? "" : " on all " + g.total + " related claims"}`;
+  return `<div class="gpt ${bad.length ? "gpt-no" : "gpt-ok"}">${bad.length ? "⚠" : "✓"} ${esc(head)}${bad.map(c => `<div class="gpt-d">${g.total > 1 ? esc(claimName(c.id)) + ": " : ""}${esc(c.plain || c.value_in_text)}${c.evidence ? ` GPT's quote: <q>${esc(c.evidence.slice(0, 160))}</q>` : ""}</div>`).join("")}</div>`;
 }
 
 function chart(c) {
@@ -343,7 +346,7 @@ function chart(c) {
 }
 function covenants() {
   const S = D.sheet || { covenants: [], deal: {} };
-  const chk = `<span class="checks"><span class="chk">quote found ✓</span><span class="chk">test date ✓</span><span class="chk">no overlap ✓</span></span>`;
+  const chk = `<span class="checks"><span class="chk">matches the agreement ✓</span><span class="chk">valid test date ✓</span><span class="chk">no overlapping periods ✓</span></span>`;
   const n = S.covenants.length;
   const intro = `<div class="sheet-intro"><b>${esc(D.name)} has ${n} financial maintenance covenant${n === 1 ? "" : "s"}</b>
     <span>tested every period whether or not the borrower does anything.${(S.deal.other_tests || []).length ? ` The agreement also has ${S.deal.other_tests.length} other ratio tests that only apply when the borrower takes an action (listed below).` : ""}</span></div>`;
@@ -359,7 +362,7 @@ function covenants() {
         ${d.capped.length ? `<div class="capped">Capped: ${d.capped.map(esc).join(" · ")}</div>` : ""}${d.custom.length ? `<div class="sub">Non-standard clauses: ${d.custom.map(esc).join(", ")}</div>` : ""}</li>`).join("");
     const rp = sc.reported;
     const rep = rp ? (rp.cushion != null && rp.threshold
-      ? `<div class="kv"><dt>Last reported</dt><dd><b class="mono">${esc(rp.value)}</b> vs ${esc(rp.threshold)} at ${fmtD(rp.period)} · <span class="pill ${rp.passes ? "ok" : "bad"}">${rp.passes ? "passes" : "fails"}, cushion ${esc(rp.cushion)}</span> <small>${esc(rp.doc || "")}, cushion computed by code</small></dd></div>`
+      ? `<div class="kv"><dt>Last reported</dt><dd><b class="mono">${esc(rp.value)}</b> vs ${esc(rp.threshold)} at ${fmtD(rp.period)} · <span class="pill ${rp.passes ? "ok" : "bad"}">${rp.passes ? "passes" : "fails"}, cushion ${esc(rp.cushion)}</span> <small>from ${esc(rp.doc || "the latest filing")}</small></dd></div>`
       : `<div class="kv"><dt>Last reported</dt><dd>${esc(rp.value)} at ${fmtD(rp.period)}</dd></div>`)
       : `<div class="kv"><dt>Last reported</dt><dd class="muted">No reported value in the filings read.</dd></div>`;
     return `<article class="cov"><div class="cov-head row" data-loc="cov:${sc.id}" data-cap="§${esc(sc.ref)} ${esc(sc.metric)}"><b>${esc(sc.metric)}</b><span class="ref">§${esc(sc.ref)}</span><span class="tag">${sc.direction === "max" ? "Maximum" : "Minimum"} · tested ${esc(sc.frequency)}</span></div>
@@ -369,8 +372,8 @@ function covenants() {
         ${rep}
       </dl>
       ${formula || defs ? `<details class="sched"><summary>Covenant details: definitions and add-backs</summary><div class="details-body">${formula}${defs ? `<ul class="defs">${defs}</ul>` : ""}</div></details>` : ""}
-      <details class="sched"><summary>Schedule of levels and code checks (${c.rows.length + rel.length} row${c.rows.length + rel.length === 1 ? "" : "s"})</summary>
-        ${chart(c)}<div class="tblwrap"><table><thead><tr><th>Test dates</th><th>Level</th><th>Schedule</th><th>Code checks</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <details class="sched"><summary>Schedule of levels (${c.rows.length + rel.length} row${c.rows.length + rel.length === 1 ? "" : "s"})</summary>
+        ${chart(c)}<div class="tblwrap"><table><thead><tr><th>Test dates</th><th>Level</th><th>Schedule</th><th>Checks</th></tr></thead><tbody>${rows}</tbody></table></div>
         <blockquote class="row" data-loc="cov:${sc.id}" data-cap="§${esc(sc.ref)}">${esc(sc.quote)}</blockquote></details></article>`;
   }).join("");
   const d = S.deal;
@@ -383,11 +386,11 @@ function covenants() {
       ${(d.calc_rules || []).length ? `<div class="kv"><dt>Calculation rules</dt><dd><details><summary class="lnk">${d.calc_rules.length} rules (GAAP, pro forma)</summary><ul class="defs">${d.calc_rules.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></dd></div>` : ""}
       ${pg}</dl></article>`;
   const ot = d.other_tests || [];
-  const other = ot.length ? `<article class="cov"><div class="cov-head"><b>Other ratio tests in the agreement</b><span class="tag">found by a code scan of the text · not part of the reviewed abstract</span></div>
+  const other = ot.length ? `<article class="cov"><div class="cov-head"><b>Other ratio tests in the agreement</b><span class="tag">found in the agreement text · not reviewed</span></div>
       <p class="sentence sm">These apply only when the borrower takes an action (borrows more, pays a dividend, makes an acquisition). They aren't tested each quarter.</p>
       <div class="tblwrap"><table class="mini"><thead><tr><th>When it applies</th><th>Test</th><th>Section</th></tr></thead><tbody>${ot.map(t => `<tr title="${esc(t.context)}"><td>${esc(t.gates)}</td><td><b>${esc(t.ratio)}</b> ${t.test === "max" ? "≤" : "≥"} <span class="mono">${esc(Number(t.level).toFixed(2))}x</span></td><td class="d">${t.section ? (t.section === "1.01" ? "definitions" : "§" + esc(t.section)) : "—"}</td></tr>
         <tr class="ctx"><td colspan="3">${esc(t.context)}</td></tr>`).join("")}</tbody></table></div></article>` : "";
-  $("view-cov").innerHTML = `<div class="items">${intro}${covCards}${deal}${other}<p class="note">Sentences, cushions and the formula are written by code from the abstract, not by a model. Dashed purple in a chart = relief schedule.</p></div>`;
+  $("view-cov").innerHTML = `<div class="items">${intro}${covCards}${deal}${other}<p class="note">Dashed purple in a chart = relief schedule.</p></div>`;
   $("view-cov").querySelectorAll(".row").forEach(e => e.onclick = () => show(e.dataset.loc, e.dataset.cap));
 }
 function trail() {

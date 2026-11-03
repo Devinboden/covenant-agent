@@ -44,6 +44,7 @@ def _regime_fields(ab, gi):
             continue
         out.append({"path": path, "group": f"{g['name']}", "label": label,
                     "type": "enum" if isinstance(kind, list) else kind, "options": kind if isinstance(kind, list) else None,
+                    "labels": {"test_dates": "test dates", "none": "—"} if isinstance(kind, list) else None,
                     "value": "" if v is None else str(v)})
     return out
 
@@ -67,8 +68,9 @@ def _component_fields(ab, ti, pi, categories):
     t, p = ab["terms"][ti], ab["terms"][ti]["components"][pi]
     base = ["terms", ti, "components", pi]
     grp = f"{t['name']} {p['clause']}"
-    out = [{"path": base + ["sign"], "group": grp, "label": "Effect", "type": "enum", "options": SIGNS,
-            "labels": {"+": "add-back", "-": "deduction"}, "value": p["sign"]},
+    out = [{"path": base + ["sign"], "group": grp, "label": "Effect", "type": "enum",
+            "options": SIGNS if p["sign"] in SIGNS else [p["sign"]] + SIGNS,
+            "labels": {"+": "added", "-": "subtracted", "+/-": "added or subtracted"}, "value": p["sign"]},
            {"path": base + ["category"], "group": grp, "label": "Category", "type": "enum",
             "options": categories if p["category"] in categories else [p["category"]] + categories, "value": p["category"]}]
     for k, cap in enumerate(p.get("caps", [])):

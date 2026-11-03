@@ -22,8 +22,11 @@ CAT = {"taxes": "income taxes", "interest": "interest expense", "depreciation_am
        "third_party_reimbursed_expenses": "expenses reimbursed by third parties", "non_cash_gains": "non-cash gains",
        "acquired_ebitda": "EBITDA of acquired businesses", "disposed_ebitda": "EBITDA of sold businesses",
        "cost_savings_implementation": "cost-saving implementation costs", "equity_plan_costs": "equity plan costs",
-       "fx_losses": "FX losses", "fx_gains": "FX gains", "transition_closure_costs": "closure costs",
-       "public_company_costs": "public company costs", "sponsor_management_fees": "sponsor fees", "custom": "a custom item"}
+       "fx_losses": "FX losses", "numerator_term": "debt in the ratio", "numerator_amount": "amount in the ratio",
+       "numerator_less_term": "amount netted against debt", "numerator_less_amount": "amount netted against debt",
+       "denominator_term": "bottom of the ratio", "term_reference": "another defined term", "cap_on_total": "overall limit",
+       "calculation_rule": "calculation rule", "unrestricted_cash": "unrestricted cash", "excluded_debt": "debt excluded", "fx_gains": "FX gains", "transition_closure_costs": "closure costs",
+       "public_company_costs": "public company costs", "sponsor_management_fees": "sponsor fees", "custom": "other (non-standard)"}
 
 
 def cat_label(c):
@@ -231,19 +234,21 @@ def statement(ab, item, fields):
         m = re.match(r"term:(.+):\d+$", item.get("id") or "")
         name = item.get("term") or (m.group(1) if m else g)
         clause = item.get("clause") or g[len(name):].strip()
-        T(f"In {name}, clause {clause} is ")
+        from .plain import _where
+        T(f"{_where(name, clause)} is ")
         F("Effect")
-        T(f" ({'added to' if (fields[idx['Effect']]['value'] if 'Effect' in idx else '+') == '+' else 'subtracted from'} the amount). Category: ")
+        T(". Type: ")
         F("Category")
         caps = [l for l in idx if l.startswith("Cap ")]
         if caps:
-            T(". Limits: ")
+            T(". Limit: ")
             for k, l in enumerate(caps):
                 T(", " if k else "")
                 F(l)
         else:
-            T(". No cap stored; add one if the clause has a limit: ")
+            T(". Limit: none recorded (if the clause has one, enter it: $")
             F("Add a cap (fixed amount, e.g. 10000000)")
+            T(")")
         T(".")
         return seg
     covs = {}
@@ -318,19 +323,24 @@ def level(item, gpt, stored=None):
     if kind == "review/gpt":
         claims = (gpt or {}).get("claims") or []
         if claims and all(c["verdict"] == "not_found" for c in claims) and ACCURACY["gpt_not_found"]["rate"] >= CONFIRM_AT:
-            return _lv("confirm", 2, "GPT couldn't find this clause; Claude's quote is in the agreement word for word.", "gpt_not_found")
-        return _lv("decide", 1, "The two models read the agreement differently.")
+            return _lv("confirm", 2, "GPT couldn't find this clause, but Claude's quote matches the agreement exactly.", "gpt_not_found")
+        return _lv("decide", 1, "A different reading here would change the covenant result.")
     if kind == "flag":
         if t in HARD_FLAGS:
-            return _lv("decide", 1, f"{t.replace('_', ' ').capitalize()}: which dates and levels apply decides pass/fail.", "dates")
+            what = {"conflict": "Two parts of the agreement say different things", "ambiguous_date": "The dates are ambiguous",
+                    "dangling_reference": "It refers to something that isn't in the agreement",
+                    "missing_schedule": "A schedule it relies on is missing"}[t]
+            return _lv("decide", 1, f"{what}, and that decides which level applies when.", "dates")
         if agrees and ACCURACY["flag_note"]["rate"] >= CONFIRM_AT:
-            return _lv("confirm", 1, f"A note from the extraction model; GPT, answering on its own, read the same "
-                                     f"{gpt['total']} value(s) for this covenant.", "flag_note")
-        return _lv("decide", 1, "The extraction model raised a question that no second check has settled.")
+            return _lv("confirm", 1, f"Claude raised a question here; GPT, reading the agreement separately, got the same "
+                                     f"{gpt['total']} number{'s' if gpt['total'] > 1 else ''} for this covenant.", "flag_note")
+        return _lv("decide", 1, "Claude raised a question that GPT's separate reading doesn't settle.")
     if kind == "review/3" and stored:
         if stored.get("caps"):
-            return _lv("decide", 1, "A clause with a cap: the cap changes the covenant number.", "clause_capped")
+            return _lv("decide", 1, "This item has a limit, and the limit changes the ratio.", "clause_capped")
         if agrees and ACCURACY["clause_uncapped"]["rate"] >= CONFIRM_AT:
-            return _lv("confirm", 2, "Uncapped clause; GPT, answering on its own, reads the same effect.", "clause_uncapped")
-        return _lv("decide", 2, "Code couldn't confirm this clause" + (" and GPT didn't either." if gpt else "."))
-    return _lv("decide", 1, "Needs a document or judgment code can't supply.")
+            return _lv("confirm", 2, "No limit on this item, and GPT, reading separately, agrees on how it counts.", "clause_uncapped")
+        return _lv("decide", 2, "The automatic checks couldn't confirm this clause" + (" and GPT didn't either." if gpt else "."))
+    if kind in ("review/calc", "review/pricing"):
+        return _lv("decide", 1, "Needs a document that isn't in the public filings, or a judgment call.")
+    return _lv("decide", 1 if kind != "review/3" else 2, "Needs a judgment call on how the agreement reads.")
