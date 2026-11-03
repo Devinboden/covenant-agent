@@ -62,14 +62,77 @@ def _flat(t):
     return re.sub(r"[^a-z0-9]", "", (t or "").lower())
 
 
+ABBR = re.compile(r"^(?:\(?[a-z0-9]{1,4}\)|No|Nos|Sec|Secs|U\.S|Inc|Corp|Co|Ltd|L\.P|N\.A|e\.g|i\.e|etc|vs)\.$", re.I)
+LOCATE_V = "words-4"      # bump to re-locate every quote when the matching changes
+
+
+def _ends_sentence(w):
+    return w.endswith((".", ".\u201d", '."')) and not ABBR.match(w)
+
+
+def _match_words(words, quote):
+    """Indexes (first, last) of the page words that spell `quote` (letters and digits only, case-insensitive)."""
+    q = _flat(quote)
+    if len(q) < 8:
+        return None
+    flat, owner = [], []
+    for k, w in enumerate(words):
+        f = _flat(w[4])
+        flat.append(f)
+        owner += [k] * len(f)
+    text = "".join(flat)
+    for probe in (q, q[:160], q[:80], q[-80:], q[:40]):
+        at = text.find(probe) if len(probe) >= 12 else -1
+        if at >= 0:
+            if probe is q or probe == q[:160] or probe == q[:80] or probe == q[:40]:
+                end = min(len(text), at + len(q)) - 1
+            else:
+                at, end = max(0, at + len(probe) - len(q)), at + len(probe) - 1
+            return owner[at], owner[min(end, len(owner) - 1)]
+    return None
+
+
+ENUM = re.compile(r"^\((?:[a-z]{1,2}|[ivxl]{1,6}|\d{1,2}|[A-Z])\)$")
+
+
+def _starts_clause(words, k):
+    """Word k opens a lettered clause like '(j)' or '(iv)' that follows a comma, semicolon, colon, 'and' or 'or'."""
+    if k <= 0 or not ENUM.match(words[k][4]):
+        return False
+    prev = words[k - 1][4]
+    return prev.endswith((",", ";", ":")) or prev in ("and", "or")
+
+
+def _sentence(words, a, z, cap=80):
+    """Widen word range [a, z] to the sentence it sits in. In a long definition, a lettered clause ('(j) ...') counts
+    as its own sentence, so the reader gets the whole clause and not the whole definition."""
+    s = a
+    while s > 0 and a - s < cap and not _ends_sentence(words[s - 1][4]) and not _starts_clause(words, s):
+        s -= 1
+    e = z
+    while e < len(words) - 1 and e - z < cap and not _ends_sentence(words[e][4]) and not _starts_clause(words, e + 1):
+        e += 1
+    return s, e
+
+
+def _boxes(words, a, z):
+    """One box per printed line for words a..z."""
+    lines = {}
+    for w in words[a:z + 1]:
+        k = (w[5], w[6])
+        x0, y0, x1, y1 = lines.get(k, (w[0], w[1], w[2], w[3]))
+        lines[k] = (min(x0, w[0]), min(y0, w[1]), max(x1, w[2]), max(y1, w[3]))
+    return [[round(v, 1) for v in b] for b in lines.values()]
+
+
 def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
-    """{key: {page, rects}} for every quote found in the PDF. Table rows quoted as 'cell | cell' are searched cell by
-    cell on the same page. Cached per abstract hash."""
+    """{key: {page, rects, sentence}} for every quote found in the PDF: the quote is matched word by word on the page
+    and widened to its full sentence, which is what the screen highlights and shows. Table rows quoted as
+    'cell | cell' highlight each cell on the same line. Cached per abstract hash."""
     st = store(abs_dir)
     quotes = _quotes(ab, rv)
-    # The cache key covers the quotes too: a change in what the screen quotes (not just in the abstract) re-locates.
     import hashlib
-    h = hashlib.sha256((SO.content_hash(ab) + json.dumps(quotes, sort_keys=True)).encode()).hexdigest()
+    h = hashlib.sha256((LOCATE_V + SO.content_hash(ab) + json.dumps(quotes, sort_keys=True)).encode()).hexdigest()
     cached = st.load(b, "locs", default={})
     if cached.get("hash") == h:
         return cached
@@ -81,24 +144,33 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
     doc = pymupdf.open(path)
     out.update(npages=len(doc), pw=doc[0].rect.width, ph=doc[0].rect.height)
     flat = [_flat(page.get_text()) for page in doc]          # cheap pre-filter: only search pages that contain the text
+    words = {}
     for key, q in quotes.items():
         parts = [x.strip() for x in (q or "").split("|") if x.strip()]
         if not parts:
             continue
         probe = _flat(parts[0])[:30]
-        cands = [i for i, t in enumerate(flat) if probe and probe in t]
-        hit = None
-        for n in (90, 60, 40, 25):                            # longest match on any candidate page wins
-            frag = re.sub(r"\s+", " ", parts[0]).strip()[:n]
-            hit = next(((i, r) for i in cands for r in [doc[i].search_for(frag)] if r), None)
-            if hit or len(frag) < n:
-                break
-        if hit:
-            i, r = hit
-            top, bot = min(x.y0 for x in r), max(x.y1 for x in r)
-            for extra in parts[1:]:                           # other cells of the same table row: same line only
-                r = r + [x for x in _search(doc[i], extra) if x.y1 > top - 2 and x.y0 < bot + 2]
-            out["loc"][key] = {"page": i, "rects": [[round(x.x0, 1), round(x.y0, 1), round(x.x1, 1), round(x.y1, 1)] for x in r]}
+        for i in (i for i, t in enumerate(flat) if probe and probe in t):
+            ws = words.setdefault(i, doc[i].get_text("words", sort=True))
+            m = _match_words(ws, parts[0])
+            if not m:
+                continue
+            if len(parts) > 1:                                 # a table row: highlight each cell on that line
+                rects = _boxes(ws, *m)
+                line_y = ws[m[0]][1]
+                for extra in parts[1:]:
+                    for k, w in enumerate(ws):
+                        if abs(w[1] - line_y) < 3:
+                            mm = _match_words(ws[k:k + 12], extra)
+                            if mm:
+                                rects += _boxes(ws, k + mm[0], k + mm[1])
+                                break
+                out["loc"][key] = {"page": i, "rects": rects, "sentence": re.sub(r"\s+", " ", q)}
+            else:
+                s, e = _sentence(ws, *m)
+                out["loc"][key] = {"page": i, "rects": _boxes(ws, s, e),
+                                   "sentence": re.sub(r"\s+", " ", " ".join(w[4] for w in ws[s:e + 1])).strip()}
+            break
     out["pages"] = sorted({v["page"] for v in out["loc"].values()})
     st.save(b, "locs", out)
     return out
@@ -258,15 +330,16 @@ def _fmt_cov(c):
 
 def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
     """Everything about a deal's review in one read, for the model to answer questions while the person reviews:
-    facts, status, covenants, regimes, every item (with evidence, GPT's independent answer, the fields a correction can
+    facts, status, covenants, regimes, every item (with the model's answer, the evidence sentence, the model's note, the fields a correction can
     change and any decision or change made), flagged definitions, the second-model tally and the recent trail. Same data
     as the screen, minus page images and highlight boxes. Reads only."""
     p = payload(b, viewer, abs_dir)
     ab = SO.load(b, abs_dir)[0]
     smr = ab.get("second_model_review") or {}
     items = [{k: it[k] for k in ("key", "kind", "where", "what", "check_detail", "evidence", "resolution")}
-             | {"why": it.get("why") or "", "stored": it.get("detail"), "gpt": it.get("gpt"),
-                "level": it.get("level"), "tier": it.get("tier"), "level_why": it.get("level_why"),
+             | {"why": it.get("why") or "", "stored": it.get("detail"), "model_note": it.get("reading") or "",
+                "evidence_sentence": (p["locs"]["loc"].get("item:" + it["key"]) or {}).get("sentence", it["evidence"]),
+                "level": it.get("level"), "tier": it.get("tier"),
                 "abstract_says": "".join(x["t"] if "t" in x else str(it["fields"][x["f"]]["value"] or "—") for x in it.get("statement") or [] if not x.get("edit")),
                 "correctable_fields": [{"label": f["label"], "group": f["group"], "value": f["value"]} for f in it.get("fields") or []]}
              for it in p["items"]]
@@ -280,17 +353,14 @@ def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
              *(f"Regime: {g['name']} ({g['type']}): increment {g['increment'] or '—'}, ceiling {g['ceiling'] or '—'}, level "
                f"{g['level'] or '—'}, duration {(g.get('duration') or {}).get('count') or '—'} {(g.get('duration') or {}).get('unit') or ''}, "
                f"max uses {g['max_uses'] or 'no limit stated'}" for g in p["regs"]),
-             (f"GPT independent check ({smr.get('mode', 'confirm')}): {smr['tally'].get('agree')}/{smr['tally'].get('claims')} claims agree."
-              if smr.get("tally") else "GPT independent check: not run."),
              f"Open items: {sum(1 for i in open_ if i['level'] != 'confirm')} need a decision, "
-             f"{sum(1 for i in open_ if i['level'] == 'confirm')} both models agree (one-click confirm).",
+             f"{sum(1 for i in open_ if i['level'] == 'confirm')} quick confirm (lower risk).",
              *(f"- [{i['key']}] ({i['level']}) §{i['where'] or '—'}: {i['what'][:160]}"
-                              + (f" GPT: {'agrees' if i['gpt']['agree'] == i['gpt']['total'] else 'disagrees'}." if i.get("gpt") and i["gpt"]["total"] else "")
                               for i in open_)]
     return {"borrower": b, "name": p["name"], "status": p["status"], "open": p["open"], "total": p["total"],
             "verified_by": p["verified_by"], "signed_by": p["signed_by"], "summary": "\n".join(lines),
             "facts": p["facts"], "header": p["header"], "covenants": p["covs"], "regimes": p["regs"], "items": items,
-            "definitions": p.get("terms", {}), "covenant_sheet": p["sheet"], "accuracy": p["accuracy"], "second_model": {k: smr.get(k) for k in ("tool", "mode", "tally")},
+            "definitions": p.get("terms", {}), "covenant_sheet": p["sheet"],
             "trail": p["trail"][-15:]}
 
 

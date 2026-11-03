@@ -185,11 +185,11 @@ function items() {
   const open = D.items.filter(i => !i.resolution);
   const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
   const done = D.items.filter(i => i.resolution);
-  const head = `<div class="ihead"><b>${decide.length}</b> need your decision · <b>${confirm.length}</b> both models agree · <b>${done.length}</b> done</div>`;
-  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Both models agree <em>${confirm.length} item${confirm.length > 1 ? "s" : ""}: Claude and GPT, reading separately, came to the same answer</em></h2>
+  const head = `<div class="ihead"><b>${decide.length}</b> need your decision · <b>${confirm.length}</b> quick confirm · <b>${done.length}</b> done</div>`;
+  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Quick confirm <em>${confirm.length} lower-risk item${confirm.length > 1 ? "s" : ""}: check each, or accept all</em></h2>
       ${editable ? `<button class="primary" id="acceptAll">Accept all ${confirm.length}</button>` : ""}</div>
       <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
-        <span class="csent">${esc(plain(it))}${it.kind === "flag" ? `<span class="cnote">Claude's note: ${esc(it.what)}</span>` : ""}</span><span class="cwhy">${esc(it.level_why)}</span>
+        <span class="csent">${esc(plain(it))}${it.kind === "flag" ? `<span class="cnote">Note: ${esc(it.what)}</span>` : ""}</span>
         ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Accept</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
   const dec = `<section class="group"><h2>Needs your decision <em>${decide.length ? "read the sentence, check it against the highlighted page, answer the question" : "nothing left to decide"}</em></h2>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
@@ -201,17 +201,17 @@ function items() {
   wireCards(editable);
   $("view-items").querySelectorAll(".crow").forEach(row => {
     const it = D.items.find(i => i.key === row.dataset.key);
-    row.onclick = e => { if (!e.target.closest("button")) show(row.dataset.loc, `§${it.where}`); };
+    row.onclick = e => { if (!e.target.closest("button")) show(row.dataset.loc, (it.where_label || "§" + it.where)); };
     const acc = row.querySelector('[data-d="accept"]');
-    if (acc) acc.onclick = () => act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "Both models agree; accepted in review." });
+    if (acc) acc.onclick = () => act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "Accepted in quick confirm." });
     const op = row.querySelector("[data-open]");
-    if (op) op.onclick = () => { it.level = "decide"; items(); const c = document.querySelector(`.item[data-key="${it.key}"]`); if (c) { c.scrollIntoView({ block: "center" }); show("item:" + it.key, `§${it.where}`); } };
+    if (op) op.onclick = () => { it.level = "decide"; items(); const c = document.querySelector(`.item[data-key="${it.key}"]`); if (c) { c.scrollIntoView({ block: "center" }); show("item:" + it.key, (it.where_label || "§" + it.where)); } };
   });
   const all = $("acceptAll");
   if (all) all.onclick = () => ask(`Accept all ${confirm.length} as ${D.viewer}? Each is recorded as accepted by you, one by one.`, "Accept all", async () => {
     busy = true; setBusy(true);
     let last = null;
-    try { for (const it of confirm) last = await call("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "Both models agree; accepted in batch." }); }
+    try { for (const it of confirm) last = await call("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "Accepted in quick confirm (accept all)." }); }
     catch (e) { say(e.message); }
     finally { busy = false; setBusy(false); if (last) { render(last); say(`Accepted ${confirm.length} items.`, true); } }
   });
@@ -234,12 +234,20 @@ function inlineField(it, i, on) {
 }
 const whereLabel = it => { const w = it.where || ""; const m = w.match(/^term:(.+):\d+$/);
   return m ? m[1] : w.startsWith("cov:") || w.startsWith("reg:") ? w.split(":")[1].replace(/_/g, " ") : /^\d/.test(w) ? "§" + w : w || "—"; };
-// Why the item is here. Not shown for a Claude/GPT difference: the "Potential conflict" box says it.
-function asked(it, stated) {
-  if (it.kind === "review/gpt") return "";
-  const rd = it.reading && it.kind === "review/3" ? `<p class="rd">Claude's reading: ${esc(it.reading)}</p>` : "";
-  return `<div class="asked"><small>${stated ? "Why you're asked" : "What needs a decision"}</small><p>${esc(it.what)}</p>${rd}
-    <p class="lw">${esc(it.level_why || "")}${it.why ? " " + esc(it.why) : ""}</p></div>`;
+// The model's own reason for its answer (a flag's note, or its reading of a clause). Nothing about which check
+// flagged the item: the reviewer judges the answer against the evidence.
+const note = it => it.kind === "flag" ? it.what : (it.reading || "");
+// Evidence = the full sentence (or lettered clause) from the agreement, with the quoted words marked.
+function evidence(it) {
+  const l = D.locs.loc["item:" + it.key];
+  const sent = (l && l.sentence) || it.evidence;
+  if (!sent) return "";
+  const norm = t => String(t || "").replace(/\s+/g, " ").trim();
+  const S = norm(sent), Q = norm(it.evidence);
+  const at = Q ? S.toLowerCase().indexOf(Q.slice(0, 60).toLowerCase()) : -1;
+  const body = at >= 0 ? esc(S.slice(0, at)) + "<mark>" + esc(S.slice(at, at + Q.length)) + "</mark>" + esc(S.slice(at + Q.length)) : esc(S);
+  return `<div class="evid"><small>Evidence${l ? ` · page ${l.page + 1}, highlighted` : ""}</small><blockquote>${body}</blockquote>
+    ${!l && D.locs.pdf ? '<div class="nosrc">This exact text couldn\'t be found in the PDF, so nothing is highlighted.</div>' : ""}</div>`;
 }
 function card(it, editable) {
   const r = it.resolution || {};
@@ -254,11 +262,11 @@ function card(it, editable) {
   const stated = !!(it.statement && it.statement.length);
   const btn = (k, t, cls = "") => `<button class="dbtn ${cls}" data-d="${k}" aria-pressed="${r.decision === k}" ${on ? "" : "disabled"}>${t}</button>`;
   return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
-    <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(it.where_label || whereLabel(it))}</span><span class="origin">${ORIGIN[it.kind] ?? esc(it.kind)}${it.kind === "flag" && TYPE[it.type] ? " · " + TYPE[it.type] : ""}</span></div>
-    ${stated ? `<div class="says"><small>What the abstract says${on ? " · edit any value in place" : ""}</small><p>${sentence}</p></div>` : ""}
-${asked(it, stated)}
-    ${it.evidence ? `<div class="evid"><small>The agreement says${hasSrc ? " (highlighted on the page)" : ""}</small>${hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">This exact text couldn\'t be found in the PDF, so nothing is highlighted.</div>' : ""}`}</div>` : ""}
-    ${gptLine(it)}
+    <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(it.where_label || whereLabel(it))}</span><span class="origin">Flagged for review</span></div>
+    ${stated ? `<div class="says"><small>The abstract says${on ? " · edit any value in place" : ""}</small><p>${sentence}</p></div>`
+      : `<div class="says"><small>What needs a decision</small><p class="plainq">${esc(it.what)}</p></div>`}
+    ${evidence(it)}
+    ${note(it) ? `<div class="asked"><small>Model's note</small><p>${esc(note(it))}</p></div>` : ""}
     ${it.detail || extra.length ? `<details class="more"><summary>More context${extra.length ? " and fields" : ""}</summary>
       ${it.detail ? context(it) : ""}
       ${extra.length ? `<div class="xfields">${extra.map(([f, i]) => `<label><span>${esc(f.label)}</span>${inlineField(it, i, on)}</label>`).join("")}</div>` : ""}</details>` : ""}
@@ -279,7 +287,7 @@ function wireCards(editable) {
     card.addEventListener("click", e => {
       const j = e.target.closest(".jump");
       if (j) { e.preventDefault(); const t = j.dataset.key && document.querySelector(`.item[data-key="${j.dataset.key}"]`); if (t) { t.scrollIntoView({ block: "center" }); show("item:" + j.dataset.key, ""); } return; }
-      if (!e.target.closest("button,input,textarea,select,summary,details,a")) show(card.dataset.loc, `§${it.where}`);
+      if (!e.target.closest("button,input,textarea,select,summary,details,a")) show(card.dataset.loc, (it.where_label || "§" + it.where));
     });
     const save = card.querySelector("[data-save]");
     card.querySelectorAll(".inl").forEach(el => el.addEventListener("input", () => {
@@ -322,15 +330,6 @@ function context(it) {
     </dl>
     ${t ? `<details class="defn"><summary>Whole definition: ${esc(d.term)} (${t.rows.length} clauses, starts from ${esc(t.starts_from || "—")})</summary>
       <table><thead><tr><th>Clause</th><th>Effect</th><th>Category</th><th>Text</th></tr></thead><tbody>${rows}</tbody></table></details>` : ""}`;
-}
-// What GPT independently read for the claims behind this item (second-model check), when it has run.
-const claimName = id => { const p = id.split(":"); return p[0] === "term" ? p[1] : p[0] === "cov" || p[0] === "reg" ? p.slice(1).join(" ").replace(/_/g, " ") : id; };
-function gptLine(it) {
-  const g = it.gpt;
-  if (!g || !g.total) return "";
-  const bad = g.claims.filter(c => c.verdict !== "agree");
-  if (!bad.length) return `<div class="gpt gpt-ok">✓ GPT agrees</div>`;
-  return `<div class="gpt gpt-no"><b>⚠ Potential conflict</b>${bad.map(c => `<div class="gpt-d">${g.total > 1 ? esc(claimName(c.id)) + ": " : ""}${esc(c.plain || c.value_in_text)}${c.evidence ? ` GPT's quote: <q>${esc(c.evidence.slice(0, 160))}</q>` : ""}</div>`).join("")}</div>`;
 }
 
 function chart(c) {

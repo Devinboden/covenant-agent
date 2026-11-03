@@ -119,15 +119,15 @@ def item_text(row, ab):
             k = int(cid.rsplit(":", 1)[1])
             w2 = _where(m.group(1), comps[k].get("clause") if k < len(comps) else "")
             if claim.get("verdict") == "not_found":
-                return f"GPT couldn't find {w2} in the agreement. Claude's quote matches the agreement exactly; confirm Claude's reading."
-            return f"Claude and GPT read {w2} differently. Compare both readings with the highlighted text."
+                return f"Confirm how {w2} is recorded against the evidence."
+            return f"Check how {w2} is recorded against the evidence."
         if cid.startswith("loan:fiscal_year_end"):
             fy = ((ab.get("loan") or {}).get("fiscal_year_end") or {}).get("value", "")
-            return f"The abstract has the fiscal year ending {fy}; GPT couldn't confirm it. Check the fiscal year end."
+            return f"The abstract has the fiscal year ending {fy}. Check the fiscal year end."
         if cid.startswith("reg:"):
             g = next((g for g in ab.get("regimes", []) if g["id"] == cid.split(":")[1]), None)
-            return f"Claude and GPT read the {g['name'] if g else 'step-up'} differently. Compare both readings with the highlighted text."
-        return "Claude and GPT read this differently. Compare both readings with the highlighted text."
+            return f"Check the terms of the {g['name'] if g else 'step-up'} against the evidence."
+        return "Check this against the evidence."
     if kind == "review/loan" and "equity cure" in w:
         return "The agreement seems to have equity cure wording, but the abstract records no cure. Check whether the borrower can cure a breach with new equity."
     if kind in ("review/calc", "review/pricing"):
