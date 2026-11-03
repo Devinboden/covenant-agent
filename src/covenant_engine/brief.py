@@ -227,6 +227,7 @@ def statement(ab, item, fields):
     idx = {f["label"]: i for i, f in enumerate(fields)}
     seg = []
     T = lambda s: seg.append({"t": s}) if s else None
+    E = lambda s: seg.append({"t": s, "edit": True})          # shown only where the reviewer can edit
     F = lambda label: seg.append({"f": idx[label]}) if label in idx else None
     F_ = _seg_field(seg)
     if "Effect" in idx:                                     # a clause of a defined term (term check or GPT item)
@@ -246,9 +247,11 @@ def statement(ab, item, fields):
                 T(", " if k else "")
                 F(l)
         else:
-            T(". Limit: none recorded (if the clause has one, enter it: $")
-            F("Add a cap (fixed amount, e.g. 10000000)")
-            T(")")
+            T(". Limit: none recorded")
+            E(" (if the clause has one, enter it: $")
+            if "Add a cap (fixed amount, e.g. 10000000)" in idx:
+                seg.append({"f": idx["Add a cap (fixed amount, e.g. 10000000)"], "edit": True})
+            E(")")
         T(".")
         return seg
     covs = {}
@@ -284,7 +287,7 @@ def statement(ab, item, fields):
         else:
             T(f"{g['type'].replace('_', ' ')} applies ({g['effect'].replace('_', ' ')})")
         T(" for "); F_(ks, "duration.count"); T(" "); F_(ks, "duration.unit")
-        T(". Max uses: "); F_(ks, "max_uses"); T(" (blank = no limit). Gap between uses: "); F_(ks, "min_gap.count"); T(" "); F_(ks, "min_gap.unit"); T(".")
+        T(". Max uses: "); F_(ks, "max_uses"); E(" (blank = no limit)"); T(". Gap between uses: "); F_(ks, "min_gap.count"); T(" "); F_(ks, "min_gap.unit"); T(".")
     return seg
 
 

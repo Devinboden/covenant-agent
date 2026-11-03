@@ -267,7 +267,7 @@ def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
     items = [{k: it[k] for k in ("key", "kind", "where", "what", "check_detail", "evidence", "resolution")}
              | {"why": it.get("why") or "", "stored": it.get("detail"), "gpt": it.get("gpt"),
                 "level": it.get("level"), "tier": it.get("tier"), "level_why": it.get("level_why"),
-                "abstract_says": "".join(x["t"] if "t" in x else str(it["fields"][x["f"]]["value"] or "—") for x in it.get("statement") or []),
+                "abstract_says": "".join(x["t"] if "t" in x else str(it["fields"][x["f"]]["value"] or "—") for x in it.get("statement") or [] if not x.get("edit")),
                 "correctable_fields": [{"label": f["label"], "group": f["group"], "value": f["value"]} for f in it.get("fields") or []]}
              for it in p["items"]]
     open_ = [i for i in items if not i["resolution"]]

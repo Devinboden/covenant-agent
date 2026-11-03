@@ -8,7 +8,7 @@ const money = v => "$" + (Number(v) / 1e6).toLocaleString("en-US", { maximumFrac
 const fmtD = d => /^\d{4}-\d{2}-\d{2}$/.test(d || "") ? new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : (d === "open" ? "thereafter" : (d || "—"));
 const isMoney = c => c.unit === "usd" || /Expenditure|Liquidity|Cash|Net Worth/i.test(c.metric) && !/Ratio/i.test(c.metric);
 const fmtV = (c, v) => isMoney(c) ? money(v) : Number(v).toFixed(2) + "x";
-const ORIGIN = { flag: "Claude's question", "review/3": "Definition check", "review/loan": "Loan terms", "review/gpt": "Claude and GPT disagree", "review/calc": "Document not in the filings", "review/pricing": "Document not in the filings" };
+const ORIGIN = { flag: "Claude's question", "review/3": "Definition check", "review/loan": "Loan terms", "review/gpt": "", "review/calc": "Document not in the filings", "review/pricing": "Document not in the filings" };
 const TYPE = { ambiguous_date: "Ambiguous date", conflict: "Conflict", dangling_reference: "Missing reference", missing_schedule: "Missing schedule", other: "" };
 
 let D = null;                // the screen payload (from open_review / any review_* tool)
@@ -85,26 +85,26 @@ async function pageImg(p) {
   if (!pageCache[p]) pageCache[p] = call("review_page", { borrower: D.borrower, page: p }).then(r => r.image);
   try { return await pageCache[p]; } catch (e) { delete pageCache[p]; throw e; }
 }
-// The cited page, with the page before and the page after for context (the highlight is on the cited page).
-function neighbour(id, p) {
-  const box = $(id);
-  if (p < 0 || p >= D.locs.npages) { box.hidden = true; return; }
-  box.querySelector(".pgtag").textContent = `p. ${p + 1}`;
-  const img = box.querySelector("img");
-  img.removeAttribute("src"); img.alt = `Agreement page ${p + 1}`;
-  box.hidden = false;
-  pageImg(p).then(src => { if (curPage !== null && Math.abs(curPage - p) === 1) img.src = src; }).catch(() => { box.hidden = true; });
-}
+// One page at a time, sized to fit the pane. ‹ › step through every page; the cited page carries the highlight.
+let citedPage = null, citedCap = "";
 async function goPage(p) {
+  p = Math.max(0, Math.min(D.locs.npages - 1, p));
   curPage = p;
   $("pgLabel").textContent = `p. ${p + 1} / ${D.locs.npages}`;
-  $("pgTag").textContent = `p. ${p + 1} · cited`;
-  neighbour("pgB", p - 1); neighbour("pgA", p + 1);
-  let src;
+  $("prev").disabled = p === 0; $("next").disabled = p === D.locs.npages - 1;
+  $("page").style.aspectRatio = `${D.locs.pw} / ${D.locs.ph}`;
   if (!pageCache[p]) { $("pageImg").removeAttribute("src"); $("pageImg").alt = "Loading page…"; }
+  let src;
   try { src = await pageImg(p); }
   catch (e) { $("cap").innerHTML = `<span class="err">${esc(e.message)}</span>`; return; }
-  if (curPage === p) { $("page").hidden = false; $("pageImg").src = src; $("pageImg").alt = `Agreement page ${p + 1}`; }
+  if (curPage !== p) return;
+  $("page").hidden = false; $("pageImg").src = src; $("pageImg").alt = `Agreement page ${p + 1}`;
+  drawHL(D.locs.loc[sel]);
+  if (citedPage !== null && p !== citedPage) {
+    $("cap").innerHTML = `${esc(citedCap)} · you're on page ${p + 1} <a href="#" id="backCited">back to page ${citedPage + 1}</a>`;
+    $("backCited").onclick = e => { e.preventDefault(); goPage(citedPage); };
+  } else if (citedPage !== null) $("cap").textContent = `${citedCap} · page ${p + 1}`;
+  [p - 1, p + 1].filter(n => n >= 0 && n < D.locs.npages).forEach(n => pageImg(n).catch(() => {}));   // next click is instant
 }
 async function show(key, caption) {
   sel = key;
@@ -117,9 +117,8 @@ async function show(key, caption) {
     $("cap").textContent = "No agreement PDF on this server, so pages can't be shown."; return;
   }
   if (!l) { $("cap").textContent = (caption ? caption + " · " : "") + "no quote from the agreement to highlight."; drawHL(null); return; }
+  citedPage = l.page; citedCap = caption || "Cited text";
   await goPage(l.page);
-  drawHL(l);
-  $("cap").textContent = (caption ? caption + " · " : "") + `page ${l.page + 1}`;
 }
 function drawHL(l) {
   document.querySelectorAll(".hl").forEach(e => e.remove());
@@ -135,8 +134,12 @@ function drawHL(l) {
   const scroll = () => { const sc = $("scroller"); sc.scrollTo({ top: Math.max(0, $("page").offsetTop + first.offsetTop - sc.clientHeight / 3) }); };
   if (first) $("pageImg").complete ? requestAnimationFrame(scroll) : $("pageImg").addEventListener("load", scroll, { once: true });
 }
-const step = dir => { const ps = D.locs.pages, i = ps.indexOf(curPage); const n = ps[Math.min(ps.length - 1, Math.max(0, (i < 0 ? 0 : i) + dir))]; if (n !== undefined) goPage(n).then(() => drawHL(D.locs.loc[sel])); };
+const step = dir => { if (curPage !== null) goPage(curPage + dir); };
 $("prev").onclick = () => step(-1);
+document.addEventListener("keydown", e => {        // ← → flip pages, unless the person is typing
+  if (e.target.closest("input,textarea,select") || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === "ArrowLeft") step(-1); else if (e.key === "ArrowRight") step(1);
+});
 $("next").onclick = () => step(1);
 
 // ---------- render ----------
@@ -149,7 +152,7 @@ function render(p) {
   $("file").textContent = p.header.source_file;
   // No PDF on the server: show an empty state instead of an empty <img> (which renders as a broken image).
   $("noPdf").hidden = !!p.locs.pdf;
-  if (!p.locs.pdf) { $("page").hidden = $("pgB").hidden = $("pgA").hidden = true; $("pgLabel").textContent = ""; $("prev").hidden = $("next").hidden = true; }
+  if (!p.locs.pdf) { $("page").hidden = true; $("pgLabel").textContent = ""; $("prev").hidden = $("next").hidden = true; }
   const f = p.facts;
   const facts = [["Agent", (f.agent || "—").replace(/, NATIONAL ASSOCIATION/i, "")],
     ["Facility", f.commitment ? `${money(f.commitment)} ${f.facility || ""}` : "—"], ["Matures", fmtD(f.maturity)],
@@ -212,7 +215,7 @@ function items() {
 // The statement as plain text (fields filled in with their current values).
 function plain(it) {
   if (!it.statement || !it.statement.length) return it.what;
-  return it.statement.map(s => s.t != null ? s.t : fv(it.fields[s.f])).join("");
+  return it.statement.filter(s => !s.edit).map(s => s.t != null ? s.t : fv(it.fields[s.f])).join("");
 }
 const usd = n => n >= 1000 ? "$" + (n / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M" : String(n);
 const capText = v => String(v).split("|").map(p => { const m = p.match(/^excess_over:([\d.]+)$/); return m ? `the amount above ${usd(+m[1])}` : /^[\d.]+$/.test(p) ? usd(+p) : p.replace(/_/g, " "); }).join(" or ");
@@ -227,6 +230,13 @@ function inlineField(it, i, on) {
 }
 const whereLabel = it => { const w = it.where || ""; const m = w.match(/^term:(.+):\d+$/);
   return m ? m[1] : w.startsWith("cov:") || w.startsWith("reg:") ? w.split(":")[1].replace(/_/g, " ") : /^\d/.test(w) ? "§" + w : w || "—"; };
+// Why the item is here. Not shown for a Claude/GPT difference: the "Potential conflict" box says it.
+function asked(it, stated) {
+  if (it.kind === "review/gpt") return "";
+  const rd = it.reading && it.kind === "review/3" ? `<p class="rd">Claude's reading: ${esc(it.reading)}</p>` : "";
+  return `<div class="asked"><small>${stated ? "Why you're asked" : "What needs a decision"}</small><p>${esc(it.what)}</p>${rd}
+    <p class="lw">${esc(it.level_why || "")}${it.why ? " " + esc(it.why) : ""}</p></div>`;
+}
 function card(it, editable) {
   const r = it.resolution || {};
   const on = editable && (!r.decision || reopened.has(it.key));
@@ -234,16 +244,15 @@ function card(it, editable) {
   const used = new Set((it.statement || []).filter(s => s.f != null).map(s => s.f));
   const extra = (it.fields || []).map((f, i) => [f, i]).filter(([f, i]) => !used.has(i));
   const sentence = it.statement && it.statement.length
-    ? it.statement.map(s => s.t != null ? esc(s.t) : inlineField(it, s.f, on)).join("")
+    ? it.statement.filter(s => on || !s.edit).map(s => s.t != null ? esc(s.t) : inlineField(it, s.f, on)).join("")
     : esc(it.what);
   const [tc, tl] = TIER[it.tier] || TIER[1];
   const stated = !!(it.statement && it.statement.length);
   const btn = (k, t, cls = "") => `<button class="dbtn ${cls}" data-d="${k}" aria-pressed="${r.decision === k}" ${on ? "" : "disabled"}>${t}</button>`;
   return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
-    <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(it.where_label || whereLabel(it))}</span><span class="origin">${ORIGIN[it.kind] || esc(it.kind)}${it.kind === "flag" && TYPE[it.type] ? " · " + TYPE[it.type] : ""}</span></div>
+    <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(it.where_label || whereLabel(it))}</span><span class="origin">${ORIGIN[it.kind] ?? esc(it.kind)}${it.kind === "flag" && TYPE[it.type] ? " · " + TYPE[it.type] : ""}</span></div>
     ${stated ? `<div class="says"><small>What the abstract says${on ? " · edit any value in place" : ""}</small><p>${sentence}</p></div>` : ""}
-    <div class="asked"><small>${stated ? "Why you're asked" : "What needs a decision"}</small><p>${esc(it.what)}</p>${it.reading && it.kind === "review/3" ? `<p class="rd">Claude's reading: ${esc(it.reading)}</p>` : ""}
-      <p class="lw">${esc(it.level_why || "")}${it.why ? " " + esc(it.why) : ""}</p></div>
+${asked(it, stated)}
     ${it.evidence ? `<div class="evid"><small>The agreement says${hasSrc ? " (highlighted on the page)" : ""}</small>${hasSrc ? `<blockquote><mark>${esc(it.evidence)}</mark></blockquote>` : `<blockquote>${esc(it.evidence)}</blockquote>${D.locs.pdf ? '<div class="nosrc">This exact text couldn\'t be found in the PDF, so nothing is highlighted.</div>' : ""}`}</div>` : ""}
     ${gptLine(it)}
     ${it.detail || extra.length ? `<details class="more"><summary>More context${extra.length ? " and fields" : ""}</summary>
@@ -316,8 +325,8 @@ function gptLine(it) {
   const g = it.gpt;
   if (!g || !g.total) return "";
   const bad = g.claims.filter(c => c.verdict !== "agree");
-  const head = bad.length ? `GPT, reading the agreement separately, differs on ${bad.length} of ${g.total}` : `GPT, reading the agreement separately, gets the same answer${g.total === 1 ? "" : " on all " + g.total + " related claims"}`;
-  return `<div class="gpt ${bad.length ? "gpt-no" : "gpt-ok"}">${bad.length ? "⚠" : "✓"} ${esc(head)}${bad.map(c => `<div class="gpt-d">${g.total > 1 ? esc(claimName(c.id)) + ": " : ""}${esc(c.plain || c.value_in_text)}${c.evidence ? ` GPT's quote: <q>${esc(c.evidence.slice(0, 160))}</q>` : ""}</div>`).join("")}</div>`;
+  if (!bad.length) return `<div class="gpt gpt-ok">✓ GPT agrees</div>`;
+  return `<div class="gpt gpt-no"><b>⚠ Potential conflict</b>${bad.map(c => `<div class="gpt-d">${g.total > 1 ? esc(claimName(c.id)) + ": " : ""}${esc(c.plain || c.value_in_text)}${c.evidence ? ` GPT's quote: <q>${esc(c.evidence.slice(0, 160))}</q>` : ""}</div>`).join("")}</div>`;
 }
 
 function chart(c) {
