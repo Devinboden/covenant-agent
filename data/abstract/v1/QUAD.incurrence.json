@@ -1,0 +1,105 @@
+{
+ "source": "credit_agreement_a-r-2025-08",
+ "tests": [
+  {
+   "ratio": "Senior Secured Leverage Ratio",
+   "test": "max",
+   "level": "2.50",
+   "section": "",
+   "heading": "",
+   "gates": "Other permission test",
+   "context": "10 Effective Date, (A) the Senior Secured Leverage Ratio (on a Pro Forma Basis) shall not exceed 2.50 to 1.00, (B) the Borrower shall be in complianc",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "min",
+   "level": "3.00",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Other permission test",
+   "context": "$50,000,000 if the Total Net Leverage Ratio is greater than 3.00 to 1.00 (giving effect to the applicable transa",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Other permission test",
+   "context": "“Free Cash Flow Percentage” means (i) 0% at any time the Total Leverage Ratio is less than or equal to 3.00 to 1.00 and (ii) 50% at any time the Total Leve",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Senior Secured Leverage Ratio",
+   "test": "max",
+   "level": "2.50",
+   "section": "2.20",
+   "heading": "Expansion Option",
+   "gates": "Adding incremental debt",
+   "context": "$25,000,000, so long as, after giving effect thereto, (a) the Senior Secured Leverage Ratio (on a Pro Forma Basis) shall not exceed 2.50 to 1.00 or (b) the aggregate amount of all such",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "5.05",
+   "heading": "Maintenance of Properties; Insurance",
+   "gates": "Other permission test",
+   "context": "The Borrower (x) will furnish to the Administrative Agent and the Lenders prompt written notice of any casualty or other insured damage to any material portion of the Collateral or the commencement of any action or proceeding for the taking of any material por",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Leverage Ratio",
+   "test": "min",
+   "level": "3.00",
+   "section": "6.01",
+   "heading": "Indebtedness",
+   "gates": "Taking on more debt",
+   "context": "$150,000,000 of such Attributable Receivables Indebtedness shall be outstanding at any time the Total Leverage Ratio is equal to or greater than 3.00 to 1.00 (including before and after giving effe",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "6.03",
+   "heading": "Fundamental Changes and Asset Sales",
+   "gates": "Designating an unrestricted subsidiary",
+   "context": "$125,000,000 at any time the Total Leverage Ratio is less than 3.00 to 1.00 (both before and after giving effect th",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "min",
+   "level": "3.00",
+   "section": "6.03",
+   "heading": "Fundamental Changes and Asset Sales",
+   "gates": "Other permission test",
+   "context": "provided, further, all sales, transfers, leases and other Dispositions permitted under this Section 6.03(a) (v) shall be for fair market value and, other than with respect to clauses (v)(B), (v)(C) (with respect to cross-licensing of technology where the consi",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Leverage Ratio",
+   "test": "max",
+   "level": "2.50",
+   "section": "6.07",
+   "heading": "Restricted Payments",
+   "gates": "Paying dividends / restricted payments",
+   "context": "(g) other Restricted Payments so long as at the time thereof and immediately after giving effect (including giving effect on a Pro Forma Basis) thereto and any Indebtedness incurred or assumed in connection therewith (i) no Default or Event of Default then exi",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Leverage Ratio",
+   "test": "min",
+   "level": "2.75",
+   "section": "6.07",
+   "heading": "Restricted Payments",
+   "gates": "Paying dividends / restricted payments",
+   "context": "9 Effective Date in reliance on this clause (g) shall not exceed (x) $100,000,000 if, at the time of making any such Restricted Payment or immediately after giving effect thereto on a Pro Forma Basis, the Total Leverage Ratio is or will be greater than or equa",
+   "found_by": "code scan"
+  }
+ ]
+}

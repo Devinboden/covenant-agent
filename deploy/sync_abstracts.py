@@ -14,6 +14,8 @@ from pathlib import Path
 def main(src, dst):
     src, dst = Path(src), Path(dst)
     dst.mkdir(parents=True, exist_ok=True)
+    for f in sorted(src.glob("*.incurrence.json")):          # derived from the agreement by code: always the image's
+        shutil.copy2(f, dst / f.name)
     for f in sorted(src.glob("*.abstract.json")):
         d = dst / f.name
         if not d.exists():

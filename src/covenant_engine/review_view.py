@@ -13,6 +13,7 @@ from functools import lru_cache
 from . import config
 from .abstract import signoff as SO
 from .abstract import corrections as C
+from . import brief as BR
 from .abstract.new_deal import review_data
 from .store import store
 
@@ -214,6 +215,13 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
               "evidence": i["evidence"], "resolution": i["resolution"],
               "why": WHY.get((i["what"] or "").split(". Model's reading")[0], ""), "reading": i.get("note", ""),
               "detail": details.get((i.get("term"), i.get("clause"))), "fields": C.fields(ab, i), "gpt": gpt_for(ab, i)} for i in rv["items"]]
+    comp = {(t["name"], c.get("clause")): c for t in ab.get("terms", []) for c in t["components"]}
+    for it, raw in zip(items, rv["items"]):
+        for f in it["fields"]:
+            if f["label"] == "Category":
+                f["labels"] = {o: BR.cat_label(o) for o in f["options"]}
+        it["statement"] = BR.statement(ab, raw, it["fields"])
+        it |= BR.level(raw, it["gpt"], comp.get((raw.get("term"), raw.get("clause"))))
     its, open_, deferred, _ = SO.summary(ab, rec)
     trail = [{"date": ab["header"].get("built"), "by": "system",
               "what": f"abstract built from {ab['header'].get('source_file')}; {len(its)} items for review"}]
@@ -233,6 +241,7 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
                   "maturity": fac.get("maturity"), "latest_amendment": val(loan.get("latest_amendment_date")),
                   "closing": val(loan.get("closing_date"))},
         "categories": _categories() if terms else [],
+        "sheet": BR.covenant_sheet(ab, BR.other_tests(b, abs_dir)), "accuracy": BR.ACCURACY,
         "covs": covs, "regs": regs, "items": items, "terms": terms, "trail": trail, "locs": locate(b, ab, rv, abs_dir),
     }
 
@@ -252,25 +261,31 @@ def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
     smr = ab.get("second_model_review") or {}
     items = [{k: it[k] for k in ("key", "kind", "where", "what", "evidence", "resolution")}
              | {"why": it.get("why") or "", "stored": it.get("detail"), "gpt": it.get("gpt"),
+                "level": it.get("level"), "tier": it.get("tier"), "level_why": it.get("level_why"),
+                "abstract_says": "".join(x["t"] if "t" in x else str(it["fields"][x["f"]]["value"] or "—") for x in it.get("statement") or []),
                 "correctable_fields": [{"label": f["label"], "group": f["group"], "value": f["value"]} for f in it.get("fields") or []]}
              for it in p["items"]]
     open_ = [i for i in items if not i["resolution"]]
     lines = [f"{p['name']} ({b}): status {p['status']}, {p['open']} of {p['total']} items open"
              + (f", {p['deferred']} deferred" if p["deferred"] else "") + ".",
              f"Source: {p['header']['source_file']} (built {p['header']['built']}).",
-             "Covenants: " + " | ".join(_fmt_cov(c) for c in p["covs"]),
+             *[c["sentence"] + (f" Last reported {c['reported']['value']} at {c['reported']['period']} (cushion {c['reported'].get('cushion', '—')})."
+                                 if c.get("reported") else "") for c in p["sheet"]["covenants"]],
+             f"{len(p['sheet']['deal']['other_tests'])} other ratio tests (incurrence; found by code scan, not reviewed).",
              *(f"Regime: {g['name']} ({g['type']}): increment {g['increment'] or '—'}, ceiling {g['ceiling'] or '—'}, level "
                f"{g['level'] or '—'}, duration {(g.get('duration') or {}).get('count') or '—'} {(g.get('duration') or {}).get('unit') or ''}, "
                f"max uses {g['max_uses'] or 'no limit stated'}" for g in p["regs"]),
              (f"GPT independent check ({smr.get('mode', 'confirm')}): {smr['tally'].get('agree')}/{smr['tally'].get('claims')} claims agree."
               if smr.get("tally") else "GPT independent check: not run."),
-             "Open items:", *(f"- [{i['key']}] §{i['where'] or '—'}: {i['what'][:160]}"
+             f"Open items: {sum(1 for i in open_ if i['level'] != 'confirm')} need a decision, "
+             f"{sum(1 for i in open_ if i['level'] == 'confirm')} both models agree (one-click confirm).",
+             *(f"- [{i['key']}] ({i['level']}) §{i['where'] or '—'}: {i['what'][:160]}"
                               + (f" GPT: {'agrees' if i['gpt']['agree'] == i['gpt']['total'] else 'disagrees'}." if i.get("gpt") and i["gpt"]["total"] else "")
                               for i in open_)]
     return {"borrower": b, "name": p["name"], "status": p["status"], "open": p["open"], "total": p["total"],
             "verified_by": p["verified_by"], "signed_by": p["signed_by"], "summary": "\n".join(lines),
             "facts": p["facts"], "header": p["header"], "covenants": p["covs"], "regimes": p["regs"], "items": items,
-            "definitions": p.get("terms", {}), "second_model": {k: smr.get(k) for k in ("tool", "mode", "tally")},
+            "definitions": p.get("terms", {}), "covenant_sheet": p["sheet"], "accuracy": p["accuracy"], "second_model": {k: smr.get(k) for k in ("tool", "mode", "tally")},
             "trail": p["trail"][-15:]}
 
 

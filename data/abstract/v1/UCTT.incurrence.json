@@ -1,0 +1,45 @@
+{
+ "source": "amendment_10th-amendment-2026-04",
+ "tests": [
+  {
+   "ratio": "Consolidated First Lien Net Leverage Ratio",
+   "test": "max",
+   "level": "1.50",
+   "section": "",
+   "heading": "",
+   "gates": "Other permission test",
+   "context": "“ECF Percentage”: 75%; provided, that (a) the ECF Percentage shall be reduced to 50% if the Consolidated First Lien Net Leverage Ratio as of the last day of the relevant fiscal year is less than or equal to 1.50 to 1.00 but greater than 1.25 to 1.00, (b) the",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated First Lien Net Leverage Ratio",
+   "test": "max",
+   "level": "1.25",
+   "section": "",
+   "heading": "",
+   "gates": "Other permission test",
+   "context": "“ECF Percentage”: 75%; provided, that (a) the ECF Percentage shall be reduced to 50% if the Consolidated First Lien Net Leverage Ratio as of the last day of the relevant fiscal year is less than or equal to 1.50 to 1.00 but greater than 1.25 to 1.00, (b) the E",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated First Lien Net Leverage Ratio",
+   "test": "max",
+   "level": "1.00",
+   "section": "",
+   "heading": "",
+   "gates": "Other permission test",
+   "context": "“ECF Percentage”: 75%; provided, that (a) the ECF Percentage shall be reduced to 50% if the Consolidated First Lien Net Leverage Ratio as of the last day of the relevant fiscal year is less than or equal to 1.50 to 1.00 but greater than 1.25 to 1.00, (b) the E",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated Secured Net Leverage Ratio",
+   "test": "min",
+   "level": "3.00",
+   "section": "",
+   "heading": "",
+   "gates": "Other permission test",
+   "context": "(p) sale and leaseback transactions made after the Tenth Amendment Effective Date so long as either (x) the Parent Borrower is in compliance on a Pro Forma Basis with a Consolidated Secured Net Leverage Ratio not to exceed 3.00 to 1.00 or (y) the Attributable ",
+   "found_by": "code scan"
+  }
+ ]
+}

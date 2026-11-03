@@ -70,7 +70,7 @@ def _component_fields(ab, ti, pi, categories):
     out = [{"path": base + ["sign"], "group": grp, "label": "Effect", "type": "enum", "options": SIGNS,
             "labels": {"+": "add-back", "-": "deduction"}, "value": p["sign"]},
            {"path": base + ["category"], "group": grp, "label": "Category", "type": "enum",
-            "options": categories, "value": p["category"]}]
+            "options": categories if p["category"] in categories else [p["category"]] + categories, "value": p["category"]}]
     for k, cap in enumerate(p.get("caps", [])):
         out.append({"path": base + ["caps", k, "value"], "group": grp, "label": f"Cap {k + 1} ({cap['type']})",
                     "type": "text", "value": cap["value"]})

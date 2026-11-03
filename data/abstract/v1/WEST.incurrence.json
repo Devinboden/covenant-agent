@@ -1,0 +1,25 @@
+{
+ "source": "amendment_amendment-no-6-2026-06-conformed",
+ "tests": [
+  {
+   "ratio": "Secured Net Leverage Ratio",
+   "test": "max",
+   "level": "4.00",
+   "section": "",
+   "heading": "",
+   "gates": "Ending a relief period early",
+   "context": "“Covenant Relief Period Early Termination Date” shall mean, that date following June 30, 2024 on which the Borrower, at its option, shall have delivered to the Administrative Agent a certificate of a Responsible Officer of the Borrower (i) stating the Borrower",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "First Lien Secured Net Leverage Ratio",
+   "test": "max",
+   "level": "2.00",
+   "section": "",
+   "heading": "",
+   "gates": "Adding incremental debt",
+   "context": "(y) (A) in the case of any Incremental Facility secured by Liens on the Collateral on a pari passu basis with the Facilities, the First Lien Secured Net Leverage Ratio on a Pro Forma Basis does not exceed 2.00 to 1.00, or (B) in the case of any Incremental",
+   "found_by": "code scan"
+  }
+ ]
+}

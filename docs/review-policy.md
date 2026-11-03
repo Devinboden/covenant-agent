@@ -1,6 +1,6 @@
 # Review policy (proposal): ask the analyst less, where it's safe
 
-Status: **proposal, not built.** The numbers below are measured on the stored abstracts, 2026-10-31 (GPT check run on all 9 deals that evening).
+Status: **built 2026-11-02** (`src/covenant_engine/brief.py`: `ACCURACY`, `level()`); the widget groups items by level. The numbers below are measured on the stored abstracts, 2026-10-31 (GPT check run on all 9 deals that evening).
 
 ## Principle
 What the analyst sees for a check depends on two things:
@@ -44,3 +44,20 @@ The other 14 term-check items (custom with a cap, or a clause that couldn't be c
 1. ~~GPT check run on all 9 deals, with per-claim verdicts saved.~~ Done 2026-10-31; the card shows GPT's verdict.
 2. Term-clause accuracy measured against the keys, and a second deal family, before trusting Tier 2 batching.
 3. Batch-confirm still records each item as accepted by the named reviewer.
+
+## As built (2026-11-02)
+Open items across 9 deals: **53 Decide, 40 Both models agree** (was 93 all shown the same way). CARS: 3 decide, 4 confirm.
+
+| Rule | Level |
+|---|---|
+| GPT disagreed with a verbatim quote | Decide |
+| GPT couldn't find the clause, Claude's quote is verbatim | Confirm |
+| Flag: conflict / ambiguous date / dangling reference / missing schedule | Decide |
+| Other flag, GPT read every related value the same | Confirm (the model's note is shown) |
+| Term clause with a cap | Decide |
+| Uncapped term clause, GPT reads the same effect | Confirm |
+| Anything else (missing schedule, loan step) | Decide |
+
+Each rule also requires its kind of check to be at least `CONFIRM_AT` (90%) accurate in `ACCURACY`. Rates marked
+"illustrative" are placeholders until a person grades a sample: changing a number changes what is asked, no code change.
+"Accept all" records one accepted decision per item under the reviewer's name. Nothing is auto-resolved.

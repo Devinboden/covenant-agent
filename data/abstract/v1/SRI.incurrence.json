@@ -1,0 +1,15 @@
+{
+ "source": "credit_agreement_2026-03",
+ "tests": [
+  {
+   "ratio": "Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "",
+   "heading": "",
+   "gates": "Acquisitions / investments",
+   "context": "“Permitted Acquisition” shall mean any Acquisition by a Loan Party or a Subsidiary of Equity Interests in a Person or assets constituting a business or a division or line of business of a Person, if (a) the business or businesses engaged in by such Person, or ",
+   "found_by": "code scan"
+  }
+ ]
+}

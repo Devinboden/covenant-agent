@@ -1,0 +1,35 @@
+{
+ "source": "amendment_10th-amendment-2026-03-conformed",
+ "tests": [
+  {
+   "ratio": "Senior Secured Net Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "2.21",
+   "heading": "Incremental Facilities",
+   "gates": "Adding incremental debt",
+   "context": "(a) The Parent Borrower may on one or more occasions, by written notice to the Administrative Agent, request, during the Revolving Availability Period, the establishment of Incremental Revolving Commitments; provided that, at the time of (and after giving effe",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Senior Secured Net Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "6.01",
+   "heading": "Indebtedness; Certain Equity Securities",
+   "gates": "Taking on more debt",
+   "context": "(xx) secured or unsecured notes (such notes, “Incremental Equivalent Debt”); provided that (A) at the time of (and after giving effect to) the incurrence of any Incremental Equivalent Debt, the aggregate amount of all Incremental Equivalent Debt, together with",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "6.04",
+   "heading": "Investments, Loans, Advances, Guarantees and Acquisitions",
+   "gates": "Acquisitions / investments",
+   "context": "(u) investments; provided that after giving effect to any such investment (and any Indebtedness incurred in connection therewith), the Total Net Leverage Ratio at the time of the making of such investment would be less than or equal to 3.00 to 1.00;",
+   "found_by": "code scan"
+  }
+ ]
+}

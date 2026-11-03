@@ -1,0 +1,65 @@
+{
+ "source": "amendment_6th-amendment-2026-07",
+ "tests": [
+  {
+   "ratio": "Consolidated First Lien Net Leverage Ratio",
+   "test": "max",
+   "level": "3.00",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Adding incremental debt",
+   "context": "(ab) an unlimited amount so long as, in the case of this clause (e), on a Pro Forma Basis after giving effect to the incurrence of the Incremental Facility or the Incremental Equivalent Debt, as applicable, and the application of the proceeds thereof (without ",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated Secured Net Leverage Ratio",
+   "test": "max",
+   "level": "4.50",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Adding incremental debt",
+   "context": "(ab) an unlimited amount so long as, in the case of this clause (e), on a Pro Forma Basis after giving effect to the incurrence of the Incremental Facility or the Incremental Equivalent Debt, as applicable, and the application of the proceeds thereof (without ",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated Total Net Leverage Ratio",
+   "test": "max",
+   "level": "5.00",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Taking on more debt",
+   "context": "(ab) an unlimited amount so long as, in the case of this clause (e), on a Pro Forma Basis after giving effect to the incurrence of the Incremental Facility or the Incremental Equivalent Debt, as applicable, and the application of the proceeds thereof (without ",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated First Lien Net Leverage Ratio",
+   "test": "min",
+   "level": "3.25",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Other permission test",
+   "context": "“Required Excess Cash Flow Percentage” means (a) if the Consolidated First Lien Net Leverage Ratio is greater than 3.25:1.00, 50%, (b) if the Consolidated First Lie",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated First Lien Net Leverage Ratio",
+   "test": "max",
+   "level": "2.75",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Other permission test",
+   "context": "“Required Excess Cash Flow Percentage” means (a) if the Consolidated First Lien Net Leverage Ratio is greater than 3.25:1.00, 50%, (b) if the Consolidated First Lien Net Leverage Ratio is less than or equal to 3.25:1.00 and greater than 2.75:1.00, 25% and (c) ",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated Total Net Leverage Ratio",
+   "test": "max",
+   "level": "3.25",
+   "section": "6.06",
+   "heading": "Restricted Payments; Certain Payments of Indebtedness",
+   "gates": "Paying dividends / restricted payments",
+   "context": "(iv) the Company or any Restricted Subsidiary may make other Restricted Debt Payments; provided that at the time thereof and immediately after giving pro forma effect thereto and to all related transactions, (A) no Event of Default shall have occurred and be c",
+   "found_by": "code scan"
+  }
+ ]
+}

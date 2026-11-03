@@ -1,0 +1,95 @@
+{
+ "source": "amendment_5th-amendment-2024-05-conformed",
+ "tests": [
+  {
+   "ratio": "Senior Secured Net Leverage Ratio",
+   "test": "max",
+   "level": "3.50",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Adding incremental debt",
+   "context": "“Available Incremental Amount” means an aggregate principal amount equal to (a) $100,000,000 plus (b) an unlimited amount so long as (i) after giving Pro Forma Effect to the relevant Incremental Term Loans, Incremental Equivalent Debt (if such Incremental Equi",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "5.00",
+   "section": "1.01",
+   "heading": "Defined Terms",
+   "gates": "Adding incremental debt",
+   "context": "“Available Incremental Amount” means an aggregate principal amount equal to (a) $100,000,000 plus (b) an unlimited amount so long as (i) after giving Pro Forma Effect to the relevant Incremental Term Loans, Incremental Equivalent Debt (if such Incremental Equi",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "4.50",
+   "section": "6.12",
+   "heading": "Subsidiaries; Designation of Unrestricted Subsidiaries SECTION 1",
+   "gates": "Designating an unrestricted subsidiary",
+   "context": "(iii) after giving effect to such designation on a Pro Forma Basis, the Total Net Leverage Ratio is less than or equal to 4.50 to 1.00;",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Senior Secured Net Leverage Ratio",
+   "test": "max",
+   "level": "3.50",
+   "section": "7.01",
+   "heading": "Indebtedness",
+   "gates": "Taking on more debt",
+   "context": "(k) (i) Indebtedness of the Borrower or any Subsidiary incurred to finance an acquisition or merger, consolidation or amalgamation, provided that, after giving effect to the incurrence thereof on a Pro Forma Basis, (A) if such Indebtedness is (or is intended t",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "5.00",
+   "section": "7.01",
+   "heading": "Indebtedness",
+   "gates": "Taking on more debt",
+   "context": "(k) (i) Indebtedness of the Borrower or any Subsidiary incurred to finance an acquisition or merger, consolidation or amalgamation, provided that, after giving effect to the incurrence thereof on a Pro Forma Basis, (A) if such Indebtedness is (or is intended t",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "5.00",
+   "section": "7.06",
+   "heading": "Investments and Acquisitions",
+   "gates": "Acquisitions / investments",
+   "context": "(f) Acquisitions after the Closing Date by the Borrower or any other Loan Party; provided that (i) if such Acquisition is an acquisition of Capital Stock of a Person, such Acquisition shall not be opposed by the board of directors (or similar governing body) o",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "4.25",
+   "section": "7.06",
+   "heading": "Investments and Acquisitions",
+   "gates": "Acquisitions / investments",
+   "context": "(l) other Investments (including Acquisitions) after the Closing Date; provided that after giving effect to such Investment on a Pro Forma Basis, the Total Net Leverage Ratio is less than or equal to 4.25:1.00 as of the last day of the most recently",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "2.00",
+   "section": "7.07",
+   "heading": "Restricted Payments",
+   "gates": "Paying dividends / restricted payments",
+   "context": "(g) the Borrower may make Restricted Payments after the Closing Date; provided that, (i) at the time of any such Restricted Payment and immediately after giving effect thereto, no Default or Event of Default shall have occurred and be continuing and (ii) after",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Total Net Leverage Ratio",
+   "test": "max",
+   "level": "4.25",
+   "section": "7.07",
+   "heading": "Restricted Payments",
+   "gates": "Paying dividends / restricted payments",
+   "context": "(h) the Borrower may make Restricted Payments in an aggregate amount not to exceed the Available Amount, provided that (i) at the time of any such Restricted Payment and immediately after giving effect thereto, no Default or Event of Default shall have occurre",
+   "found_by": "code scan"
+  }
+ ]
+}

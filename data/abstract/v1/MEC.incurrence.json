@@ -1,0 +1,25 @@
+{
+ "source": "amendment_3rd-amendment-relief-2026-02-conformed",
+ "tests": [
+  {
+   "ratio": "Consolidated Total Leverage Ratio",
+   "test": "max",
+   "level": "3.25",
+   "section": "8.21",
+   "heading": "Lender Meetings",
+   "gates": "Acquisitions / investments",
+   "context": "(j) at any time during the Covenant Adjustment Period, one (1) Acquisition; provided that (i) both before and after giving effect to such Acquisition no Default or Event of Default exists or results therefrom; (ii) the board of directors or other similar gover",
+   "found_by": "code scan"
+  },
+  {
+   "ratio": "Consolidated Total Leverage Ratio",
+   "test": "max",
+   "level": "2.75",
+   "section": "8.21",
+   "heading": "Lender Meetings",
+   "gates": "Other permission test",
+   "context": "(e) so long as no Default or Event of Default has occurred and is continuing or would result therefrom, (including not causing a breach of any of the covenants set forth in Section 9.15 by virtue of such payment), (i) Mayville, in addition to Mandatory Repurch",
+   "found_by": "code scan"
+  }
+ ]
+}

@@ -1,0 +1,52 @@
+"""Plain-English brief, review levels and the incurrence scan (code only)."""
+from covenant_engine import brief as B
+from covenant_engine import review_view as RV
+from covenant_engine.abstract import signoff as SO
+from covenant_engine.tools import incurrence as I
+
+
+def test_cars_sheet_two_covenants_with_cushion():
+    ab = SO.load("CARS")[0]
+    s = B.covenant_sheet(ab, B.other_tests("CARS", "data/abstract/v1"))
+    assert [c["ref"] for c in s["covenants"]] == ["7.11(a)", "7.11(b)"]
+    a = s["covenants"][0]
+    assert "must not exceed 3.50x" in a["sentence"]
+    assert a["formula"]["denominator"] == ["Consolidated EBITDA"]
+    assert "rise by 0.50x (to at most 4.00x) for 12 months" in a["regimes"][0]
+    r = a["reported"]
+    assert r["cushion"] == "3.42x" and r["passes"]                         # 3.50 - 0.08, computed by code
+    assert s["deal"]["cure"] == "No equity cure right."
+    assert any(t["ratio"] == "Total Net Leverage Ratio" and t["level"] == "4.25" for t in s["deal"]["other_tests"])
+
+
+def test_statement_fields_round_trip():
+    p = RV.payload("CARS", "x")
+    for it in p["items"]:
+        for seg in it["statement"]:
+            assert ("t" in seg) != ("f" in seg)
+            if "f" in seg:
+                assert 0 <= seg["f"] < len(it["fields"])
+        cats = [f for f in it["fields"] if f["label"] == "Category"]
+        assert all(f["value"] in f["options"] for f in cats)                 # a select never shows a different value
+
+
+def test_levels_never_confirm_a_real_disagreement():
+    for b in ("CARS", "WEST", "UCTT"):
+        for it in RV.payload(b, "x")["items"]:
+            g = it["gpt"]
+            if it["level"] == "confirm" and it["kind"] != "review/gpt":
+                assert g and g["agree"] == g["total"] > 0
+            if g and any(c["verdict"] == "disagree" for c in g["claims"]):
+                assert it["level"] == "decide"
+            if it["kind"] == "flag" and it["type"] in B.HARD_FLAGS:
+                assert it["level"] == "decide"
+
+
+def test_incurrence_scan_skips_maintenance_and_grid():
+    text = ("SECTION 7.11 Financial Covenants.\n(a) The Borrower will not permit the Total Net Leverage Ratio to exceed "
+            "4.00 to 1.00 as of the end of each quarter.\nSECTION 7.07 Restricted Payments.\n(g) the Borrower may make "
+            "Restricted Payments provided the Total Net Leverage Ratio is less than or equal to 2.50 to 1.00.\n"
+            "| Level | Total Net Leverage Ratio is less than 3.00 to 1.00 |\n")
+    rows = I.scan(text, [], {"7.11"})
+    assert [(r["section"], r["level"], r["test"], r["gates"]) for r in rows] == \
+        [("7.07", "2.50", "max", "Paying dividends / restricted payments")]
