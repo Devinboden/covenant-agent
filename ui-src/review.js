@@ -87,11 +87,15 @@ async function pageImg(p) {
 }
 // One page at a time, sized to fit the pane. ‹ › step through every page; the cited page carries the highlight.
 let citedPage = null, citedCap = "";
+const SPAN = 2;                                     // pages you can flip to either side of the cited page
+const win = () => citedPage === null ? [0, D.locs.npages - 1]
+  : [Math.max(0, citedPage - SPAN), Math.min(D.locs.npages - 1, citedPage + SPAN)];
 async function goPage(p) {
-  p = Math.max(0, Math.min(D.locs.npages - 1, p));
+  const [lo, hi] = win();
+  p = Math.max(lo, Math.min(hi, p));
   curPage = p;
   $("pgLabel").textContent = `p. ${p + 1} / ${D.locs.npages}`;
-  $("prev").disabled = p === 0; $("next").disabled = p === D.locs.npages - 1;
+  $("prev").disabled = p <= lo; $("next").disabled = p >= hi;
   $("page").style.aspectRatio = `${D.locs.pw} / ${D.locs.ph}`;
   if (!pageCache[p]) { $("pageImg").removeAttribute("src"); $("pageImg").alt = "Loading page…"; }
   let src;
@@ -104,7 +108,7 @@ async function goPage(p) {
     $("cap").innerHTML = `${esc(citedCap)} · you're on page ${p + 1} <a href="#" id="backCited">back to page ${citedPage + 1}</a>`;
     $("backCited").onclick = e => { e.preventDefault(); goPage(citedPage); };
   } else if (citedPage !== null) $("cap").textContent = `${citedCap} · page ${p + 1}`;
-  [p - 1, p + 1].filter(n => n >= 0 && n < D.locs.npages).forEach(n => pageImg(n).catch(() => {}));   // next click is instant
+  [p - 1, p + 1].filter(n => n >= lo && n <= hi).forEach(n => pageImg(n).catch(() => {}));   // next flip is instant
 }
 async function show(key, caption) {
   sel = key;
