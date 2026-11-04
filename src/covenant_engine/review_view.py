@@ -44,8 +44,50 @@ def _quotes(ab, rv):
             for k, r in enumerate(s["rows"]):
                 q[f"rrow:{g['id']}:{s['covenant_id']}:{k}"] = r["quote"]
     for it in rv["items"]:
-        q["item:" + it["key"]] = it["evidence"]
+        for n, e in enumerate(evidences(ab, it)):
+            q[f"item:{it['key']}" + (f":{n}" if n else "")] = e["quote"]
     return q
+
+
+def _component(ab, row):
+    """(term, component) the item is about: a term check names term + clause; a second-reading item names term:NAME:i."""
+    m = re.match(r"term:(.+):(\d+)$", row.get("id") or "")
+    for t in ab.get("terms", []):
+        if m and t["name"] == m.group(1) and int(m.group(2)) < len(t["components"]):
+            return t, t["components"][int(m.group(2))]
+        if row.get("term") == t["name"]:
+            c = next((c for c in t["components"] if c.get("clause") == row.get("clause")), None)
+            if c:
+                return t, c
+    return None, None
+
+
+def evidences(ab, row):
+    """Every passage the item's answer rests on, first one first: the abstract's own quote for this part; the definition
+    of any defined term it points to (e.g. a cash deduction -> the 'Unrestricted Cash' definition and its cap); and any
+    other passage the second reading cited. [{label, quote}], de-duplicated."""
+    out, seen = [], set()
+
+    def add(label, quote):
+        k = _flat(quote)[:60]
+        if quote and k and not any(k in x or x in k for x in seen):
+            seen.add(k)
+            out.append({"label": label, "quote": quote})
+    t, c = _component(ab, row)
+    if c:
+        add("This part of the agreement", c.get("quote", ""))
+        ref = c.get("ref_term")
+        if ref and ref != t["name"]:
+            rt = next((x for x in ab.get("terms", []) if x["name"] == ref), None)
+            if rt and rt.get("components"):
+                add(f"Definition of {ref}", rt["components"][0].get("quote", ""))
+        for cap in c.get("caps", []):
+            add("The limit", cap.get("quote", ""))
+        if row.get("evidence"):
+            add("Also cited", row["evidence"])
+    else:
+        add("The agreement", row.get("evidence", ""))
+    return out
 
 
 def _search(page, text):
@@ -63,7 +105,7 @@ def _flat(t):
 
 
 ABBR = re.compile(r"^(?:\(?[a-z0-9]{1,4}\)|No|Nos|Sec|Secs|U\.S|Inc|Corp|Co|Ltd|L\.P|N\.A|e\.g|i\.e|etc|vs)\.$", re.I)
-LOCATE_V = "words-4"      # bump to re-locate every quote when the matching changes
+LOCATE_V = "words-5"      # bump to re-locate every quote when the matching changes
 
 
 def _ends_sentence(w):
@@ -293,6 +335,7 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     for it, raw in zip(items, rv["items"]):
         it["check_detail"], it["what"] = it["what"], PL.item_text(raw, ab)
         it["where_label"] = PL.where_label(raw)
+        it["evidences"] = [e | {"loc": f"item:{it['key']}" + (f":{n}" if n else "")} for n, e in enumerate(evidences(ab, raw))]
         it["reading"] = PL.reading(it.get("reading"))
         for f in it["fields"]:
             if f["label"] == "Category":
@@ -338,7 +381,8 @@ def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
     smr = ab.get("second_model_review") or {}
     items = [{k: it[k] for k in ("key", "kind", "where", "what", "check_detail", "evidence", "resolution")}
              | {"why": it.get("why") or "", "stored": it.get("detail"), "model_note": it.get("reading") or "",
-                "evidence_sentence": (p["locs"]["loc"].get("item:" + it["key"]) or {}).get("sentence", it["evidence"]),
+                "evidence": [{"label": e["label"], "sentence": (p["locs"]["loc"].get(e["loc"]) or {}).get("sentence", e["quote"])}
+                             for e in it.get("evidences") or []],
                 "level": it.get("level"), "tier": it.get("tier"),
                 "abstract_says": "".join(x["t"] if "t" in x else str(it["fields"][x["f"]]["value"] or "—") for x in it.get("statement") or [] if not x.get("edit")),
                 "correctable_fields": [{"label": f["label"], "group": f["group"], "value": f["value"]} for f in it.get("fields") or []]}
