@@ -321,4 +321,20 @@ body.inline .page-scroll { height: 560px; max-height: none; }
 .inlhint { font: 600 13px var(--mono); color: #b7791f; white-space: nowrap; }
 .item.pending { border-color: #b7791f; box-shadow: 0 0 0 2px #fff3c4; }
 .dbtn.save:not(:disabled) { background: #b7791f; color: #fff; border-color: #b7791f; font-weight: 600; }
+/* card actions: one main button, small links */
+.act { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px dashed var(--line); padding-top: 10px; }
+.act .go { min-width: 110px; }
+.act .go.saving { background: #b7791f; }
+.act .links { display: flex; gap: 14px; font-size: 13px; }
+.act .links a, .small-link { color: var(--accent); text-decoration: none; font-size: 13px; }
+.act .links a:hover, .small-link:hover { text-decoration: underline; }
+textarea.note { width: 100%; min-height: 44px; resize: vertical; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-size: 13px; }
+.item.done { padding: 9px 14px; gap: 4px; cursor: pointer; }
+.item.done .item-top { gap: 6px 12px; }
+.donenote { font-size: 13px; color: var(--ink); background: var(--sunk); border-radius: 4px; padding: 3px 8px; }
+.evpiece { cursor: pointer; display: grid; gap: 3px; margin-top: 6px; }
+.evpiece:hover blockquote { outline: 1px solid var(--accent); }
+.approver { border: 2px solid var(--accent); border-radius: 8px; padding: 12px 14px; background: var(--accent-soft); }
+.alist { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 8px; font-size: 13.5px; }
+.alist small { display: block; color: var(--muted); }
 </style>

@@ -139,8 +139,9 @@ def apply(ab, item, changes, schema):
             if not re.fullmatch(r"\d+(\.\d+)?", val.replace(",", "")):
                 raise CorrectionError("a new cap is a fixed amount in dollars, e.g. 10000000")
             caps = _get(new, path[:-1])
+            parent = _get(new, path[:-2])                                # the clause the cap belongs to
             caps.append({"type": "fixed_amount", "value": val.replace(",", ""), "from": "", "to": "", "during": "",
-                         "covenant": "", "pool": "", "basis": "", "quote": ""})
+                         "covenant": "all", "pool": "", "basis": "n/a", "quote": parent.get("quote", "")})
             log.append({"group": f["group"], "label": "Cap added", "path": path, "before": "none", "after": val})
             continue
         before = f["value"]

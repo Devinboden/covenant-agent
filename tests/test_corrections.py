@@ -63,3 +63,17 @@ def test_correction_after_verify_drops_to_draft(abs_dir):
     ceiling = next(f for f in C.fields(ab, step_up) if f["label"].startswith("Ceiling"))
     SO.resolve("CARS", step_up["key"], "correct", "Reviewer 2", abs_dir=abs_dir, changes=[{"path": ceiling["path"], "value": "4.25"}])
     assert SO.load("CARS", abs_dir)[1]["status"] == "draft"             # content changed: needs verifying again
+
+
+def test_adding_a_cap_saves_and_validates():
+    """The reviewer types a dollar limit into 'Limit: none recorded' (CARS Unrestricted Cash, $125M): it is applied and
+    the abstract still validates (a blank cap 'basis' used to fail the schema, so the save was refused)."""
+    import json
+    from covenant_engine.abstract import corrections as C
+    from covenant_engine.abstract.build import ABSTRACT_SCHEMA
+    ab = json.load(open("data/abstract/v1/CARS.abstract.json"))
+    item = {"kind": "review/gpt", "id": "term:Unrestricted Cash:0", "where": "term:Unrestricted Cash:0"}
+    f = next(x for x in C.fields(ab, item) if x["path"][-1] == "+")
+    new, log = C.apply(ab, item, [{"path": f["path"], "value": "125,000,000"}], ABSTRACT_SCHEMA)
+    cap = next(t for t in new["terms"] if t["name"] == "Unrestricted Cash")["components"][0]["caps"][0]
+    assert cap["value"] == "125000000" and log[0]["after"] == "125,000,000"

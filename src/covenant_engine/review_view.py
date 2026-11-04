@@ -336,16 +336,28 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
         it["check_detail"], it["what"] = it["what"], PL.item_text(raw, ab)
         it["where_label"] = PL.where_label(raw)
         it["evidences"] = [e | {"loc": f"item:{it['key']}" + (f":{n}" if n else "")} for n, e in enumerate(evidences(ab, raw))]
-        it["reading"] = PL.reading(it.get("reading"))
+        # On a second-reading item the stored note is the second reading's, not the abstract's: don't show it as "the model's".
+        it["reading"] = "" if raw.get("kind") == "review/gpt" else PL.reading(it.get("reading"))
         for f in it["fields"]:
             if f["label"] == "Category":
                 f["labels"] = {o: BR.cat_label(o) for o in f["options"]}
         it["statement"] = BR.statement(ab, raw, it["fields"])
         it |= BR.level(raw, it["gpt"], comp.get((raw.get("term"), raw.get("clause"))))
+    locs = locate(b, ab, rv, abs_dir)
+    for it in items:                       # two quotes from the same sentence are one passage on screen
+        seen, keep = set(), []
+        for e in it["evidences"]:
+            k = re.sub(r"\W", "", ((locs["loc"].get(e["loc"]) or {}).get("sentence") or e["quote"]).lower())[:200]
+            if k not in seen:
+                seen.add(k)
+                keep.append(e)
+        it["evidences"] = keep
     its, open_, deferred, _ = SO.summary(ab, rec)
     trail = [{"date": ab["header"].get("built"), "by": "system",
               "what": f"abstract built from {ab['header'].get('source_file')}; {len(its)} items for review"}]
-    trail += [{"date": r["date"], "by": r["by"], "what": f"{r['decision']}: {r['item'][:90]}"} for r in rec["resolutions"].values()]
+    word = {"accept": "confirmed", "correct": "changed", "defer": "later", "reject": "doesn't belong"}
+    trail += [{"date": r["date"], "by": r["by"], "what": f"{word.get(r['decision'], r['decision'])}: {r['item'][:90]}"
+               + (f" — note: {r['note']}" if r.get("note") else "")} for r in rec["resolutions"].values()]
     trail += [{"date": x["date"], "by": x["by"], "what": f"changed {x['group']}: {x['label']} {x['before']} → {x['after']}"}
               for x in rec.get("corrections", [])]
     trail += [{"date": t["date"], "by": t["by"], "what": f"{t['from']} → {t['to']}" + (f" ({t['why']})" if t.get("why") else "")}
@@ -362,7 +374,7 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
                   "closing": val(loan.get("closing_date"))},
         "categories": _categories() if terms else [],
         "sheet": BR.covenant_sheet(ab, BR.other_tests(b, abs_dir)), "accuracy": BR.ACCURACY,
-        "covs": covs, "regs": regs, "items": items, "terms": terms, "trail": trail, "locs": locate(b, ab, rv, abs_dir),
+        "covs": covs, "regs": regs, "items": items, "terms": terms, "trail": trail, "locs": locs,
     }
 
 

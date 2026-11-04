@@ -186,16 +186,16 @@ function items() {
   const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
   const done = D.items.filter(i => i.resolution);
   const head = `<div class="ihead"><b>${decide.length}</b> need your decision · <b>${confirm.length}</b> quick confirm · <b>${done.length}</b> done</div>`;
-  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Quick confirm <em>${confirm.length} lower-risk item${confirm.length > 1 ? "s" : ""}: check each, or accept all</em></h2>
-      ${editable ? `<button class="primary" id="acceptAll">Accept all ${confirm.length}</button>` : ""}</div>
+  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Quick confirm <em>${confirm.length} lower-risk item${confirm.length > 1 ? "s" : ""}: check each, or confirm all</em></h2>
+      ${editable ? `<button class="primary" id="acceptAll">Confirm all ${confirm.length}</button>` : ""}</div>
       <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
         <span class="csent">${esc(plain(it))}${it.kind === "flag" ? `<span class="cnote">Note: ${esc(it.what)}</span>` : ""}</span>
-        ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Accept</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
+        ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Confirm</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
   const dec = `<section class="group"><h2>Needs your decision <em>${decide.length ? "read the sentence, check it against the highlighted page, answer the question" : "nothing left to decide"}</em></h2>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
   const dn = done.length ? `<details class="group done-group" ${openGroups.done ? "open" : ""}><summary><h2>Done <em>${done.length} decided</em></h2></summary>
       <div class="items">${done.map(it => card(it, editable)).join("")}</div></details>` : "";
-  $("view-items").innerHTML = head + dec + conf + dn;
+  $("view-items").innerHTML = (D.status === "verified" ? approverSummary() : "") + head + dec + conf + dn;
   const dg = $("view-items").querySelector(".done-group");
   if (dg) dg.ontoggle = () => { openGroups.done = dg.open; };
   wireCards(editable);
@@ -203,18 +203,29 @@ function items() {
     const it = D.items.find(i => i.key === row.dataset.key);
     row.onclick = e => { if (!e.target.closest("button")) show(row.dataset.loc, (it.where_label || "§" + it.where)); };
     const acc = row.querySelector('[data-d="accept"]');
-    if (acc) acc.onclick = () => act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "Accepted in quick confirm." });
+    if (acc) acc.onclick = () => act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "" });
     const op = row.querySelector("[data-open]");
     if (op) op.onclick = () => { it.level = "decide"; items(); const c = document.querySelector(`.item[data-key="${it.key}"]`); if (c) { c.scrollIntoView({ block: "center" }); show("item:" + it.key, (it.where_label || "§" + it.where)); } };
   });
   const all = $("acceptAll");
-  if (all) all.onclick = () => ask(`Accept all ${confirm.length} as ${D.viewer}? Each is recorded as accepted by you, one by one.`, "Accept all", async () => {
+  if (all) all.onclick = () => ask(`Confirm all ${confirm.length} as ${D.viewer}? Each is recorded as confirmed by you, one by one.`, "Confirm all", async () => {
     busy = true; setBusy(true);
     let last = null;
-    try { for (const it of confirm) last = await call("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "Accepted in quick confirm (accept all)." }); }
+    try { for (const it of confirm) last = await call("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "" }); }
     catch (e) { say(e.message); }
-    finally { busy = false; setBusy(false); if (last) { render(last); say(`Accepted ${confirm.length} items.`, true); } }
+    finally { busy = false; setBusy(false); if (last) { render(last); say(`Confirmed ${confirm.length} items.`, true); } }
   });
+}
+// For the approver (second pair of eyes): only what the reviewer changed or explained. Everything else was confirmed.
+function approverSummary() {
+  const ch = D.items.filter(i => i.resolution && (i.resolution.changes || []).length);
+  const nt = D.items.filter(i => i.resolution && i.resolution.note && !(i.resolution.changes || []).length);
+  const n = D.items.filter(i => i.resolution).length;
+  const row = i => { const r = i.resolution;
+    return `<li><span class="ref">${esc(i.where_label || whereLabel(i))}</span> ${(r.changes || []).map(c => `<b>${esc(c.label)}</b> <s>${esc(c.before)}</s> → <b>${esc(c.after)}</b>`).join("; ")}
+      ${r.note ? `<div class="donenote">Note: ${esc(r.note)}</div>` : ""}<small>${esc(r.by)} · ${esc(r.date)}</small></li>`; };
+  return `<section class="approver"><h2>For sign-off <em>${D.verified_by} reviewed ${n} item${n === 1 ? "" : "s"}: ${ch.length} changed, ${nt.length} with a note, the rest confirmed as extracted</em></h2>
+    ${ch.length || nt.length ? `<ul class="alist">${ch.map(row).join("")}${nt.map(row).join("")}</ul>` : `<p class="note">No changes or notes: every item was confirmed as extracted.</p>`}</section>`;
 }
 // The statement as plain text (fields filled in with their current values).
 function plain(it) {
@@ -244,19 +255,23 @@ const whereLabel = it => { const w = it.where || ""; const m = w.match(/^term:(.
 const note = it => it.kind === "flag" ? it.what : (it.reading || "");
 // Evidence = the full sentence (or lettered clause) from the agreement, with the quoted words marked.
 function evidence(it) {
-  const l = D.locs.loc["item:" + it.key];
-  const sent = (l && l.sentence) || it.evidence;
-  if (!sent) return "";
+  const list = it.evidences && it.evidences.length ? it.evidences : (it.evidence ? [{ label: "The agreement", quote: it.evidence, loc: "item:" + it.key }] : []);
+  if (!list.length) return "";
   const norm = t => String(t || "").replace(/\s+/g, " ").trim();
-  const S = norm(sent), Q = norm(it.evidence);
-  const at = Q ? S.toLowerCase().indexOf(Q.slice(0, 60).toLowerCase()) : -1;
-  const body = at >= 0 ? esc(S.slice(0, at)) + "<mark>" + esc(S.slice(at, at + Q.length)) + "</mark>" + esc(S.slice(at + Q.length)) : esc(S);
-  return `<div class="evid"><small>Evidence${l ? ` · page ${l.page + 1}, highlighted` : ""}</small><blockquote>${body}</blockquote>
-    ${!l && D.locs.pdf ? '<div class="nosrc">This exact text couldn\'t be found in the PDF, so nothing is highlighted.</div>' : ""}</div>`;
+  const piece = e => {
+    const l = D.locs.loc[e.loc];
+    const S = norm((l && l.sentence) || e.quote), Q = norm(e.quote);
+    const at = Q ? S.toLowerCase().indexOf(Q.slice(0, 60).toLowerCase()) : -1;
+    const body = at >= 0 ? esc(S.slice(0, at)) + "<mark>" + esc(S.slice(at, at + Q.length)) + "</mark>" + esc(S.slice(at + Q.length)) : esc(S);
+    return `<div class="evpiece" data-ev="${esc(e.loc)}"><small>${esc(e.label)}${l ? ` · page ${l.page + 1}` : ""}</small><blockquote>${body}</blockquote></div>`;
+  };
+  return `<div class="evid"><small>Evidence${list.length > 1 ? ` · ${list.length} passages, click one to see it on the page` : ""}</small>${list.map(piece).join("")}</div>`;
 }
+const STAMP = { accept: "Confirmed", correct: "Changed", defer: "Later", reject: "Doesn't belong" };
 function card(it, editable) {
   const r = it.resolution || {};
   const on = editable && (!r.decision || reopened.has(it.key));
+  if (r.decision && !on) return compact(it, r, editable);
   const hasSrc = !!D.locs.loc["item:" + it.key];
   const used = new Set((it.statement || []).filter(s => s.f != null).map(s => s.f));
   const extra = (it.fields || []).map((f, i) => [f, i]).filter(([f, i]) => !used.has(i));
@@ -275,12 +290,22 @@ function card(it, editable) {
     ${it.detail || extra.length ? `<details class="more"><summary>More context${extra.length ? " and fields" : ""}</summary>
       ${it.detail ? context(it) : ""}
       ${extra.length ? `<div class="xfields">${extra.map(([f, i]) => `<label><span>${esc(f.label)}</span>${inlineField(it, i, on)}</label>`).join("")}</div>` : ""}</details>` : ""}
-    ${on ? `<div class="q"><b>${stated ? "Is the abstract right about this?" : "Is the abstract OK as it stands?"}</b>
-      <div class="decide">${btn("accept", "Yes, it's right", "yes")}<button class="dbtn save" data-save="1" disabled>Save my changes</button>${btn("reject", "Doesn't belong")}${btn("defer", "Decide later")}</div>
-      <textarea id="note-${it.key}" placeholder="${it.fields && it.fields.length ? "Comment: how should it change, or why (goes in the sign-off record)" : "If it's wrong, say how it should read (recorded with your decision)"}">${esc(r.note || "")}</textarea>
-      ${!(it.fields && it.fields.length) ? `<button class="dbtn" data-comment="1">It's wrong: record my comment</button>` : ""}</div>`
-    : `<div class="decide">${r.by ? `<span class="stamp ${r.decision}">${{ accept: "Accepted", correct: "Changed", reject: "Doesn't belong", defer: "Deferred" }[r.decision] || esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}${r.note ? " · “" + esc(r.note) + "”" : ""}</span>` : ""}
-      ${editable && r.decision ? `<button class="ghost small" data-undo="1">Change decision</button>` : ""}</div>`}
+    ${on ? `<div class="act">
+        <button class="primary go" data-go="1">Confirm</button>
+        <span class="links"><a href="#" data-d="defer">Later</a><a href="#" data-note="1">${r.note ? "Edit note" : "Note"}</a></span></div>
+      <textarea class="note" id="note-${it.key}" ${r.note ? "" : "hidden"} placeholder="Note for the approver: why, or where a value came from">${esc(r.note || "")}</textarea>`
+    : `<div class="decide">${r.by ? `<span class="stamp ${r.decision}">${STAMP[r.decision] || esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}${r.note ? " · “" + esc(r.note) + "”" : ""}</span>` : ""}
+      ${editable && r.decision ? `<a href="#" class="small-link" data-undo="1">Change</a>` : ""}</div>`}
+    ${(r.changes || []).length ? `<ul class="changes">${r.changes.map(c => `<li><b>${esc(c.label)}</b> <s>${esc(c.before)}</s> → ${esc(c.after)} <small>${esc(c.group)}</small></li>`).join("")}</ul>` : ""}
+  </article>`;
+}
+// A decided card: one line (where, decision, who, note) plus any change before -> after, and a Change link.
+function compact(it, r, editable) {
+  return `<article class="item done" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision}" tabindex="0">
+    <div class="item-top"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
+      <span class="stamp ${r.decision}">${STAMP[r.decision] || esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}</span>
+      ${editable ? `<a href="#" class="small-link" data-undo="1">Change</a>` : ""}</div>
+    ${r.note ? `<div class="donenote">Note: ${esc(r.note)}</div>` : ""}
     ${(r.changes || []).length ? `<ul class="changes">${r.changes.map(c => `<li><b>${esc(c.label)}</b> <s>${esc(c.before)}</s> → ${esc(c.after)} <small>${esc(c.group)}</small></li>`).join("")}</ul>` : ""}
   </article>`;
 }
@@ -292,11 +317,22 @@ function wireCards(editable) {
     card.addEventListener("click", e => {
       const j = e.target.closest(".jump");
       if (j) { e.preventDefault(); const t = j.dataset.key && document.querySelector(`.item[data-key="${j.dataset.key}"]`); if (t) { t.scrollIntoView({ block: "center" }); show("item:" + j.dataset.key, ""); } return; }
+      const ev = e.target.closest(".evpiece");
+      if (ev) { show(ev.dataset.ev, it.where_label || "§" + it.where); return; }
       if (!e.target.closest("button,input,textarea,select,summary,details,a")) show(card.dataset.loc, (it.where_label || "§" + it.where));
     });
-    const save = card.querySelector("[data-save]");
+    const go = card.querySelector("[data-go]");
+    const ta = card.querySelector("textarea.note");
+    const send = () => {                                   // Confirm, or Save change when a value was edited
+      const ch = changed();
+      if (!ch.length) return act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: note() });
+      const changes = ch.map(el => ({ path: it.fields[Number(el.dataset.i)].path,
+        value: el.dataset.money ? el.value.replace(/[$,\s]/g, "") : el.value }));
+      act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Change saved to the abstract.");
+    };
+    if (go) go.onclick = send;
     card.querySelectorAll(".inl").forEach(el => el.addEventListener("keydown", e => {   // Enter saves the change
-      if (e.key === "Enter" && save && !save.disabled) { e.preventDefault(); save.click(); }
+      if (e.key === "Enter" && changed().length) { e.preventDefault(); send(); }
     }));
     card.querySelectorAll(".inl").forEach(el => el.addEventListener("input", () => {
       if (el.tagName === "INPUT" && el.type === "text") el.style.width = fitW(el.value, el.placeholder) + "ch";
@@ -304,26 +340,16 @@ function wireCards(editable) {
       if (hint && el.dataset.money) hint.textContent = moneyHint(el.value);
       const n = changed();
       card.querySelectorAll(".inl").forEach(x => x.classList.toggle("dirty", n.includes(x)));
-      if (save) { save.disabled = !n.length; save.textContent = n.length ? `Save ${n.length} change${n.length > 1 ? "s" : ""}` : "Save my changes"; }
+      if (go) { go.textContent = n.length ? `Save change${n.length > 1 ? "s" : ""}` : "Confirm"; go.classList.toggle("saving", !!n.length); }
       card.classList.toggle("pending", !!n.length);
-      const yes = card.querySelector(".yes"); if (yes) yes.disabled = !!n.length;
     }));
-    card.querySelectorAll(".dbtn[data-d]").forEach(b => b.onclick = () =>
-      act("review_decide", { borrower: D.borrower, key: it.key, decision: b.dataset.d, note: note() }));
-    if (save) save.onclick = () => {
-      const changes = changed().map(el => ({ path: it.fields[Number(el.dataset.i)].path,
-        value: el.dataset.money ? el.value.replace(/[$,\s]/g, "") : el.value }));
-      if (!changes.length) return;
-      act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Change applied to the abstract.");
-    };
-    const cm = card.querySelector("[data-comment]");
-    if (cm) cm.onclick = () => {
-      const v = note().trim();
-      if (!v) { say("Write how it should read first."); card.querySelector("textarea").focus(); return; }
-      act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: v, correction: v });
-    };
+    card.querySelectorAll("a[data-d]").forEach(a => a.onclick = e => {
+      e.preventDefault(); act("review_decide", { borrower: D.borrower, key: it.key, decision: a.dataset.d, note: note() });
+    });
+    const nl = card.querySelector("[data-note]");
+    if (nl) nl.onclick = e => { e.preventDefault(); ta.hidden = false; ta.focus(); };
     const undo = card.querySelector("[data-undo]");
-    if (undo) undo.onclick = () => { reopened.add(it.key); items(); };
+    if (undo) undo.onclick = e => { e.preventDefault(); reopened.add(it.key); items(); };
   });
 }
 // ---------- term-check context: what the analyst needs to decide ----------
