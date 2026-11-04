@@ -61,3 +61,12 @@ Open items across 9 deals: **53 Decide, 40 Both models agree** (was 93 all shown
 Each rule also requires its kind of check to be at least `CONFIRM_AT` (90%) accurate in `ACCURACY`. Rates marked
 "illustrative" are placeholders until a person grades a sample: changing a number changes what is asked, no code change.
 "Accept all" records one accepted decision per item under the reviewer's name. Nothing is auto-resolved.
+
+## Comparison fix (2026-11-03): label clashes
+One agreement clause can be stored as several parts (CARS 7.11 definition: clause (a) = secured debt, stored as
+'ratio (a)', plus 'minus Unrestricted Cash', stored as '(a)'). Asked about '(a)', GPT named the debt, and the blind
+comparison flagged "refers to Unrestricted Cash vs Indebtedness". Same reading, different label. Rule now: if GPT's
+term is the term of another part in the same clause, and Claude's own quote contains Claude's term, it is the same
+reading. Effect: GPT items 24 -> 23 (CARS clause (a) only). Planted-error probe, all 9 deals, before -> after:
+levels 43/46 -> 43/46, add-back/deduction flips 504/529 -> 504/529, wrong defined term 100/100 -> 101/101 (quote
+blanked). Known gap, unchanged: a wrong term whose quote still names GPT's term passes both before and after (5/100).

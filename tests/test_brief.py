@@ -61,3 +61,15 @@ def test_reviewer_text_has_no_pipeline_jargon():
         for it in RV.payload(b, "x")["items"]:
             for t in [it["what"], it["reading"], it["level_why"]] + [c["plain"] for c in (it["gpt"] or {}).get("claims", [])]:
                 assert not (t and bad.search(t)), (b, t)
+
+
+def test_blind_compare_label_clash_is_same_reading():
+    """Clause (a) split into 'ratio (a)' (secured debt) and '(a)' (minus cash): GPT naming the debt for '(a)' is the
+    same reading of the agreement, not a disagreement. A different term outside the clause still disagrees."""
+    from covenant_engine.abstract.gpt_blind import compare
+    sib = {"clause": "ratio (a)", "ref_term": "Indebtedness", "quote": "all Indebtedness secured by a Lien"}
+    mine = {"sign": "-", "ref_term": "Unrestricted Cash", "caps": [], "quote": "minus Unrestricted Cash"}
+    meta = {"family": "ratio", "category": "numerator_less_term", "clause": "(a)", "siblings": [sib]}
+    gpt = {"sign": "+", "ref_term": "Indebtedness", "caps": [], "evidence": "all Indebtedness secured by a Lien"}
+    assert compare("term:X:0", mine, gpt, meta)[0]
+    assert not compare("term:X:0", mine, gpt | {"ref_term": "Permitted Liens", "evidence": "Permitted Liens"}, meta)[0]

@@ -1680,14 +1680,6 @@
   },
   {
    "step": "gpt",
-   "id": "term:Senior Secured Net Leverage Ratio:0",
-   "claim": "In the definition of Senior Secured Net Leverage Ratio, clause (a) is subtracted and refers to the defined term Unrestricted Cash",
-   "gpt_reads": "refers to Unrestricted Cash vs Indebtedness",
-   "evidence": "all Indebtedness of the Borrower and its Subsidiaries on such date that is secured by a Lien on property of the Borrower and its Subsidiaries",
-   "note": "The numerator deducts Unrestricted Cash, whose definition caps it at $125,000,000."
-  },
-  {
-   "step": "gpt",
    "id": "term:Unrestricted Cash:0",
    "claim": "In the definition of Unrestricted Cash, clause base is added",
    "gpt_reads": "caps none vs [125000000.0]",
@@ -1700,8 +1692,8 @@
   "mode": "blind",
   "tally": {
    "claims": 87,
-   "agree": 85,
-   "disagree_verified": 2,
+   "agree": 86,
+   "disagree_verified": 1,
    "disagree_unsupported": 0,
    "not_found": 0,
    "missing_answer": 0
@@ -1748,9 +1740,9 @@
     "mode": "blind"
    },
    "term:Senior Secured Net Leverage Ratio:0": {
-    "verdict": "disagree",
+    "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "refers to Unrestricted Cash vs Indebtedness",
+    "value_in_text": "Secured Indebtedness minus Unrestricted Cash; numerator.; sign +; refers to Indebtedness",
     "evidence": "all Indebtedness of the Borrower and its Subsidiaries on such date that is secured by a Lien on property of the Borrower and its Subsidiaries",
     "note": "The numerator deducts Unrestricted Cash, whose definition caps it at $125,000,000.",
     "mode": "blind"
