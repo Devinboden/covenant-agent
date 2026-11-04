@@ -62,11 +62,12 @@ Each rule also requires its kind of check to be at least `CONFIRM_AT` (90%) accu
 "illustrative" are placeholders until a person grades a sample: changing a number changes what is asked, no code change.
 "Accept all" records one accepted decision per item under the reviewer's name. Nothing is auto-resolved.
 
-## Comparison fix (2026-11-03): label clashes
-One agreement clause can be stored as several parts (CARS 7.11 definition: clause (a) = secured debt, stored as
-'ratio (a)', plus 'minus Unrestricted Cash', stored as '(a)'). Asked about '(a)', GPT named the debt, and the blind
-comparison flagged "refers to Unrestricted Cash vs Indebtedness". Same reading, different label. Rule now: if GPT's
-term is the term of another part in the same clause, and Claude's own quote contains Claude's term, it is the same
-reading. Effect: GPT items 24 -> 23 (CARS clause (a) only). Planted-error probe, all 9 deals, before -> after:
-levels 43/46 -> 43/46, add-back/deduction flips 504/529 -> 504/529, wrong defined term 100/100 -> 101/101 (quote
-blanked). Known gap, unchanged: a wrong term whose quote still names GPT's term passes both before and after (5/100).
+## Question fix (2026-11-03): ambiguous clause labels
+One agreement clause can be stored as several parts (CARS Senior Secured Net Leverage Ratio: clause (a) = the secured
+debt, stored as 'ratio (a)', plus 'minus Unrestricted Cash', stored as '(a)'). The blind question for '(a)' named only
+the label, so GPT answered for the start of clause (a) (the debt) and the comparison flagged a difference that wasn't
+one. Fix at the source: a part whose label shares its exact clause letters with another part is now located by its
+opening words in the question ("the part labelled (a) (it begins: "minus Unrestricted Cash of the Borrower..."). Those
+are the agreement's own words, a location, not Claude's answer. 25 questions across 9 deals changed and were re-asked
+(not all 917). A first attempt that patched the comparison instead was removed: it hid planted wrong-term errors
+(46/58 caught vs 57/57) until tightened, and it treated the symptom.

@@ -98,7 +98,11 @@ def questions(ab):
                     f"for test dates from {fr} to {to}?", [])
         elif parts[0] == "term":
             t, p = comp[cid]
-            dup = sum(1 for x in t["components"] if x["clause"] == p["clause"]) > 1
+            # Locate the part by its opening words when its label alone is ambiguous: another part has the same label,
+            # or has exactly the same clause letters (clause (a) stored as 'ratio (a)' = the debt and '(a)' = 'minus cash').
+            letters = lambda c: set(re.findall(r"\([^)]+\)", c or ""))
+            dup = any(x is not p and (x["clause"] == p["clause"] or (letters(p["clause"]) and letters(x["clause"]) == letters(p["clause"])))
+                      for x in t["components"])
             loc = "" if STD_LABEL.match(p["clause"] or "") and not dup else f" (it begins: \"{' '.join((p['quote'] or '').split()[:8])}\")"
             q, f = (f"In the definition of \"{t['name']}\", the part labelled {p['clause'] or '(unnumbered)'}{loc}: is it added "
                     f"or subtracted, does it refer to another defined term, and what limits (caps) apply to it?", [])
@@ -189,15 +193,6 @@ def compare(cid, value, ans, meta=None):
         # A clause can name several defined terms; it's the same reading if either model's term is in the other's text.
         same_ref = (not mine_ref or mine_ref == his_ref or mine_ref in norm(ans["evidence"])
                     or (his_ref and his_ref in norm(value.get("quote"))))
-        if not same_ref and his_ref and mine_ref in norm(value.get("quote")):   # Claude's term is in its own quote
-            # Label clash, not a different reading: one clause of the agreement split into several parts (e.g. clause
-            # (a) = 'secured debt' + 'minus Unrestricted Cash', stored as 'ratio (a)' and '(a)'). GPT answering for
-            # another part of that same clause (same clause letters, or its quote) reads the agreement the same way.
-            letters = lambda c: set(re.findall(r"\([^)]+\)", c or ""))
-            mine_l = letters((meta or {}).get("clause"))
-            same_ref = any(norm(sib.get("ref_term")) == his_ref
-                           and ((letters(sib.get("clause")) & mine_l) or norm(sib.get("quote"))[:40] in norm(ans["evidence"]))
-                           for sib in (meta or {}).get("siblings", []))
         if not same_ref:
             diffs.append(f"refers to {value['ref_term']} vs {ans['ref_term'] or '—'}")
         # Only hard limits count as caps (a dollar amount or a % of EBITDA); GPT's 'other' limits are conditions.
@@ -260,9 +255,7 @@ def score(b, out_dir, abs_dir="data/abstract/v1", write=False):
     ab = json.loads(p.read_text(encoding="utf-8"))
     cl = {c["id"]: c for c in claims(ab)}
     meta = {f"term:{t['name']}:{i}": {"family": t["family"], "category": p_["category"],
-                                       "term_caps": [k for x in t["components"] for k in x.get("caps", [])],
-                                       "clause": p_.get("clause", ""),
-                                       "siblings": [x for j, x in enumerate(t["components"]) if j != i]}
+                                       "term_caps": [k for x in t["components"] for k in x.get("caps", [])]}
             for t in ab["terms"] for i, p_ in enumerate(t["components"])}
     ans = {a["id"]: a for a in json.loads((d / "answers.json").read_text(encoding="utf-8"))["answers"]}
     live = squash((d / "agreement.txt").read_text(encoding="utf-8"))

@@ -30,3 +30,4 @@ __pycache__/
 data/jobs/
 node_modules/
 data/abstract/*/*.locs.json
+data/gpt_blind_rerun/
