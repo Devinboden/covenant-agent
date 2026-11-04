@@ -21,6 +21,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip                           # reuse downloaded packages between runs
+      - name: Restore rendered agreements from earlier runs
+        uses: actions/cache@v4
+        with:
+          path: data/pdf
+          key: agreement-pdfs-${{ hashFiles('data/abstract/v1/*.abstract.json', 'data/manifest.csv', 'scripts/fetch_demo_pdfs.py') }}
+          restore-keys: agreement-pdfs-
       - run: pip install -e ".[dev,mcp,render]"
       - run: pytest -q
       - name: SEC access check (diagnostic; never fails the deploy)
@@ -34,6 +41,9 @@ jobs:
           SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
         run: |
           if [ -z "$SEC_USER_AGENT" ]; then echo "no SEC_USER_AGENT secret: deploying without page images"; mkdir -p data/pdf; exit 0; fi
+          missing=$(python -c "import sys; sys.path.insert(0, 'scripts'); import fetch_demo_pdfs as F; print(sum(1 for _, _, d in F.wanted() if not d.exists()))")
+          if [ "$missing" = "0" ]; then echo "all agreements already rendered (cached)"; exit 0; fi
+          echo "$missing agreement(s) to fetch"
           python -m playwright install --with-deps chromium
           python scripts/fetch_demo_pdfs.py || echo "::warning::EDGAR fetch failed; deploying without page images"
           mkdir -p data/pdf
