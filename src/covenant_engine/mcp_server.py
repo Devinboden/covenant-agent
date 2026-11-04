@@ -122,8 +122,11 @@ class Jobs:
         p = self._p(jid)
         if not p.exists():
             raise ToolError(f"unknown job {jid!r}")
+        # Check 'alive' BEFORE reading: a job saves its final state and only then leaves `live`, so a job that wasn't
+        # alive before the read has its final state on disk. Checking after the read raced with a job finishing.
+        alive = jid in self.live
         j = json.loads(p.read_text(encoding="utf-8"))
-        if j["state"] == "running" and jid not in self.live:
+        if j["state"] == "running" and not alive:
             j["state"] = "interrupted"
         return j
 
