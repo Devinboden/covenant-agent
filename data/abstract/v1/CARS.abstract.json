@@ -1680,6 +1680,14 @@
   },
   {
    "step": "gpt",
+   "id": "term:Senior Secured Net Leverage Ratio:0",
+   "claim": "In the definition of Senior Secured Net Leverage Ratio, clause (a) is subtracted and refers to the defined term Unrestricted Cash",
+   "gpt_reads": "caps none vs [125000000.0]",
+   "evidence": "“Unrestricted Cash” means unrestricted domestic cash and Cash Equivalents of the Borrower and its Domestic Subsidiaries in an amount not to exceed $125,000,000 in the aggregate.",
+   "note": "The cap applies through the definition of Unrestricted Cash."
+  },
+  {
+   "step": "gpt",
    "id": "term:Unrestricted Cash:0",
    "claim": "In the definition of Unrestricted Cash, clause base is added",
    "gpt_reads": "caps none vs [125000000.0]",
@@ -1692,8 +1700,8 @@
   "mode": "blind",
   "tally": {
    "claims": 87,
-   "agree": 86,
-   "disagree_verified": 1,
+   "agree": 85,
+   "disagree_verified": 2,
    "disagree_unsupported": 0,
    "not_found": 0,
    "missing_answer": 0
@@ -1740,11 +1748,11 @@
     "mode": "blind"
    },
    "term:Senior Secured Net Leverage Ratio:0": {
-    "verdict": "agree",
+    "verdict": "disagree",
     "evidence_verbatim": true,
-    "value_in_text": "Secured Indebtedness minus Unrestricted Cash; numerator.; sign +; refers to Indebtedness",
-    "evidence": "all Indebtedness of the Borrower and its Subsidiaries on such date that is secured by a Lien on property of the Borrower and its Subsidiaries",
-    "note": "The numerator deducts Unrestricted Cash, whose definition caps it at $125,000,000.",
+    "value_in_text": "caps none vs [125000000.0]",
+    "evidence": "“Unrestricted Cash” means unrestricted domestic cash and Cash Equivalents of the Borrower and its Domestic Subsidiaries in an amount not to exceed $125,000,000 in the aggregate.",
+    "note": "The cap applies through the definition of Unrestricted Cash.",
     "mode": "blind"
    },
    "term:Senior Secured Net Leverage Ratio:1": {
@@ -1870,7 +1878,7 @@
    "term:Consolidated EBITDA:9": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Litigation and dispute settlement charges, expenses and gains.; sign +; caps fixed_amount 2000000, other Aggregate cap for any trailing twelve-month period.",
+    "value_in_text": "litigation and dispute settlement charges, expenses and gains; sign +; caps fixed_amount 2000000, other Aggregate cap for any trailing twelve-month period",
     "evidence": "(i) litigation and dispute settlement charges, expenses and gains, subject to an aggregate cap of $2,000,000 for any trailing twelve-month period",
     "note": "",
     "mode": "blind"
@@ -2030,7 +2038,7 @@
    "term:Consolidated EBITDA:29": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Extraordinary gains.; sign -",
+    "value_in_text": "extraordinary gains for the applicable reporting period; sign -",
     "evidence": "(i) any extraordinary gains for the applicable reporting period, determined on a consolidated basis in accordance with GAAP",
     "note": "",
     "mode": "blind"
@@ -2070,8 +2078,8 @@
    "term:Consolidated EBITDA:34": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Cash income from discontinued operations.; sign -",
-    "evidence": "(vi) any cash income received from discontinued operations, and (vii) to the extent included in the statement",
+    "value_in_text": "cash income received from discontinued operations; sign -",
+    "evidence": "(vi) any cash income received from discontinued operations, and (vii) to the extent included in the statement of such Consolidated Net Income",
     "note": "",
     "mode": "blind"
    },
@@ -2110,9 +2118,9 @@
    "term:Indebtedness:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Deferred purchase price of property or services.; sign +",
-    "evidence": "all obligations of such Person in respect of the deferred purchase price of property or services",
-    "note": "Excludes specified ordinary course accounts payable.",
+    "value_in_text": "obligations in respect of the deferred purchase price of property or services; sign +; refers to Person; caps other Excludes current accounts payable or accounts payable no later than 90 days past due",
+    "evidence": "(e) all obligations of such Person in respect of the deferred purchase price of property or services (excluding current accounts payable or accounts payable no later than 90 days past due",
+    "note": "",
     "mode": "blind"
    },
    "term:Indebtedness:5": {

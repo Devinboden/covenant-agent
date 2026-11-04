@@ -2326,9 +2326,9 @@
    "term:Consolidated EBITDA:24": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Optimization expenses and Expected Cost Savings; sign +; refers to Expected Cost Savings; caps pct_of_ebitda 0.25, relative Cap applies to Expected Cost Savings after all addbacks and pro forma adjust",
-    "evidence": "the aggregate amount of all Expected Cost Savings set forth in this clause (B) included in Consolidated EBITDA for any period shall not exceed 25%",
-    "note": "",
+    "value_in_text": "Business optimization expenses and Expected Cost Savings; sign +; refers to Expected Cost Savings; caps pct_of_ebitda 0.25, other Expected Cost Savings actions must be taken within 24 months of the ap",
+    "evidence": "the aggregate amount of all Expected Cost Savings set forth in this clause (B) included in Consolidated EBITDA for any period shall not exceed 25% of Consolidated EBITDA",
+    "note": "The 25% cap applies to clause (B), after all permitted add-backs and pro forma adjustments; supporting certification is required if requested.",
     "mode": "blind"
    },
    "term:Consolidated EBITDA:25": {
@@ -2758,9 +2758,9 @@
    "term:Indebtedness:8": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Obligations secured by the Person’s property; sign +; refers to Lien; caps relative Lesser of amount of Indebtedness and fair market value of property",
-    "evidence": "but only to the extent of the lesser of (i) the amount of such Indebtedness and (ii) the fair market value of such property",
-    "note": "Includes obligations not assumed by that Person.",
+    "value_in_text": "Obligations secured by a Lien on owned property; sign +; refers to Lien; caps relative Lesser of the amount of such Indebtedness and the fair market value of such property.",
+    "evidence": "whether or not such Person has assumed or become liable for the payment of such obligation (but only to the extent of the lesser of (i) the amount of such Indebtedness and (ii) the fair market value of such property)",
+    "note": "",
     "mode": "blind"
    },
    "term:Indebtedness:9": {
@@ -2814,9 +2814,9 @@
    "term:Indebtedness:15": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Debt amount limb of lesser-of limitation; refers to Indebtedness; caps relative Lesser of debt amount and property fair market value",
+    "value_in_text": "The amount of such Indebtedness; sign +; refers to Indebtedness; caps relative Lesser of the amount of such Indebtedness and the fair market value of such property.",
     "evidence": "but only to the extent of the lesser of (i) the amount of such Indebtedness and (ii) the fair market value of such property",
-    "note": "",
+    "note": "This is the first limb of the lesser-of limitation on secured obligations.",
     "mode": "blind"
    },
    "term:Indebtedness:16": {
@@ -2831,7 +2831,7 @@
     "verdict": "agree",
     "evidence_verbatim": true,
     "value_in_text": "Permitted Bond Hedge Transactions excluded; sign -; refers to Permitted Bond Hedge Transaction",
-    "evidence": "no Permitted Bond Hedge Transaction shall constitute Indebtedness of any Group Member and (ii) no obligations of any Group Member",
+    "evidence": "Notwithstanding the foregoing or anything herein to the contrary, (i) no Permitted Bond Hedge Transaction shall constitute Indebtedness of any Group Member",
     "note": "",
     "mode": "blind"
    },

@@ -3233,14 +3233,6 @@
   },
   {
    "step": "gpt",
-   "id": "term:Unrestricted Cash Amount:6",
-   "claim": "In the definition of Unrestricted Cash Amount, clause (ii) is subtracted; capped: pct_of_ebitda 1 to 24 months after Closing Date",
-   "gpt_reads": "caps [1.0] vs none",
-   "evidence": "or Select Milk JV Investments contemplated in good faith within twenty (20) Business Days of such Anti-Cash Hoarding Test Date.",
-   "note": "Item (ii) of the second proviso."
-  },
-  {
-   "step": "gpt",
    "id": "term:Unrestricted Cash Amount:7",
    "claim": "In the definition of Unrestricted Cash Amount, clause proviso 1 is subtracted; capped: greater_of excess_over:20000000|1.00 to 24 months after Closing Date; capped: pct_of_ebitda 1.00 from 24 months a",
    "gpt_reads": "caps [1.0, 20000000.0] vs [1.0]",
@@ -3253,8 +3245,8 @@
   "mode": "blind",
   "tally": {
    "claims": 168,
-   "agree": 161,
-   "disagree_verified": 4,
+   "agree": 162,
+   "disagree_verified": 3,
    "disagree_unsupported": 0,
    "not_found": 3,
    "missing_answer": 0
@@ -3685,11 +3677,11 @@
     "mode": "blind"
    },
    "term:Unrestricted Cash Amount:6": {
-    "verdict": "disagree",
+    "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "caps [1.0] vs none",
-    "evidence": "or Select Milk JV Investments contemplated in good faith within twenty (20) Business Days of such Anti-Cash Hoarding Test Date.",
-    "note": "Item (ii) of the second proviso.",
+    "value_in_text": "100% of Adjusted Consolidated EBITDA for the most recently ended Test Period; sign +; refers to Adjusted Consolidated EBITDA; caps pct_of_ebitda 1.00",
+    "evidence": "(ii) 100% of Adjusted Consolidated EBITDA for the most recently ended Test Period as of such time",
+    "note": "This is an alternative limb of the cash cap during the first 24 months following the Closing Date.",
     "mode": "blind"
    },
    "term:Unrestricted Cash Amount:7": {
@@ -3703,9 +3695,9 @@
    "term:Unrestricted Cash Amount:8": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "excludes general proceeds uses contemplated within five Business Days; sign -; caps other good-faith contemplated use within 5 Business Days of the Anti-Cash Hoarding Test Date",
-    "evidence": "shall not include (i) any general use of proceeds contemplated in good faith to be used within five (5) Business Days",
-    "note": "Item (i) of the second proviso.",
+    "value_in_text": "General use of proceeds contemplated in good faith within five Business Days; sign -; caps other Contemplated in good faith to be used within five (5) Business Days of the Anti-Cash Hoarding Test Date",
+    "evidence": "(i) any general use of proceeds contemplated in good faith to be used within five (5) Business Days of such Anti-Cash Hoarding Test Date",
+    "note": "Applies solely to calculations on Anti-Cash Hoarding Test Dates pursuant to Section 6.09(d).",
     "mode": "blind"
    },
    "term:Adjusted Consolidated EBITDA:0": {
@@ -4039,9 +4031,9 @@
    "term:Consolidated Interest Expense:9": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "parent pushdown interest expense; sign -",
-    "evidence": "any interest expense attributable to a direct or indirect parent entity resulting from push down accounting",
-    "note": "Item (x) in the exclusion list.",
+    "value_in_text": "Interest expense attributable to a direct or indirect parent entity resulting from push down accounting; sign -",
+    "evidence": "(x) any interest expense attributable to a direct or indirect parent entity resulting from push down accounting",
+    "note": "",
     "mode": "blind"
    },
    "term:Consolidated Interest Expense:10": {
@@ -4119,8 +4111,8 @@
    "term:Consolidated Interest Expense:19": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "parent pushdown interest; sign -",
-    "evidence": "any interest expense attributable to a direct or indirect parent entity resulting from push down accounting",
+    "value_in_text": "Interest expense attributable to a direct or indirect parent entity resulting from push down accounting; sign -",
+    "evidence": "(x) any interest expense attributable to a direct or indirect parent entity resulting from push down accounting",
     "note": "",
     "mode": "blind"
    },
@@ -4343,8 +4335,8 @@
    "term:Indebtedness:9": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "bankers' acceptance principal obligations; sign +",
-    "evidence": "the principal component of all obligations of such person in respect of bankers’ acceptances",
+    "value_in_text": "Principal component of obligations in respect of bankers’ acceptances; sign +",
+    "evidence": "(i) the principal component of all obligations of such person in respect of bankers’ acceptances,",
     "note": "",
     "mode": "blind"
    },
@@ -4447,9 +4439,9 @@
    "term:Indebtedness:22": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "ASC 825 embedded derivative effects; sign -; refers to Indebtedness",
-    "evidence": "as a result of accounting for any embedded derivatives created by the terms of such Indebtedness",
-    "note": "Excludes effects whether they otherwise increase or decrease debt.",
+    "value_in_text": "Effects of ASC 825 and related interpretations on embedded derivatives; sign -; refers to Indebtedness",
+    "evidence": "the effects of Financial Accounting Standards Board Accounting Standards Codification 825 and related interpretations to the extent such effects would otherwise increase or decrease an amount of Indebtedness",
+    "note": "Excludes effects from accounting for embedded derivatives created by the terms of the Indebtedness.",
     "mode": "blind"
    },
    "term:Indebtedness:23": {
@@ -4471,8 +4463,8 @@
    "term:Indebtedness:25": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "supplier receivables sale program obligations; sign -; refers to Permitted Supplier Receivables Sale Program",
-    "evidence": "obligations of the Borrower or any Subsidiary pursuant to or arising out of any Permitted Supplier Receivables Sale Program",
+    "value_in_text": "Obligations arising from a Permitted Supplier Receivables Sale Program; sign -; refers to Permitted Supplier Receivables Sale Program",
+    "evidence": "(i) obligations of the Borrower or any Subsidiary pursuant to or arising out of any Permitted Supplier Receivables Sale Program,",
     "note": "",
     "mode": "blind"
    },

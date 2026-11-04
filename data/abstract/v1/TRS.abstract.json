@@ -1871,6 +1871,14 @@
    "term": "Indebtedness",
    "clause": "(g)(exclusion)",
    "why": "quote is not from the text of clause (g); copy the opening words of THAT clause, or label the part by where its text is (e.g. 'base' / 'lead-in' for text before the first clause); ref_term 'Non-Financing Lease Obligations' is not named in clause (g); reference only a term the clause itself names (put related terms in note)"
+  },
+  {
+   "step": "gpt",
+   "id": "term:Indebtedness:9",
+   "claim": "In the definition of Indebtedness, clause (k) is added; capped: other excess_over:25000000",
+   "gpt_reads": "caps none vs [25000000.0]",
+   "evidence": "obligations in respect of Swaps and Hedging Agreements in excess of $25,000,000 in the aggregate",
+   "note": "The amount is an inclusion threshold; obligations are measured by maximum aggregate termination payments, giving effect to netting agreements."
   }
  ],
  "second_model_review": {
@@ -1878,8 +1886,8 @@
   "mode": "blind",
   "tally": {
    "claims": 98,
-   "agree": 98,
-   "disagree_verified": 0,
+   "agree": 97,
+   "disagree_verified": 1,
    "disagree_unsupported": 0,
    "not_found": 0,
    "missing_answer": 0
@@ -2408,56 +2416,56 @@
    "term:Indebtedness:0": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Borrowed money and advances; sign +",
-    "evidence": "all obligations of such Person for borrowed money or with respect to advances of any kind,",
+    "value_in_text": "Obligations for borrowed money or advances of any kind; sign +",
+    "evidence": "all obligations of such Person for borrowed money or with respect to advances of any kind",
     "note": "",
     "mode": "blind"
    },
    "term:Indebtedness:1": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Bonds, debentures, notes and similar instruments; sign +",
-    "evidence": "all obligations of such Person evidenced by bonds, debentures, notes or similar instruments,",
+    "value_in_text": "Obligations evidenced by bonds, debentures, notes or similar instruments; sign +",
+    "evidence": "all obligations of such Person evidenced by bonds, debentures, notes or similar instruments",
     "note": "",
     "mode": "blind"
    },
    "term:Indebtedness:2": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Obligations customarily bearing interest; sign +",
-    "evidence": "all obligations of such Person upon which interest charges are customarily paid,",
+    "value_in_text": "Obligations upon which interest charges are customarily paid; sign +",
+    "evidence": "all obligations of such Person upon which interest charges are customarily paid",
     "note": "",
     "mode": "blind"
    },
    "term:Indebtedness:3": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Conditional sale or title retention obligations; sign +",
-    "evidence": "all obligations of such Person under conditional sale or other title retention agreements relating to property acquired by such Person,",
+    "value_in_text": "Obligations under conditional sale or other title retention agreements; sign +",
+    "evidence": "all obligations of such Person under conditional sale or other title retention agreements relating to property acquired by such Person",
     "note": "",
     "mode": "blind"
    },
    "term:Indebtedness:4": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Deferred purchase price obligations; sign +",
-    "evidence": "all obligations of such Person in respect of the deferred purchase price of property or services (excluding current accounts payable incurred in the ordinary course of business),",
+    "value_in_text": "Deferred purchase price obligations for property or services; sign +; caps other Excludes current accounts payable incurred in the ordinary course of business",
+    "evidence": "all obligations of such Person in respect of the deferred purchase price of property or services (excluding current accounts payable incurred in the ordinary course of business)",
     "note": "",
     "mode": "blind"
    },
    "term:Indebtedness:5": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Others’ debt secured by liens on the Person’s property; sign +; refers to Indebtedness",
-    "evidence": "any Lien on property owned or acquired by such Person, whether or not the Indebtedness secured thereby has been assumed,",
-    "note": "",
+    "value_in_text": "Indebtedness of others secured by property owned or acquired by such Person; sign +; refers to Indebtedness",
+    "evidence": "any Lien on property owned or acquired by such Person, whether or not the Indebtedness secured thereby has been assumed",
+    "note": "Includes an existing contingent or other right to be secured.",
     "mode": "blind"
    },
    "term:Indebtedness:6": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Financing Lease Obligations; sign +; refers to Financing Lease Obligations",
-    "evidence": "(h) all Financing Lease Obligations of such Person, (i) all obligations, contingent or otherwise, of such Person as an account party",
+    "value_in_text": "All Financing Lease Obligations; sign +; refers to Financing Lease Obligations",
+    "evidence": "(h) all Financing Lease Obligations of such Person, (i) all obligations, contingent or otherwise, of such Person",
     "note": "",
     "mode": "blind"
    },
@@ -2478,11 +2486,11 @@
     "mode": "blind"
    },
    "term:Indebtedness:9": {
-    "verdict": "agree",
+    "verdict": "disagree",
     "evidence_verbatim": true,
-    "value_in_text": "Swaps and Hedging Agreements obligations exceeding $25,000,000; sign +; refers to Swaps; caps other Aggregate threshold of 25000000; termination exposure valuation giving effect to netting agreements",
+    "value_in_text": "caps none vs [25000000.0]",
     "evidence": "obligations in respect of Swaps and Hedging Agreements in excess of $25,000,000 in the aggregate",
-    "note": "Also refers to Hedging Agreements; threshold is not a maximum cap.",
+    "note": "The amount is an inclusion threshold; obligations are measured by maximum aggregate termination payments, giving effect to netting agreements.",
     "mode": "blind"
    },
    "term:Indebtedness:10": {

@@ -2140,9 +2140,9 @@
    "term:Consolidated EBITDA:8": {
     "verdict": "agree",
     "evidence_verbatim": true,
-    "value_in_text": "Expected Cost Savings; sign +; refers to Expected Cost Savings; caps pct_of_ebitda 0.25, relative Net of actual amounts realized during the period, other Actions taken, substantially initiated or expe",
-    "evidence": "the aggregate amount added to Consolidated EBITDA pursuant to this clause (vii) shall not, for any Test Period, exceed an amount equal to 25% of Consolidated EBITDA",
-    "note": "Savings must be reasonably identifiable and factually supportable; cap uses EBITDA after all addbacks.",
+    "value_in_text": "Pro forma run rate cost savings, operating expense reductions, operational improvements and cost synergies; sign +; refers to Expected Cost Savings; caps pct_of_ebitda 0.25, other Actions taken, subst",
+    "evidence": "the aggregate amount added to Consolidated EBITDA pursuant to this clause (vii) shall not, for any Test Period, exceed an amount equal to 25% of Consolidated EBITDA for such Test Period",
+    "note": "The cap uses EBITDA after all addbacks; savings must be reasonably identifiable and factually supportable, and exclude revenue enhancements and revenue synergies.",
     "mode": "blind"
    },
    "term:Consolidated EBITDA:9": {
