@@ -313,4 +313,12 @@ tr.ctx td { border-top: 0; padding-top: 0; font-size: 12px; color: var(--muted);
 body.inline .page-scroll { height: 560px; max-height: none; }
 .nav:disabled { opacity: .4; cursor: default; }
 .src-cap a { color: var(--accent); margin-left: 6px; }
+/* inline edit boxes: grow as you type, obvious when changed, pending card */
+.inlwrap { display: inline-flex; align-items: baseline; gap: 6px; }
+.inl { min-width: 6ch; transition: width .08s; }
+.inl:focus { outline: 2px solid var(--accent); outline-offset: 1px; background: var(--surface); }
+.inl.dirty { background: #fff3c4; border-color: #b7791f; border-width: 2px; font-weight: 600; color: #1a1a1a; }
+.inlhint { font: 600 13px var(--mono); color: #b7791f; white-space: nowrap; }
+.item.pending { border-color: #b7791f; box-shadow: 0 0 0 2px #fff3c4; }
+.dbtn.save:not(:disabled) { background: #b7791f; color: #fff; border-color: #b7791f; font-weight: 600; }
 </style>

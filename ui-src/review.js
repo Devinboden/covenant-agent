@@ -224,13 +224,18 @@ function plain(it) {
 const usd = n => n >= 1000 ? "$" + (n / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M" : String(n);
 const capText = v => String(v).split("|").map(p => { const m = p.match(/^excess_over:([\d.]+)$/); return m ? `the amount above ${usd(+m[1])}` : /^[\d.]+$/.test(p) ? usd(+p) : p.replace(/_/g, " "); }).join(" or ");
 const fv = f => f.value === "none" && f.type === "enum" ? "" : (f.labels || {})[f.value] || (f.value && /^Cap /.test(f.label) ? capText(f.value) : f.value) || "not stated";
+// Inline boxes grow with what is typed; dollar boxes show the amount they will save ("= $125.0M").
+const fitW = (v, ph) => Math.max(String(ph || "").length, String(v || "").length) + 2;
+const moneyHint = v => { const n = Number(String(v).replace(/[$,\s]/g, "")); return v && !isNaN(n) && n > 0 ? "= " + usd(n) : v ? "numbers only" : ""; };
 function inlineField(it, i, on) {
   const f = it.fields[i];
   // A compound limit (e.g. "the amount above $20M") reads as text; change it through the comment box.
   if (!on || (/^Cap /.test(f.label) && f.value && !/^[\d.,]+$/.test(f.value))) return `<b class="fval">${esc(fv(f))}</b>`;
   if (f.type === "enum") return `<select class="inl" data-i="${i}" title="${esc(f.label)}">${f.options.map(o => `<option value="${esc(o)}" ${o === f.value ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`;
-  const w = Math.max(4, Math.min(14, String(f.value || "").length + 2));
-  return `<input class="inl" data-i="${i}" value="${esc(f.value)}" placeholder="${f.value ? "" : "none"}" style="width:${w + 1}ch" title="${esc(f.label)}" type="${f.type === "date" ? "date" : "text"}">`;
+  const money = /^(Cap |Add a cap)/.test(f.label);
+  return `<span class="inlwrap"><input class="inl" data-i="${i}" value="${esc(f.value)}" placeholder="${f.value ? "" : money ? "enter amount" : "none"}"
+    style="width:${fitW(f.value, money ? "enter amount" : "none")}ch" title="${esc(f.label)}" type="${f.type === "date" ? "date" : "text"}"
+    ${money ? 'inputmode="numeric" data-money="1"' : ""}><span class="inlhint" aria-live="polite"></span></span>`;
 }
 const whereLabel = it => { const w = it.where || ""; const m = w.match(/^term:(.+):\d+$/);
   return m ? m[1] : w.startsWith("cov:") || w.startsWith("reg:") ? w.split(":")[1].replace(/_/g, " ") : /^\d/.test(w) ? "§" + w : w || "—"; };
@@ -290,16 +295,24 @@ function wireCards(editable) {
       if (!e.target.closest("button,input,textarea,select,summary,details,a")) show(card.dataset.loc, (it.where_label || "§" + it.where));
     });
     const save = card.querySelector("[data-save]");
+    card.querySelectorAll(".inl").forEach(el => el.addEventListener("keydown", e => {   // Enter saves the change
+      if (e.key === "Enter" && save && !save.disabled) { e.preventDefault(); save.click(); }
+    }));
     card.querySelectorAll(".inl").forEach(el => el.addEventListener("input", () => {
+      if (el.tagName === "INPUT" && el.type === "text") el.style.width = fitW(el.value, el.placeholder) + "ch";
+      const hint = el.parentElement && el.parentElement.querySelector(".inlhint");
+      if (hint && el.dataset.money) hint.textContent = moneyHint(el.value);
       const n = changed();
       card.querySelectorAll(".inl").forEach(x => x.classList.toggle("dirty", n.includes(x)));
       if (save) { save.disabled = !n.length; save.textContent = n.length ? `Save ${n.length} change${n.length > 1 ? "s" : ""}` : "Save my changes"; }
+      card.classList.toggle("pending", !!n.length);
       const yes = card.querySelector(".yes"); if (yes) yes.disabled = !!n.length;
     }));
     card.querySelectorAll(".dbtn[data-d]").forEach(b => b.onclick = () =>
       act("review_decide", { borrower: D.borrower, key: it.key, decision: b.dataset.d, note: note() }));
     if (save) save.onclick = () => {
-      const changes = changed().map(el => ({ path: it.fields[Number(el.dataset.i)].path, value: el.value }));
+      const changes = changed().map(el => ({ path: it.fields[Number(el.dataset.i)].path,
+        value: el.dataset.money ? el.value.replace(/[$,\s]/g, "") : el.value }));
       if (!changes.length) return;
       act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Change applied to the abstract.");
     };
