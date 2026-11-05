@@ -127,17 +127,24 @@ async function show(key, caption) {
 function drawHL(l) {
   document.querySelectorAll(".hl").forEach(e => e.remove());
   if (!l || l.page !== curPage) return;
+  // Place boxes on the picture as drawn, not on its box: the image is fitted with object-fit: contain, so in a narrow
+  // or short pane it sits centered inside a larger box, and box-relative percentages slid the highlight off its text.
+  const img = $("pageImg"), cw = img.clientWidth, ch = img.clientHeight;
+  if (!cw || !ch) { if (!img.complete) img.addEventListener("load", () => drawHL(l), { once: true }); return; }
+  const s = Math.min(cw / D.locs.pw, ch / D.locs.ph);
+  const ox = img.offsetLeft + (cw - D.locs.pw * s) / 2, oy = img.offsetTop + (ch - D.locs.ph * s) / 2;
   let first = null;
   for (const [x0, y0, x1, y1] of l.rects) {
     const d = document.createElement("div");
     d.className = "hl";
-    Object.assign(d.style, { left: x0 / D.locs.pw * 100 + "%", top: y0 / D.locs.ph * 100 + "%", width: (x1 - x0) / D.locs.pw * 100 + "%", height: (y1 - y0) / D.locs.ph * 100 + "%" });
+    Object.assign(d.style, { left: ox + x0 * s + "px", top: oy + y0 * s + "px", width: (x1 - x0) * s + "px", height: (y1 - y0) * s + "px" });
     $("page").appendChild(d);
     first = first || d;
   }
   const scroll = () => { const sc = $("scroller"); sc.scrollTo({ top: Math.max(0, $("page").offsetTop + first.offsetTop - sc.clientHeight / 3) }); };
   if (first) $("pageImg").complete ? requestAnimationFrame(scroll) : $("pageImg").addEventListener("load", scroll, { once: true });
 }
+new ResizeObserver(() => { if (D && D.locs && curPage !== null) drawHL(D.locs.loc[sel]); }).observe($("pageImg"));
 const step = dir => { if (curPage !== null) goPage(curPage + dir); };
 $("prev").onclick = () => step(-1);
 document.addEventListener("keydown", e => {        // ← → flip pages, unless the person is typing
