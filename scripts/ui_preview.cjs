@@ -18,8 +18,8 @@ const { chromium } = require('playwright');
   if (ti > 0) {                                   // type a value into the first inline box of the card containing <card text>
     const card = f.locator('.item', { hasText: process.argv[ti + 1] }).first();
     await card.scrollIntoViewIfNeeded();
-    await card.locator('input.inl').first().click();
-    await card.locator('input.inl').first().pressSequentially(process.argv[ti + 2], { delay: 20 });
+    await card.locator('[data-edit]').last().click();            // values read as text until clicked
+    await card.locator('input.inl').last().pressSequentially(process.argv[ti + 2], { delay: 20 });
   }
   await pg.waitForTimeout(1500);
   await pg.screenshot({ path: out });

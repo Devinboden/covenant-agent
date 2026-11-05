@@ -189,7 +189,7 @@ function items() {
   const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Quick confirm <em>${confirm.length} lower-risk item${confirm.length > 1 ? "s" : ""}: check each, or confirm all</em></h2>
       ${editable ? `<button class="primary" id="acceptAll">Confirm all ${confirm.length}</button>` : ""}</div>
       <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
-        <span class="csent">${esc(plain(it))}${it.kind === "flag" ? `<span class="cnote">Note: ${esc(it.what)}</span>` : ""}</span>
+        <span class="csent">${esc(plain(it))}${it.explain ? `<span class="cexp">${esc(it.explain)}</span>` : ""}</span>
         ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Confirm</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
   const dec = `<section class="group"><h2>Needs your decision <em>${decide.length ? "read the sentence, check it against the highlighted page, answer the question" : "nothing left to decide"}</em></h2>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
@@ -234,7 +234,8 @@ function plain(it) {
 }
 const usd = n => n >= 1000 ? "$" + (n / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M" : String(n);
 const capText = v => String(v).split("|").map(p => { const m = p.match(/^excess_over:([\d.]+)$/); return m ? `the amount above ${usd(+m[1])}` : /^[\d.]+$/.test(p) ? usd(+p) : p.replace(/_/g, " "); }).join(" or ");
-const fv = f => f.value === "none" && f.type === "enum" ? "" : (f.labels || {})[f.value] || (f.value && /^Cap /.test(f.label) ? capText(f.value) : f.value) || "not stated";
+const fv = f => f.value === "none" && f.type === "enum" ? "" : (f.labels || {})[f.value] || (f.value && /^Cap /.test(f.label) ? capText(f.value) : f.value)
+  || (/^(Cap |Add a cap)/.test(f.label) ? "none" : "not stated");
 // Inline boxes grow with what is typed; dollar boxes show the amount they will save ("= $125.0M").
 const fitW = (v, ph) => Math.max(String(ph || "").length, String(v || "").length) + 2;
 const moneyHint = v => { const n = Number(String(v).replace(/[$,\s]/g, "")); return v && !isNaN(n) && n > 0 ? "= " + usd(n) : v ? "numbers only" : ""; };
@@ -242,6 +243,11 @@ function inlineField(it, i, on) {
   const f = it.fields[i];
   // A compound limit (e.g. "the amount above $20M") reads as text; change it through the comment box.
   if (!on || (/^Cap /.test(f.label) && f.value && !/^[\d.,]+$/.test(f.value))) return `<b class="fval">${esc(fv(f))}</b>`;
+  return `<button type="button" class="val" data-edit="${i}" title="Click to change: ${esc(f.label)}">${esc(fv(f) || (/^(Cap |Add a cap)/.test(f.label) ? "none" : "not stated"))}</button>`;
+}
+// The editable control for field i, shown only after the value is clicked (reads as plain text until then).
+function editControl(it, i) {
+  const f = it.fields[i];
   if (f.type === "enum") return `<select class="inl" data-i="${i}" title="${esc(f.label)}">${f.options.map(o => `<option value="${esc(o)}" ${o === f.value ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`;
   const money = /^(Cap |Add a cap)/.test(f.label);
   return `<span class="inlwrap"><input class="inl" data-i="${i}" value="${esc(f.value)}" placeholder="${f.value ? "" : money ? "enter amount" : "none"}"
@@ -283,8 +289,9 @@ function card(it, editable) {
   const btn = (k, t, cls = "") => `<button class="dbtn ${cls}" data-d="${k}" aria-pressed="${r.decision === k}" ${on ? "" : "disabled"}>${t}</button>`;
   return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
     <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(it.where_label || whereLabel(it))}</span><span class="origin">Flagged for review</span></div>
-    ${stated ? `<div class="says"><small>The abstract says${on ? " · edit any value in place" : ""}</small><p>${sentence}</p></div>`
-      : `<div class="says"><small>What needs a decision</small><p class="plainq">${esc(it.what)}</p></div>`}
+    ${it.explain ? `<p class="explain">${esc(it.explain)}</p>` : ""}
+    ${stated ? `<div class="says"><small>The abstract says${on ? " · click a value to change it" : ""}</small><p>${sentence}</p></div>`
+      : it.explain ? "" : `<div class="says"><small>What needs a decision</small><p class="plainq">${esc(it.what)}</p></div>`}
     ${evidence(it)}
     ${note(it) ? `<div class="asked"><small>Model's note</small><p>${esc(note(it))}</p></div>` : ""}
     ${it.detail || extra.length ? `<details class="more"><summary>More context${extra.length ? " and fields" : ""}</summary>
@@ -331,18 +338,32 @@ function wireCards(editable) {
       act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Change saved to the abstract.");
     };
     if (go) go.onclick = send;
-    card.querySelectorAll(".inl").forEach(el => el.addEventListener("keydown", e => {   // Enter saves the change
-      if (e.key === "Enter" && changed().length) { e.preventDefault(); send(); }
-    }));
-    card.querySelectorAll(".inl").forEach(el => el.addEventListener("input", () => {
-      if (el.tagName === "INPUT" && el.type === "text") el.style.width = fitW(el.value, el.placeholder) + "ch";
-      const hint = el.parentElement && el.parentElement.querySelector(".inlhint");
-      if (hint && el.dataset.money) hint.textContent = moneyHint(el.value);
-      const n = changed();
-      card.querySelectorAll(".inl").forEach(x => x.classList.toggle("dirty", n.includes(x)));
-      if (go) { go.textContent = n.length ? `Save change${n.length > 1 ? "s" : ""}` : "Confirm"; go.classList.toggle("saving", !!n.length); }
-      card.classList.toggle("pending", !!n.length);
-    }));
+    const wire = el => {
+      el.addEventListener("keydown", e => {                       // Enter saves, Escape puts the text back
+        if (e.key === "Enter" && changed().length) { e.preventDefault(); send(); }
+      });
+      el.addEventListener("input", () => {
+        if (el.tagName === "INPUT" && el.type === "text") el.style.width = fitW(el.value, el.placeholder) + "ch";
+        const hint = el.parentElement && el.parentElement.querySelector(".inlhint");
+        if (hint && el.dataset.money) hint.textContent = moneyHint(el.value);
+        const n = changed();
+        card.querySelectorAll(".inl").forEach(x => x.classList.toggle("dirty", n.includes(x)));
+        if (go) { go.textContent = n.length ? `Save change${n.length > 1 ? "s" : ""}` : "Confirm"; go.classList.toggle("saving", !!n.length); }
+        card.classList.toggle("pending", !!n.length);
+      });
+      el.addEventListener("change", () => el.dispatchEvent(new Event("input")));
+    };
+    card.querySelectorAll(".inl").forEach(wire);
+    card.querySelectorAll("[data-edit]").forEach(b => b.onclick = e => {   // plain text until clicked, then editable
+      e.stopPropagation();
+      const t = document.createElement("span");
+      t.innerHTML = editControl(it, Number(b.dataset.edit));
+      const node = t.firstElementChild;
+      b.replaceWith(node);
+      const el = node.matches(".inl") ? node : node.querySelector(".inl");
+      wire(el); el.focus();
+      if (el.tagName === "SELECT" && el.showPicker) { try { el.showPicker(); } catch (_) { /* not allowed: stays focused */ } }
+    });
     card.querySelectorAll("a[data-d]").forEach(a => a.onclick = e => {
       e.preventDefault(); act("review_decide", { borrower: D.borrower, key: it.key, decision: a.dataset.d, note: note() });
     });

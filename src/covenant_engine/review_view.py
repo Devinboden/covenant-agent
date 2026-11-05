@@ -335,6 +335,7 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     for it, raw in zip(items, rv["items"]):
         it["check_detail"], it["what"] = it["what"], PL.item_text(raw, ab)
         it["where_label"] = PL.where_label(raw)
+        it["explain"] = PL.explain(raw, ab, it.get("gpt"))
         it["evidences"] = [e | {"loc": f"item:{it['key']}" + (f":{n}" if n else "")} for n, e in enumerate(evidences(ab, raw))]
         # On a second-reading item the stored note is the second reading's, not the abstract's: don't show it as "the model's".
         it["reading"] = "" if raw.get("kind") == "review/gpt" else PL.reading(it.get("reading"))

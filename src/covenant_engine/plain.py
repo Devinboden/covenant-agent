@@ -53,6 +53,7 @@ def clause_label(c):
     """Pipeline clause labels -> how a reader would refer to that part of the definition."""
     c = (c or "").strip()
     fixed = {"base": "(main text)", "lead-in": "(opening words)", "minus lead-in": "(opening words of the deductions)",
+             "cap_on_total": "(overall limit)", "starts_from": "(starting amount)",
              "finalsentence": "(last sentence)", "variant": "(covenant-specific version)", "proviso": "(proviso)"}
     if c in fixed:
         return fixed[c]
@@ -71,7 +72,7 @@ def _where(term, clause):
     lab = clause_label(clause)
     if lab.startswith("exclusion"):
         return f"{term} {lab}"
-    return f"{term} {lab}" if lab.startswith("(") and lab[1:4] in ("mai", "ope", "las", "cov", "pro", "par") else f"{term} clause {lab}" if lab else term
+    return f"{term} {lab}" if lab.startswith("(") and lab[1:4] in ("mai", "ope", "las", "cov", "pro", "par", "ove", "sta") else f"{term} clause {lab}" if lab else term
 
 
 def clean(text):
@@ -162,3 +163,107 @@ def where_label(row):
     if w.startswith("loan:"):
         return w.split(":")[1].replace("_", " ").capitalize()
     return f"§{w}" if re.match(r"\d", w) else w or "Deal terms"
+
+
+UNSURE = re.compile(r"\b(unclear|not stated|no (?:cap|limit|minimum|stated|start|end)|sets no|does not|doesn't|isn't|is not|"
+                    r"ambiguous|may |might|assumed|cannot|can't|not found|missing|differs?|typo)\b", re.I)
+
+
+def _sentences(t):
+    return [x.strip() for x in re.split(r"(?<=[.;])\s+(?=[A-Z])", t or "") if x.strip()]
+
+
+def _first(t, n=180):
+    s = (_sentences(t) or [""])[0].rstrip(";")
+    s = s if len(s) <= n else s[:n].rsplit(" ", 1)[0] + "…"
+    return s if s.endswith((".", "…")) else s + "."
+
+
+def _lc(s):
+    return s[:1].lower() + s[1:] if s and not s[:2].isupper() else s
+
+
+def explain(row, ab, gpt=None):
+    """One sentence for the reviewer: what this item is and why it was flagged. Plain words, no mention of which model
+    or check raised it. Built by code from the item and the abstract."""
+    kind, term, clause = row.get("kind", ""), row.get("term") or "", row.get("clause") or ""
+    w = (row.get("what") or "").split(". Model's reading")[0]
+    note = row.get("note") or ""
+    if kind == "flag":
+        why = next((x for x in _sentences(clean(w)) if UNSURE.search(x) and not re.match(r"nothing\b", x, re.I)), None) \
+            or _first(clean(w))
+        lead = {"conflict": "Two parts of the agreement don't line up here", "ambiguous_date": "The dates here are ambiguous",
+                "dangling_reference": "This refers to something that isn't in the agreement",
+                "missing_schedule": "A schedule this relies on is missing"}.get(row.get("type"))
+        return (f"{lead}: {_lc(why)}" if lead else f"Flagged for a closer look: {_lc(why)}").rstrip(".") + "."
+    if kind == "review/3":
+        t, c = next(((t, c) for t in ab.get("terms", []) if t["name"] == term for c in t["components"] if c.get("clause") == clause), (None, {}))
+        what = f"{_where(term, clause)} is " + {"+": "added", "-": "subtracted"}.get(c.get("sign"), "part of the calculation")
+        r = reading(note)
+        what = f"{_where(term, clause)}: {_lc(_first(r)).rstrip('.')}" if r else what
+        if w.startswith("no library part fits"):
+            why = "it isn't one of the standard adjustments, so a person confirms how it counts"
+        elif w.startswith("quote is not from the text"):
+            why = "the recorded text may belong to a neighbouring clause"
+        elif w.startswith("cap_on_total"):
+            why = "parts of the definition state different limits"
+        elif w.startswith("clause not returned"):
+            why = "this clause wasn't captured"
+        elif w.startswith("this clause is the defined term"):
+            why = "it points to another definition"
+        elif w.startswith("covenant-specific wording"):
+            why = "its wording applies to only one covenant"
+        elif w.startswith("base amount"):
+            why = "it isn't clear what the definition starts from"
+        else:
+            why = "it couldn't be confirmed automatically"
+        return f"{what.rstrip('.')}; flagged because {why}."
+    if kind == "review/gpt":
+        cid = row.get("id") or ""
+        m = re.match(r"term:(.+):(\d+)$", cid)
+        diff = (row.get("gpt_reads") or "")
+        if m:
+            t = next((t for t in ab.get("terms", []) if t["name"] == m.group(1)), None)
+            c = t["components"][int(m.group(2))] if t and int(m.group(2)) < len(t["components"]) else {}
+            what = f"{_where(m.group(1), c.get('clause'))} is {SIGN.get(c.get('sign'), 'counted')} in the calculation"
+        else:
+            what = "This term"
+        if "could not find" in diff or not diff:
+            why = "its place in the agreement couldn't be confirmed a second time"
+        elif diff.startswith("caps none vs"):
+            why = "the agreement's wording appears to set a limit the abstract doesn't record"
+        elif diff.startswith("caps") and diff.endswith("vs none"):
+            why = "the abstract records a limit a second reading didn't find"
+        elif diff.startswith("caps"):
+            why = "the limit amount may be different"
+        elif diff.startswith("refers to"):
+            why = "it may point to a different defined term"
+        elif diff.startswith("sign"):
+            why = "it may count the other way (added vs subtracted)"
+        elif diff.startswith("duration"):
+            why = "how long it lasts may be different"
+        elif diff.startswith(("level", "increment", "ceiling")):
+            why = "the level may be different"
+        elif diff.startswith("fiscal year end"):
+            why = "the fiscal year end couldn't be confirmed"
+        else:
+            why = "a second reading came out differently"
+        if cid.startswith("reg:"):
+            g = next((g for g in ab.get("regimes", []) if g["id"] == cid.split(":")[1]), {})
+            what = f"The {g.get('name', 'step-up')} changes the covenant level"
+        if cid.startswith("loan:fiscal_year_end"):
+            what = "The fiscal year end sets the test dates"
+        return f"{what}; flagged because {why}."
+    if kind == "review/calc":
+        m = re.search(r"values for (.+?) are on (Schedule [\w.()]+)", w)
+        if m:
+            return (f"{m.group(1)} is replaced by fixed figures from {m.group(2)} for some periods; flagged because "
+                    f"that schedule isn't in the public filing.")
+    if kind == "review/pricing":
+        m = re.search(r"(Schedule [\w.()]+)", w)
+        return (f"The pricing grid sets the loan margin by leverage level; flagged because it's on "
+                f"{m.group(1) if m else 'a schedule'} that isn't in the public filing.")
+    if kind == "review/loan" and "equity cure" in w:
+        return ("The agreement may let the borrower fix a covenant breach with new equity; flagged because that wording "
+                "was found but the abstract records no cure.")
+    return f"{_first(item_text(row, ab)).rstrip('.')}; flagged for a person to decide."

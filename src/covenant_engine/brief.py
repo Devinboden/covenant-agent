@@ -247,11 +247,8 @@ def statement(ab, item, fields):
                 T(", " if k else "")
                 F(l)
         else:
-            T(". Limit: none recorded")
-            E(" (if the clause has one, enter it: $")
-            if "Add a cap (fixed amount, e.g. 10000000)" in idx:
-                seg.append({"f": idx["Add a cap (fixed amount, e.g. 10000000)"], "edit": True})
-            E(")")
+            T(". Limit: ")
+            F("Add a cap (fixed amount, e.g. 10000000)")                # reads "none"; click to enter an amount
         T(".")
         return seg
     covs = {}
