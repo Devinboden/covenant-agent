@@ -71,3 +71,11 @@ opening words in the question ("the part labelled (a) (it begins: "minus Unrestr
 are the agreement's own words, a location, not Claude's answer. 25 questions across 9 deals changed and were re-asked
 (not all 917). A first attempt that patched the comparison instead was removed: it hid planted wrong-term errors
 (46/58 caught vs 57/57) until tightened, and it treated the symptom.
+
+## Caps reached through a definition (2026-11-04)
+The $125M limit is written in the "Unrestricted Cash" definition. Asked about the "minus Unrestricted Cash" part of
+the leverage ratio, GPT carried the cap through to that part; the abstract stores a cap where the agreement writes it.
+The comparison flagged both the ratio's part and the definition, so one miss made two cards. Rule: a cap that sits on
+the definition a part points to (in the abstract, or in GPT's answer for that definition) is compared on that
+definition only. CARS: 2 GPT items -> 1 (the Unrestricted Cash card stays). Planted-error probe before -> after:
+cap deleted 27/28 -> 27/28, fake cap added 681/681 -> 682/682, levels 43/46 -> 43/46, signs 503/528 -> 503/528.

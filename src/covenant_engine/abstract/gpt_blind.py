@@ -204,6 +204,11 @@ def compare(cid, value, ans, meta=None):
         vals = lambda caps, ok: sorted({round(x, 6) for c in caps if ok(c) for x in _nums(c["value"])[:1]})
         own, term = vals(value.get("caps", []), mine_ok), vals((meta or {}).get("term_caps", []), mine_ok)
         his = vals(ans.get("caps", []), lambda c: c.get("type") in ("fixed_amount", "pct_of_ebitda"))
+        # A cap written in the definition this part points to (e.g. '$125M' in 'Unrestricted Cash', reached through
+        # 'minus Unrestricted Cash') belongs to that definition: it is compared on that definition's own question,
+        # not again here. GPT may carry it through; the abstract stores it where the agreement writes it.
+        via = [round(x, 6) for x in (meta or {}).get("ref_caps", [])]
+        his = [h for h in his if not any(_same_num(h, v) for v in via)]
         # Claude's own caps on this part, plus any of the term's caps GPT also attached here (a shared basket)
         mine = sorted(set(own) | {x for x in term if any(_same_num(x, h) for h in his)})
         if mine and not his:
@@ -249,15 +254,32 @@ def prepare(borrowers, out_dir, abs_dir="data/abstract/v1"):
         print(f"{b}: {len(qs)} blind questions -> {d}")
 
 
+def ref_caps(ab, ans, ref, own):
+    """Every hard cap on the definition a part points to: the abstract's, and GPT's answers for that definition's parts."""
+    if not ref or ref == own:
+        return []
+    out = []
+    for t in ab["terms"]:
+        if t["name"] != ref:
+            continue
+        for i, c in enumerate(t["components"]):
+            out += [x for k in c.get("caps", []) if k.get("type") in ("fixed_amount", "pct_of_ebitda") or
+                    re.fullmatch(r"[\d.,]+", str(k.get("value", "")).strip()) for x in _nums(k["value"])[:1]]
+            a = ans.get(f"term:{ref}:{i}") or {}
+            out += [x for k in a.get("caps", []) if k.get("type") in ("fixed_amount", "pct_of_ebitda") for x in _nums(k["value"])[:1]]
+    return out
+
+
 def score(b, out_dir, abs_dir="data/abstract/v1", write=False):
     d = ROOT / out_dir / b
     p = ROOT / abs_dir / f"{b}.abstract.json"
     ab = json.loads(p.read_text(encoding="utf-8"))
     cl = {c["id"]: c for c in claims(ab)}
-    meta = {f"term:{t['name']}:{i}": {"family": t["family"], "category": p_["category"],
-                                       "term_caps": [k for x in t["components"] for k in x.get("caps", [])]}
-            for t in ab["terms"] for i, p_ in enumerate(t["components"])}
     ans = {a["id"]: a for a in json.loads((d / "answers.json").read_text(encoding="utf-8"))["answers"]}
+    meta = {f"term:{t['name']}:{i}": {"family": t["family"], "category": p_["category"],
+                                       "term_caps": [k for x in t["components"] for k in x.get("caps", [])],
+                                       "ref_caps": ref_caps(ab, ans, p_.get("ref_term"), t["name"])}
+            for t in ab["terms"] for i, p_ in enumerate(t["components"])}
     live = squash((d / "agreement.txt").read_text(encoding="utf-8"))
     tally = {"claims": len(cl), "agree": 0, "disagree_verified": 0, "disagree_unsupported": 0, "not_found": 0,
              "missing_answer": 0}
