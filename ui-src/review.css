@@ -483,4 +483,29 @@ body.inline .tabs { top: var(--bar-h, 58px); }
 /* children of the scrolling pane keep their natural height (the facts strip was being squeezed to 0) */
 .work > * { flex-shrink: 0; }
 .facts { overflow: visible; }
+/* definitions open into their items */
+.defitem > summary { cursor: pointer; list-style: none; }
+.defitem > summary::-webkit-details-marker { display: none; }
+.defitem > summary::before { content: "▸"; display: inline-block; width: 1em; color: var(--muted); }
+.defitem[open] > summary::before { content: "▾"; }
+.defs-t { margin: 6px 0 10px; }
+.defs-t td { vertical-align: top; }
+.deftext { font-family: var(--text); font-size: 13px; color: var(--muted); margin-top: 2px; }
+/* covenants tab in the same system */
+.sheet-intro b { font-size: 15px; font-weight: 600; }
+.sheet-intro span { font-size: 13.5px; }
+.cov { border-radius: var(--r); border-color: var(--line); box-shadow: var(--shadow); }
+.cov-head { padding: 16px 18px 6px; }
+.cov-head b { font-size: 15px; }
+.cov-head .ref { font-family: var(--ui); color: var(--muted); }
+.tag { color: var(--muted); }
+.sentence { font-family: var(--ui); font-size: 14.5px; line-height: 1.6; padding: 0 18px 14px; color: var(--ink); }
+.kv { grid-template-columns: 140px minmax(0, 1fr); padding: 10px 18px; }
+.kv dt { text-transform: none; letter-spacing: 0; font-size: 12.5px; color: var(--muted); }
+.kv dd .mono, .mono { font-family: var(--ui); font-variant-numeric: tabular-nums; font-weight: 600; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.sched > summary { color: var(--muted); padding: 10px 18px; }
+.details-body { padding: 0 18px 14px; }
+th { text-transform: none; letter-spacing: 0; font-size: 12px; }
+.chk { background: none; color: var(--ok); padding: 0; }
 </style>

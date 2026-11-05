@@ -92,8 +92,12 @@ def term_summary(ab, name):
     capped = [f"{c['clause']} {CAT.get(c['category'], c['category'].replace('_', ' '))}: {'; '.join(cap_text(k) for k in c['caps'])}"
               for c in amount if c.get("caps")]
     custom = [c["clause"] for c in amount if c["category"] == "custom"]
+    from .plain import clause_label
+    items = [{"clause": clause_label(c.get("clause")), "effect": {"+": "added", "-": "subtracted"}.get(c["sign"], "either way"),
+              "what": cat_label(c["category"]), "limit": "; ".join(cap_text(k) for k in c.get("caps", [])),
+              "text": re.sub(r"\s+", " ", c.get("quote") or "")[:220]} for c in amount]
     return {"name": name, "starts_from": t.get("starts_from", ""), "adds": len(adds), "subtracts": len(subs),
-            "capped": capped, "custom": custom}
+            "capped": capped, "custom": custom, "items": items}
 
 
 def regime_sentence(ab, g):
@@ -101,7 +105,8 @@ def regime_sentence(ab, g):
     names = ", ".join(covs[x]["metric"] for x in g.get("applies_to", []) if x in covs) or "the covenant"
     dur = g.get("duration") or {}
     d = f" for {dur['count']} {UNIT_WORD.get(dur.get('unit'), dur.get('unit', ''))}" if dur.get("count") else ""
-    trig = {"borrower_election": "if the borrower elects", "amendment": "under an amendment"}.get(g.get("trigger"), g.get("trigger") or "")
+    trig = {"borrower_election": "if the borrower elects", "amendment": "under an amendment",
+            "acquisition_automatic": "after a qualifying acquisition"}.get(g.get("trigger"), (g.get("trigger") or "when it applies").replace("_", " "))
     if g["effect"] == "add_increment":
         s = f"{g['name']}: {trig}, the {names} level can rise by {g.get('increment') or '—'}x" + \
             (f" (to at most {g['ceiling']}x)" if g.get("ceiling") else "") + d + "."

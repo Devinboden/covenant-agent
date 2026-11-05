@@ -87,6 +87,12 @@ def evidences(ab, row):
             add("Also cited", row["evidence"])
     else:
         add("The agreement", row.get("evidence", ""))
+        w = row.get("what") or ""
+        m = re.search(r"values for (.+?) are on (Schedule [\w.()]+)", w)
+        if m:                                   # a missing schedule: the sentence that points to it
+            for d in ab.get("deemed_values", []):
+                if d.get("term") == m.group(1) and d.get("schedule") == m.group(2):
+                    add("The agreement", d.get("quote", ""))
     return out
 
 
@@ -105,7 +111,7 @@ def _flat(t):
 
 
 ABBR = re.compile(r"^(?:\(?[a-z0-9]{1,4}\)|No|Nos|Sec|Secs|U\.S|Inc|Corp|Co|Ltd|L\.P|N\.A|e\.g|i\.e|etc|vs)\.$", re.I)
-LOCATE_V = "words-5"      # bump to re-locate every quote when the matching changes
+LOCATE_V = "words-6"      # bump to re-locate every quote when the matching changes
 
 
 def _ends_sentence(w):
@@ -148,11 +154,16 @@ def _starts_clause(words, k):
 def _sentence(words, a, z, cap=80):
     """Widen word range [a, z] to the sentence it sits in. In a long definition, a lettered clause ('(j) ...') counts
     as its own sentence, so the reader gets the whole clause and not the whole definition."""
+    def page_number(k):                      # a lone number on its own line: the printed page number
+        w = words[k]
+        return w[4].isdigit() and sum(1 for x in words if (x[5], x[6]) == (w[5], w[6])) == 1
     s = a
-    while s > 0 and a - s < cap and not _ends_sentence(words[s - 1][4]) and not _starts_clause(words, s):
+    while s > 0 and a - s < cap and not _ends_sentence(words[s - 1][4]) and not _starts_clause(words, s) \
+            and not page_number(s - 1):
         s -= 1
     e = z
-    while e < len(words) - 1 and e - z < cap and not _ends_sentence(words[e][4]) and not _starts_clause(words, e + 1):
+    while e < len(words) - 1 and e - z < cap and not _ends_sentence(words[e][4]) and not _starts_clause(words, e + 1) \
+            and not page_number(e + 1):
         e += 1
     return s, e
 
@@ -174,11 +185,14 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
     st = store(abs_dir)
     quotes = _quotes(ab, rv)
     import hashlib
-    h = hashlib.sha256((LOCATE_V + SO.content_hash(ab) + json.dumps(quotes, sort_keys=True)).encode()).hexdigest()
+    path = pdf_path(b, ab)
+    # The key covers the PDF's bytes too: positions belong to one rendering of the agreement. A re-rendered PDF
+    # (each deploy can render it again) shifts the text, and stale positions highlight the wrong lines.
+    pdf_id = hashlib.sha256(path.read_bytes()).hexdigest() if path else ""
+    h = hashlib.sha256((LOCATE_V + pdf_id + SO.content_hash(ab) + json.dumps(quotes, sort_keys=True)).encode()).hexdigest()
     cached = st.load(b, "locs", default={})
     if cached.get("hash") == h:
         return cached
-    path = pdf_path(b, ab)
     out = {"hash": h, "loc": {}, "pages": [], "npages": 0, "pw": 612, "ph": 792, "pdf": bool(path)}
     if not path:
         return out

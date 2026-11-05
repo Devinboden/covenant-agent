@@ -454,8 +454,12 @@ function covenants() {
       rel.map(r => row(r, `<span class="band rel">${r.g.type === "relief_period" ? "Relief" : "Regime"}</span>`, `${r.g.name}`)).join("");
     const f = sc.formula;
     const formula = f ? `<div class="formula"><span class="num">${f.numerator.map(esc).join(" + ") || "—"}${f.less.length ? ` <i>minus</i> ${f.less.map(esc).join(", ")}` : ""}</span><span class="div">÷</span><span class="den">${f.denominator.map(esc).join(" + ") || "—"}</span></div>` : "";
-    const defs = sc.definitions.map(d => `<li><b>${esc(d.name)}</b>${d.starts_from ? ` starts from ${esc(d.starts_from)},` : ""} ${d.adds} item${d.adds === 1 ? "" : "s"} added, ${d.subtracts} subtracted.
-        ${d.capped.length ? `<div class="capped">Capped: ${d.capped.map(esc).join(" · ")}</div>` : ""}${d.custom.length ? `<div class="sub">Non-standard clauses: ${d.custom.map(esc).join(", ")}</div>` : ""}</li>`).join("");
+    // Each definition opens into its items: what each clause adds or subtracts, its limit, and its text.
+    const defs = sc.definitions.map(d => `<li><details class="defitem"><summary><b>${esc(d.name)}</b>${d.starts_from ? `, starts from ${esc(d.starts_from)}` : ""}:
+        ${d.adds} item${d.adds === 1 ? "" : "s"} added, ${d.subtracts} subtracted${d.capped.length ? `, ${d.capped.length} with a limit` : ""}</summary>
+        <table class="mini defs-t"><thead><tr><th>Clause</th><th>Effect</th><th>What it is</th><th>Limit</th></tr></thead><tbody>
+        ${(d.items || []).map(x => `<tr title="${esc(x.text)}"><td>${esc(x.clause)}</td><td>${esc(x.effect)}</td><td>${esc(x.what)}<div class="deftext">${esc(x.text)}</div></td><td>${esc(x.limit || "none")}</td></tr>`).join("")}
+        </tbody></table></details></li>`).join("");
     const rp = sc.reported;
     const rep = rp ? (rp.cushion != null && rp.threshold
       ? `<div class="kv"><dt>Last reported</dt><dd><b class="mono">${esc(rp.value)}</b> vs ${esc(rp.threshold)} at ${fmtD(rp.period)} · <span class="pill ${rp.passes ? "ok" : "bad"}">${rp.passes ? "passes" : "fails"}, cushion ${esc(rp.cushion)}</span> <small>from ${esc(rp.doc || "the latest filing")}</small></dd></div>`

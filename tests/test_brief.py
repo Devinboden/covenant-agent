@@ -82,3 +82,22 @@ def test_explanations_read_as_plain_statements():
     for b in ("CARS", "WEST", "TRS", "MEC", "ROAD", "CXT", "QUAD", "SRI", "UCTT"):
         for it in RV.payload(b, "x")["items"]:
             assert it["explain"] and not bad.search(it["explain"]), (b, it["explain"])
+
+
+def test_highlight_positions_follow_the_pdf(tmp_path, monkeypatch):
+    """Saved highlight positions are tied to the PDF file: a re-rendered agreement must be located again, or the page
+    shows boxes from the old rendering over the wrong lines."""
+    import hashlib
+    from covenant_engine import review_view as RVm
+    ab = SO.load("CARS")[0]
+    rv = RVm.review_data("CARS")
+    pdf = RVm.pdf_path("CARS", ab)
+    if not pdf:
+        import pytest
+        pytest.skip("agreement PDF not on this machine")
+    first = RVm.locate("CARS", ab, rv)
+    fake = tmp_path / "copy.pdf"
+    fake.write_bytes(pdf.read_bytes() + b"\n% re-rendered\n")
+    monkeypatch.setattr(RVm, "pdf_path", lambda b, a: fake)
+    second = RVm.locate("CARS", ab, rv)
+    assert second["hash"] != first["hash"]
