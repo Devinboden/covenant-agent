@@ -301,11 +301,9 @@ function card(it, editable) {
       ${stated ? `<div class="r"><dt>Abstract</dt><dd class="says"><p>${sentence}</p>${on ? '<span class="hint">Click an underlined value to change it</span>' : ""}</dd></div>`
         : it.explain ? "" : `<div class="r"><dt>Decision</dt><dd><p>${esc(it.what)}</p></dd></div>`}
       ${evidence(it)}
-      ${note(it) ? `<div class="r"><dt>Model note</dt><dd class="mnote">${esc(note(it))}</dd></div>` : ""}
+
     </dl>
-    ${it.detail || extra.length ? `<details class="more"><summary>More context${extra.length ? " and fields" : ""}</summary>
-      ${it.detail ? context(it) : ""}
-      ${extra.length ? `<div class="xfields">${extra.map(([f, i]) => `<label><span>${esc(f.label)}</span>${inlineField(it, i, on)}</label>`).join("")}</div>` : ""}</details>` : ""}
+
     ${on ? `<div class="act">
         <button class="primary go" data-go="1">Confirm</button>
         <span class="links"><a href="#" data-d="defer">Later</a><a href="#" data-note="1">${r.note ? "Edit note" : "Note"}</a></span></div>

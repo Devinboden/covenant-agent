@@ -72,3 +72,13 @@ def test_blind_question_locates_parts_sharing_clause_letters():
     q = next(x for x in questions(ab) if x["id"] == "term:Senior Secured Net Leverage Ratio:0")["question"]
     assert 'it begins: "minus Unrestricted Cash' in q
     assert "Unrestricted Cash" not in q.split("it begins:")[0]          # the term itself isn't given away elsewhere
+
+
+def test_explanations_read_as_plain_statements():
+    """The one-line explanation is written for the reviewer to read: no 'you' / 'I', no mention of a model, a second
+    reading or a person having to do something."""
+    import re
+    bad = re.compile(r"\b(you|your|I|we|second reading|person|automatically|GPT|Claude|model)\b")
+    for b in ("CARS", "WEST", "TRS", "MEC", "ROAD", "CXT", "QUAD", "SRI", "UCTT"):
+        for it in RV.payload(b, "x")["items"]:
+            assert it["explain"] and not bad.search(it["explain"]), (b, it["explain"])

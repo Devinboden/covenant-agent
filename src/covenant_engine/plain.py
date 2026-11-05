@@ -212,14 +212,16 @@ def explain(row, ab, gpt=None):
         lead = {"conflict": "Two parts of the agreement don't line up here", "ambiguous_date": "The dates here are ambiguous",
                 "dangling_reference": "This refers to something that isn't in the agreement",
                 "missing_schedule": "A schedule this relies on is missing"}.get(row.get("type"))
-        return (f"{lead}: {_lc(why)}" if lead else f"Flagged for a closer look: {_lc(why)}").rstrip(".") + "."
+        return (f"{lead}: {_lc(why)}" if lead else f"Flagged because {_lc(why)}").rstrip(".") + "."
     if kind == "review/3":
         t, c = next(((t, c) for t in ab.get("terms", []) if t["name"] == term for c in t["components"] if c.get("clause") == clause), (None, {}))
         what = f"{_where(term, clause)} is " + {"+": "added", "-": "subtracted"}.get(c.get("sign"), "part of the calculation")
         r = reading(note)
-        what = f"{_where(term, clause)}: {_lc(_first(r)).rstrip('.')}" if r else what
+        if r:                                       # the card title already names the clause
+            f1 = _first(r).rstrip(".")
+            what = f1[:1].upper() + f1[1:]
         if w.startswith("no library part fits"):
-            why = "it isn't one of the standard adjustments, so a person confirms how it counts"
+            why = "it isn't one of the standard adjustments"
         elif w.startswith("quote is not from the text"):
             why = "the recorded text may belong to a neighbouring clause"
         elif w.startswith("cap_on_total"):
@@ -233,7 +235,7 @@ def explain(row, ab, gpt=None):
         elif w.startswith("base amount"):
             why = "it isn't clear what the definition starts from"
         else:
-            why = "it couldn't be confirmed automatically"
+            why = "its treatment in the definition is uncertain"
         return f"{what.rstrip('.')}; flagged because {why}."
     if kind == "review/gpt":
         cid = row.get("id") or ""
@@ -246,11 +248,11 @@ def explain(row, ab, gpt=None):
         else:
             what = "This term"
         if "could not find" in diff or not diff:
-            why = "its place in the agreement couldn't be confirmed a second time"
+            why = "its wording in the agreement is uncertain"
         elif diff.startswith("caps none vs"):
             why = "the agreement's wording appears to set a limit the abstract doesn't record"
         elif diff.startswith("caps") and diff.endswith("vs none"):
-            why = "the abstract records a limit a second reading didn't find"
+            why = "the agreement's wording may not support the recorded limit"
         elif diff.startswith("caps"):
             why = "the limit amount may be different"
         elif diff.startswith("refers to"):
@@ -264,7 +266,7 @@ def explain(row, ab, gpt=None):
         elif diff.startswith("fiscal year end"):
             why = "the fiscal year end couldn't be confirmed"
         else:
-            why = "a second reading came out differently"
+            why = "its reading of the agreement is uncertain"
         if cid.startswith("reg:"):
             g = next((g for g in ab.get("regimes", []) if g["id"] == cid.split(":")[1]), {})
             what = f"The {g.get('name', 'step-up')} changes the covenant level"
@@ -283,4 +285,4 @@ def explain(row, ab, gpt=None):
     if kind == "review/loan" and "equity cure" in w:
         return ("The agreement may let the borrower fix a covenant breach with new equity; flagged because that wording "
                 "was found but the abstract records no cure.")
-    return f"{_first(item_text(row, ab)).rstrip('.')}; flagged for a person to decide."
+    return f"{_first(item_text(row, ab)).rstrip('.')}."
