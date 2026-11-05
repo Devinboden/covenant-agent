@@ -483,6 +483,13 @@ h2 { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 600;
 /* highlight lives on the agreement page only; the card shows the passage as plain document text */
 .evpiece mark { background: none; padding: 0; color: inherit; }
 .evpiece:hover mark { box-shadow: none; }
+/* tabs first and pinned to the top of the left pane while it scrolls */
+.work { padding-top: 0; }
+.tabs { position: sticky; top: 0; z-index: 4; background: var(--paper); margin: 0 -16px; padding: 14px 16px 0; box-shadow: 0 1px 0 var(--line); }
+body.inline .tabs { top: var(--bar-h, 58px); }
+/* children of the scrolling pane keep their natural height (the facts strip was being squeezed to 0) */
+.work > * { flex-shrink: 0; }
+.facts { overflow: visible; }
 </style>
 
 </head>
@@ -502,12 +509,12 @@ h2 { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 600;
 
 <main class="desk">
   <section class="work">
-    <div class="facts" id="facts"></div>
     <div class="tabs" role="tablist">
       <button class="tab" role="tab" id="tab-items" aria-selected="true">Open items<span class="n" id="nOpen"></span></button>
       <button class="tab" role="tab" id="tab-cov" aria-selected="false">Covenants</button>
       <button class="tab" role="tab" id="tab-trail" aria-selected="false">Trail</button>
     </div>
+    <div class="facts" id="facts"></div>
     <div id="view-items" class="items"></div>
     <div id="view-cov" hidden></div>
     <div id="view-trail" hidden></div>
