@@ -179,21 +179,21 @@ function pipeline() {
 // (still one recorded decision per item, by the signed-in reviewer). done = resolved, collapsed.
 let openGroups = { done: false, confirm: false };
 const reopened = new Set();     // cards the person reopened to change a decision (a new decision overwrites the old)
-const TIER = { 1: ["t1", "Changes pass/fail"], 2: ["t2", "Changes an input to the ratio"] };
+const TIER = { 1: ["t1", "Affects pass/fail"], 2: ["t2", "Affects an input"] };
 function items() {
   const editable = D.status === "draft";
   const open = D.items.filter(i => !i.resolution);
   const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
   const done = D.items.filter(i => i.resolution);
-  const head = `<div class="ihead"><b>${decide.length}</b> need your decision · <b>${confirm.length}</b> quick confirm · <b>${done.length}</b> done</div>`;
-  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Quick confirm <em>${confirm.length} lower-risk item${confirm.length > 1 ? "s" : ""}: check each, or confirm all</em></h2>
+  const head = "";
+  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Quick confirm <span class="count">${confirm.length}</span></h2><p class="gsub">Lower-risk items. Check each, or confirm them all at once.</p>
       ${editable ? `<button class="primary" id="acceptAll">Confirm all ${confirm.length}</button>` : ""}</div>
       <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
         <span class="csent">${esc(plain(it))}${it.explain ? `<span class="cexp">${esc(it.explain)}</span>` : ""}</span>
         ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Confirm</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
-  const dec = `<section class="group"><h2>Needs your decision <em>${decide.length ? "read the sentence, check it against the highlighted page, answer the question" : "nothing left to decide"}</em></h2>
+  const dec = `<section class="group"><h2>Needs your decision <span class="count">${decide.length}</span></h2><p class="gsub">${decide.length ? "Compare what the abstract recorded with the agreement text, then confirm or change it." : "Nothing left to decide."}</p>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
-  const dn = done.length ? `<details class="group done-group" ${openGroups.done ? "open" : ""}><summary><h2>Done <em>${done.length} decided</em></h2></summary>
+  const dn = done.length ? `<details class="group done-group" ${openGroups.done ? "open" : ""}><summary><h2>Done <span class="count">${done.length}</span></h2></summary>
       <div class="items">${done.map(it => card(it, editable)).join("")}</div></details>` : "";
   $("view-items").innerHTML = (D.status === "verified" ? approverSummary() : "") + head + dec + conf + dn;
   const dg = $("view-items").querySelector(".done-group");
@@ -246,32 +246,39 @@ function inlineField(it, i, on) {
   return `<button type="button" class="val" data-edit="${i}" title="Click to change: ${esc(f.label)}">${esc(fv(f) || (/^(Cap |Add a cap)/.test(f.label) ? "none" : "not stated"))}</button>`;
 }
 // The editable control for field i, shown only after the value is clicked (reads as plain text until then).
-function editControl(it, i) {
+// How a value reads as text: dropdown labels, dollar amounts as $125.0M, blanks as none.
+function valText(f, v) {
+  if (/^(Cap |Add a cap)/.test(f.label) && v && /^[\d.]+$/.test(v)) return usd(Number(v));
+  return fv({ ...f, value: v });
+}
+function editControl(it, i, v) {
   const f = it.fields[i];
-  if (f.type === "enum") return `<select class="inl" data-i="${i}" title="${esc(f.label)}">${f.options.map(o => `<option value="${esc(o)}" ${o === f.value ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`;
+  v = v == null ? f.value : v;
+  if (f.type === "enum") return `<select class="inl" data-i="${i}" title="${esc(f.label)}">${f.options.map(o => `<option value="${esc(o)}" ${o === v ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`;
   const money = /^(Cap |Add a cap)/.test(f.label);
-  return `<span class="inlwrap"><input class="inl" data-i="${i}" value="${esc(f.value)}" placeholder="${f.value ? "" : money ? "enter amount" : "none"}"
-    style="width:${fitW(f.value, money ? "enter amount" : "none")}ch" title="${esc(f.label)}" type="${f.type === "date" ? "date" : "text"}"
+  return `<span class="inlwrap"><input class="inl" data-i="${i}" value="${esc(v)}" placeholder="${v ? "" : money ? "enter amount" : "none"}"
+    style="width:${fitW(v, money ? "enter amount" : "none")}ch" title="${esc(f.label)}" type="${f.type === "date" ? "date" : "text"}"
     ${money ? 'inputmode="numeric" data-money="1"' : ""}><span class="inlhint" aria-live="polite"></span></span>`;
 }
 const whereLabel = it => { const w = it.where || ""; const m = w.match(/^term:(.+):\d+$/);
   return m ? m[1] : w.startsWith("cov:") || w.startsWith("reg:") ? w.split(":")[1].replace(/_/g, " ") : /^\d/.test(w) ? "§" + w : w || "—"; };
 // The model's own reason for its answer (a flag's note, or its reading of a clause). Nothing about which check
 // flagged the item: the reviewer judges the answer against the evidence.
-const note = it => it.kind === "flag" ? it.what : (it.reading || "");
+const note = it => it.reading || "";
 // Evidence = the full sentence (or lettered clause) from the agreement, with the quoted words marked.
 function evidence(it) {
-  const list = it.evidences && it.evidences.length ? it.evidences : (it.evidence ? [{ label: "The agreement", quote: it.evidence, loc: "item:" + it.key }] : []);
+  const list = it.evidences && it.evidences.length ? it.evidences : (it.evidence ? [{ label: "", quote: it.evidence, loc: "item:" + it.key }] : []);
   if (!list.length) return "";
   const norm = t => String(t || "").replace(/\s+/g, " ").trim();
-  const piece = e => {
+  const piece = (e, k) => {
     const l = D.locs.loc[e.loc];
     const S = norm((l && l.sentence) || e.quote), Q = norm(e.quote);
     const at = Q ? S.toLowerCase().indexOf(Q.slice(0, 60).toLowerCase()) : -1;
     const body = at >= 0 ? esc(S.slice(0, at)) + "<mark>" + esc(S.slice(at, at + Q.length)) + "</mark>" + esc(S.slice(at + Q.length)) : esc(S);
-    return `<div class="evpiece" data-ev="${esc(e.loc)}"><small>${esc(e.label)}${l ? ` · page ${l.page + 1}` : ""}</small><blockquote>${body}</blockquote></div>`;
+    const cap = [k && e.label && e.label !== "This part of the agreement" ? e.label : "", l ? `Page ${l.page + 1}` : "Not found on a page"].filter(Boolean).join(", ");
+    return `<button type="button" class="evpiece" data-ev="${esc(e.loc)}"><q>${body}</q><span class="evcap">${esc(cap)}</span></button>`;
   };
-  return `<div class="evid"><small>Evidence${list.length > 1 ? ` · ${list.length} passages, click one to see it on the page` : ""}</small>${list.map(piece).join("")}</div>`;
+  return `<div class="r"><dt>Agreement</dt><dd class="evid">${list.map(piece).join("")}</dd></div>`;
 }
 const STAMP = { accept: "Confirmed", correct: "Changed", defer: "Later", reject: "Doesn't belong" };
 function card(it, editable) {
@@ -288,12 +295,14 @@ function card(it, editable) {
   const stated = !!(it.statement && it.statement.length);
   const btn = (k, t, cls = "") => `<button class="dbtn ${cls}" data-d="${k}" aria-pressed="${r.decision === k}" ${on ? "" : "disabled"}>${t}</button>`;
   return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
-    <div class="item-top"><span class="tier ${tc}">${tl}</span><span class="ref">${esc(it.where_label || whereLabel(it))}</span><span class="origin">Flagged for review</span></div>
+    <header class="ch"><h3>${esc(it.where_label || whereLabel(it))}</h3><span class="tier ${tc}">${tl}</span></header>
     ${it.explain ? `<p class="explain">${esc(it.explain)}</p>` : ""}
-    ${stated ? `<div class="says"><small>The abstract says${on ? " · click a value to change it" : ""}</small><p>${sentence}</p></div>`
-      : it.explain ? "" : `<div class="says"><small>What needs a decision</small><p class="plainq">${esc(it.what)}</p></div>`}
-    ${evidence(it)}
-    ${note(it) ? `<div class="asked"><small>Model's note</small><p>${esc(note(it))}</p></div>` : ""}
+    <dl class="rows">
+      ${stated ? `<div class="r"><dt>Abstract</dt><dd class="says"><p>${sentence}</p>${on ? '<span class="hint">Click an underlined value to change it</span>' : ""}</dd></div>`
+        : it.explain ? "" : `<div class="r"><dt>Decision</dt><dd><p>${esc(it.what)}</p></dd></div>`}
+      ${evidence(it)}
+      ${note(it) ? `<div class="r"><dt>Model note</dt><dd class="mnote">${esc(note(it))}</dd></div>` : ""}
+    </dl>
     ${it.detail || extra.length ? `<details class="more"><summary>More context${extra.length ? " and fields" : ""}</summary>
       ${it.detail ? context(it) : ""}
       ${extra.length ? `<div class="xfields">${extra.map(([f, i]) => `<label><span>${esc(f.label)}</span>${inlineField(it, i, on)}</label>`).join("")}</div>` : ""}</details>` : ""}
@@ -309,7 +318,7 @@ function card(it, editable) {
 // A decided card: one line (where, decision, who, note) plus any change before -> after, and a Change link.
 function compact(it, r, editable) {
   return `<article class="item done" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision}" tabindex="0">
-    <div class="item-top"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
+    <div class="item-top"><h3>${esc(it.where_label || whereLabel(it))}</h3>
       <span class="stamp ${r.decision}">${STAMP[r.decision] || esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}</span>
       ${editable ? `<a href="#" class="small-link" data-undo="1">Change</a>` : ""}</div>
     ${r.note ? `<div class="donenote">Note: ${esc(r.note)}</div>` : ""}
@@ -320,7 +329,13 @@ function wireCards(editable) {
   $("view-items").querySelectorAll(".item").forEach(card => {
     const it = D.items.find(i => i.key === card.dataset.key);
     const note = () => (card.querySelector("textarea") || {}).value || "";
-    const changed = () => [...card.querySelectorAll(".inl")].filter(el => String(el.value).trim() !== String(it.fields[Number(el.dataset.i)].value));
+    const pend = new Map();                                 // field index -> edited value (kept when the box closes)
+    const changed = () => [...pend].filter(([i, v]) => String(v).trim() !== String(it.fields[i].value)).map(([i, v]) => ({ i, v }));
+    const refresh = () => {
+      const n = changed();
+      if (go) { go.textContent = n.length ? `Save change${n.length > 1 ? "s" : ""}` : "Confirm"; go.classList.toggle("saving", !!n.length); }
+      card.classList.toggle("pending", !!n.length);
+    };
     card.addEventListener("click", e => {
       const j = e.target.closest(".jump");
       if (j) { e.preventDefault(); const t = j.dataset.key && document.querySelector(`.item[data-key="${j.dataset.key}"]`); if (t) { t.scrollIntoView({ block: "center" }); show("item:" + j.dataset.key, ""); } return; }
@@ -333,37 +348,48 @@ function wireCards(editable) {
     const send = () => {                                   // Confirm, or Save change when a value was edited
       const ch = changed();
       if (!ch.length) return act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: note() });
-      const changes = ch.map(el => ({ path: it.fields[Number(el.dataset.i)].path,
-        value: el.dataset.money ? el.value.replace(/[$,\s]/g, "") : el.value }));
+      const changes = ch.map(({ i, v }) => ({ path: it.fields[i].path, value: v }));
       act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Change saved to the abstract.");
     };
     if (go) go.onclick = send;
+    const toText = el => {                                   // click away: back to plain text, edit kept
+      const i = Number(el.dataset.i), f = it.fields[i];
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "val" + (pend.has(i) && String(pend.get(i)).trim() !== String(f.value) ? " dirty" : "");
+      b.dataset.edit = i; b.title = "Click to change: " + f.label;
+      b.textContent = valText(f, pend.has(i) ? pend.get(i) : f.value) || "none";
+      (el.closest(".inlwrap") || el).replaceWith(b);
+      b.onclick = open;
+    };
     const wire = el => {
-      el.addEventListener("keydown", e => {                       // Enter saves, Escape puts the text back
-        if (e.key === "Enter" && changed().length) { e.preventDefault(); send(); }
+      el.addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); if (changed().length) send(); else el.blur(); }
+        if (e.key === "Escape") { pend.delete(Number(el.dataset.i)); el.blur(); }
       });
       el.addEventListener("input", () => {
         if (el.tagName === "INPUT" && el.type === "text") el.style.width = fitW(el.value, el.placeholder) + "ch";
         const hint = el.parentElement && el.parentElement.querySelector(".inlhint");
         if (hint && el.dataset.money) hint.textContent = moneyHint(el.value);
-        const n = changed();
-        card.querySelectorAll(".inl").forEach(x => x.classList.toggle("dirty", n.includes(x)));
-        if (go) { go.textContent = n.length ? `Save change${n.length > 1 ? "s" : ""}` : "Confirm"; go.classList.toggle("saving", !!n.length); }
-        card.classList.toggle("pending", !!n.length);
+        pend.set(Number(el.dataset.i), el.dataset.money ? el.value.replace(/[$,\s]/g, "") : el.value);
+        el.classList.toggle("dirty", changed().some(c => c.i === Number(el.dataset.i)));
+        refresh();
       });
       el.addEventListener("change", () => el.dispatchEvent(new Event("input")));
+      el.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== el && el.isConnected) { toText(el); refresh(); } }, 0));
     };
-    card.querySelectorAll(".inl").forEach(wire);
-    card.querySelectorAll("[data-edit]").forEach(b => b.onclick = e => {   // plain text until clicked, then editable
+    function open(e) {                                      // plain text until clicked, then editable
       e.stopPropagation();
+      const i = Number(this.dataset.edit);
       const t = document.createElement("span");
-      t.innerHTML = editControl(it, Number(b.dataset.edit));
+      t.innerHTML = editControl(it, i, pend.has(i) ? pend.get(i) : null);
       const node = t.firstElementChild;
-      b.replaceWith(node);
+      this.replaceWith(node);
       const el = node.matches(".inl") ? node : node.querySelector(".inl");
       wire(el); el.focus();
-      if (el.tagName === "SELECT" && el.showPicker) { try { el.showPicker(); } catch (_) { /* not allowed: stays focused */ } }
-    });
+      if (el.dataset.money) el.dispatchEvent(new Event("input"));
+      if (el.tagName === "SELECT" && el.showPicker) { try { el.showPicker(); } catch (_) { /* stays focused */ } }
+    }
+    card.querySelectorAll("[data-edit]").forEach(b => b.onclick = open);
     card.querySelectorAll("a[data-d]").forEach(a => a.onclick = e => {
       e.preventDefault(); act("review_decide", { borrower: D.borrower, key: it.key, decision: a.dataset.d, note: note() });
     });

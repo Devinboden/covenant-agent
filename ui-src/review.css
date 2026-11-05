@@ -342,4 +342,138 @@ textarea.note { width: 100%; min-height: 44px; resize: vertical; background: var
 .cexp { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
 .val { font: inherit; font-weight: 600; color: var(--ink); background: none; border: 0; border-bottom: 1px dashed var(--accent); padding: 0 1px; cursor: text; }
 .val:hover { background: var(--accent-soft); }
+
+/* ===================== Design system (2026-11-04) =====================
+   A checker's desk: the abstract on the left, the agreement on the right. Quiet neutrals; the one strong colour is
+   the highlighter yellow that ties a card's evidence to the marked page. Sans for the app, serif only for text quoted
+   from the agreement. Sentence case, no all-caps labels, no monospace labels. Scale: 4 8 12 16 24 32. */
+:root {
+  --paper: #f5f5f6; --surface: #ffffff; --sunk: #f4f4f5; --ink: #18181b; --muted: #6b6b76; --line: #e4e4e7;
+  --accent: #18181b; --accent-soft: #f4f4f5; --focus: #2563eb;
+  --marker: #fde68a; --marker-edge: #ca8a04;
+  --ok: #15803d; --ok-soft: #ecfdf3; --warn: #b45309; --warn-soft: #fff7e6; --bad: #b42318; --bad-soft: #fef3f2;
+  --defer: #6b6b76; --defer-soft: #f4f4f5; --relief: #7c3aed; --relief-soft: #f5f3ff;
+  --shadow: 0 1px 2px rgba(24, 24, 27, .05);
+  --r-sm: 6px; --r: 10px;
+  --text: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #0f0f11; --surface: #18181b; --sunk: #232327; --ink: #f4f4f5; --muted: #a1a1aa; --line: #2e2e33;
+  --accent: #f4f4f5; --accent-soft: #232327; --marker: rgba(250, 204, 21, .32); --marker-edge: #eab308;
+  --ok: #4ade80; --ok-soft: #12261a; --warn: #f59e0b; --warn-soft: #2a1f0b; --bad: #f87171; --bad-soft: #2a1414; } }
+:root[data-theme="dark"] {
+  --paper: #0f0f11; --surface: #18181b; --sunk: #232327; --ink: #f4f4f5; --muted: #a1a1aa; --line: #2e2e33;
+  --accent: #f4f4f5; --accent-soft: #232327; --marker: rgba(250, 204, 21, .32); --marker-edge: #eab308;
+  --ok: #4ade80; --ok-soft: #12261a; --warn: #f59e0b; --warn-soft: #2a1f0b; --bad: #f87171; --bad-soft: #2a1414; }
+body { font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* header */
+.bar { padding: 12px 20px; gap: 16px; }
+.deal b { font-size: 15px; font-weight: 600; }
+.deal span { font-size: 12.5px; }
+.stage { font-size: 12.5px; border-radius: 999px; padding: 3px 10px; }
+.stage.now { background: var(--ink); color: var(--surface); font-weight: 500; }
+.stage.done { background: var(--ok-soft); color: var(--ok); }
+
+/* facts: a quiet strip, not a grid of boxes */
+.facts { background: none; border: 0; border-radius: 0; gap: 4px 24px; padding: 0 2px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.fact { background: none; padding: 0; }
+.fact small { text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--muted); }
+.fact div { font-size: 13.5px; font-weight: 500; }
+
+/* tabs */
+.tabs { gap: 20px; }
+.tab { padding: 8px 2px; font-weight: 500; }
+.tab[aria-selected="true"] { border-color: var(--ink); }
+.tab .n { font-family: var(--ui); background: var(--sunk); color: var(--muted); }
+
+/* section headings: sentence case + count, one line of guidance */
+h2 { text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; display: flex; align-items: center; gap: 8px; }
+.count { font-size: 12px; font-weight: 500; color: var(--muted); background: var(--sunk); border-radius: 999px; padding: 1px 8px; }
+.gsub { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.group { gap: 12px; }
+.ghead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; row-gap: 0; }
+.ghead .gsub { flex-basis: 100%; order: 3; }
+.done-group > summary { list-style: none; }
+.done-group > summary::-webkit-details-marker { display: none; }
+
+/* cards */
+.item { border-radius: var(--r); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 16px 18px; gap: 12px; }
+.item.sel { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.item.pending { border-color: var(--warn); box-shadow: 0 0 0 1px var(--warn); }
+.item[data-state] { border-left-width: 1px; }
+.ch { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.ch h3, .item-top h3 { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
+.tier { text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 500; padding: 0; background: none !important;
+  color: var(--muted) !important; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.tier::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.tier.t1::before { background: var(--bad); }
+.explain { background: none; border: 0; padding: 0; margin: -6px 0 0; color: var(--muted); font-size: 13.5px; max-width: 72ch; }
+
+/* the comparison: Abstract vs Agreement, labels aligned in one column */
+.rows { margin: 0; display: grid; gap: 10px; }
+.rows .r { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; align-items: start; }
+.rows dt { font-size: 12.5px; color: var(--muted); padding-top: 2px; }
+.rows dd { margin: 0; min-width: 0; }
+.says p { font-family: var(--ui); font-size: 14.5px; line-height: 1.6; margin: 0; max-width: 70ch; }
+.says .hint { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.val { border-bottom: 1px dashed var(--muted); font-weight: 600; }
+.val:hover { background: var(--sunk); border-bottom-color: var(--ink); }
+.mnote { font-size: 13.5px; color: var(--ink); }
+.evid { display: grid; gap: 8px; }
+.evpiece { all: unset; display: grid; gap: 4px; cursor: pointer; border-radius: var(--r-sm); padding: 2px 0; }
+.evpiece:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.evpiece q { font-family: var(--text); font-size: 15px; line-height: 1.6; quotes: "\201C" "\201D"; max-width: 70ch; }
+.evpiece mark { background: var(--marker); color: inherit; padding: 1px 0; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.evpiece:hover mark { box-shadow: 0 0 0 1px var(--marker-edge); }
+.evcap { font-size: 12px; color: var(--muted); }
+.evpiece:hover .evcap { color: var(--ink); text-decoration: underline; }
+.more summary { color: var(--muted); font-size: 13px; }
+
+/* actions: one primary button, quiet links */
+.act { border-top: 1px solid var(--line); padding-top: 12px; gap: 16px; }
+.primary { background: var(--ink); color: var(--surface); border-radius: var(--r-sm); padding: 8px 16px; font-weight: 500; font-size: 13.5px; }
+.primary:hover { opacity: .9; }
+.act .go.saving { background: var(--warn); color: #fff; }
+.act .links a, .small-link { color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line); }
+.act .links a:hover, .small-link:hover { color: var(--ink); text-decoration-color: currentColor; }
+.dbtn { border-radius: var(--r-sm); border-color: var(--line); font-weight: 500; font-size: 13px; padding: 6px 12px; }
+.dbtn:hover { background: var(--sunk); border-color: var(--line); }
+.inl { border: 1px solid var(--ink); border-radius: var(--r-sm); background: var(--surface); }
+.inl.dirty { background: var(--warn-soft); border-color: var(--warn); color: var(--ink); }
+.inlhint { font-family: var(--ui); color: var(--warn); }
+
+/* quick confirm list */
+.clist { border-radius: var(--r); border-color: var(--line); background: var(--surface); box-shadow: var(--shadow); }
+.crow { grid-template-columns: minmax(0, 1fr) auto; padding: 12px 16px; gap: 4px 16px; }
+.crow .ref { grid-column: 1; font-family: var(--ui); font-size: 14px; font-weight: 600; color: var(--ink); }
+.csent { grid-column: 1; font-size: 13.5px; }
+.cexp { color: var(--muted); }
+.cbtns { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+.crow.sel { background: var(--sunk); }
+
+/* decided cards and the approver box */
+.item.done { padding: 10px 16px; }
+.stamp { font-size: 12.5px; }
+.stamp.accept, .stamp.correct { color: var(--ok); }
+.approver { background: var(--surface); border: 1px solid var(--ink); border-radius: var(--r); }
+
+/* footer bar and source pane */
+.actions { padding: 12px 20px; }
+.meter { height: 4px; }
+.meter i { background: var(--ink); }
+.src-head { padding: 10px 16px; }
+.src-head .file { font-family: var(--ui); }
+.pg { font-family: var(--ui); font-variant-numeric: tabular-nums; }
+.nav { border-radius: var(--r-sm); }
+.hl { background: rgba(250, 204, 21, .38); outline: 1.5px solid var(--marker-edge); }
+.src-cap { font-size: 12.5px; }
+@media (max-width: 640px) { .rows .r { grid-template-columns: 1fr; gap: 2px; } .crow { grid-template-columns: 1fr; } .cbtns { grid-column: 1; grid-row: auto; } }
+.val.dirty { background: var(--warn-soft); border-bottom: 2px solid var(--warn); color: var(--ink); border-radius: 3px 3px 0 0; padding: 0 3px; }
+.evpiece q { quotes: none; }
+.item.sel { border-color: var(--ink); box-shadow: none; }
+/* highlight lives on the agreement page only; the card shows the passage as plain document text */
+.evpiece mark { background: none; padding: 0; color: inherit; }
+.evpiece:hover mark { box-shadow: none; }
 </style>

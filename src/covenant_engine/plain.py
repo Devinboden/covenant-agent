@@ -150,13 +150,30 @@ def reading(note):
     return t if t not in (".", "") else ""
 
 
-def where_label(row):
-    """Card header: a section number, or the definition and clause in reader's terms."""
-    m = re.match(r"term:(.+):\d+$", row.get("id") or "")
+def where_label(row, ab=None):
+    """Card title: what the item is about, in a reader's terms (a covenant by name, a definition and its clause,
+    or the deal term concerned)."""
+    kind, w0 = row.get("kind", ""), (row.get("what") or "")
+    if kind == "review/calc":
+        m = re.search(r"values for (.+?) are on (Schedule [\w.()]+)", w0)
+        if m:
+            return f"Deemed {m.group(1)} ({m.group(2)})"
+    if kind == "review/pricing":
+        return "Pricing grid"
+    if kind == "review/loan" and "equity cure" in w0:
+        return "Equity cure"
+    if kind == "flag" and ab:
+        ref = row.get("where") or ""
+        c = next((c for c in ab.get("covenants", []) if c.get("ref") and (c["ref"] == ref or ref.startswith(c["ref"]))), None)
+        if c:
+            return f"{c['metric']}, §{c['ref']}"
+    m = re.match(r"term:(.+):(\d+)$", row.get("id") or "")
     if row.get("term"):
         return _where(row["term"], row.get("clause"))
     if m:
-        return m.group(1)
+        t = next((t for t in (ab or {}).get("terms", []) if t["name"] == m.group(1)), None)
+        k = int(m.group(2))
+        return _where(m.group(1), t["components"][k].get("clause")) if t and k < len(t["components"]) else m.group(1)
     w = row.get("where") or ""
     if w.startswith(("reg:", "cov:")):
         return w.split(":")[1].replace("_", " ")

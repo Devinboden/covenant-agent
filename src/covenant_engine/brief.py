@@ -283,8 +283,16 @@ def statement(ab, item, fields):
             T("its own schedule of levels replaces the standard one (rows on the Covenants tab)")
         else:
             T(f"{g['type'].replace('_', ' ')} applies ({g['effect'].replace('_', ' ')})")
-        T(" for "); F_(ks, "duration.count"); T(" "); F_(ks, "duration.unit")
-        T(". Max uses: "); F_(ks, "max_uses"); E(" (blank = no limit)"); T(". Gap between uses: "); F_(ks, "min_gap.count"); T(" "); F_(ks, "min_gap.unit"); T(".")
+        has = lambda name: name in ks and str(fields[ks[name]]["value"]).strip() not in ("", "none")
+        if has("duration.count"):                 # empty values stay editable under "More context and fields"
+            T(" for "); F_(ks, "duration.count"); T(" "); F_(ks, "duration.unit")
+        if has("max_uses"):
+            T(". Max uses: "); F_(ks, "max_uses")
+        else:
+            T(". No limit on uses is stated")
+        if has("min_gap.count"):
+            T(". Gap between uses: "); F_(ks, "min_gap.count"); T(" "); F_(ks, "min_gap.unit")
+        T(".")
     return seg
 
 
