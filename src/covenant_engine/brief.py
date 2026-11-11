@@ -241,7 +241,7 @@ def statement(ab, item, fields):
         name = item.get("term") or (m.group(1) if m else g)
         clause = item.get("clause") or g[len(name):].strip()
         from .plain import _where
-        T(f"{_where(name, clause)} is ")
+        T(f"{_where(name, clause, ab)} is ")
         F("Effect")
         T(". Type: ")
         F("Category")

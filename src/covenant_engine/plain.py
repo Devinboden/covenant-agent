@@ -62,17 +62,34 @@ def clause_label(c):
         return f"(part {m.group(1)})"
     m = re.match(r"excl(\(.+\))$", c)
     if m:
-        return f"exclusion {m.group(1)}"
+        return f"deduction {m.group(1)}"
     return c
 
 
-def _where(term, clause):
+EARNINGS = re.compile(r"EBITDA|EBIT\b|Net Income|Earnings|Cash Flow", re.I)
+
+
+def _sign(ab, term, clause):
+    return next((c.get("sign") for t in (ab or {}).get("terms", []) if t["name"] == term
+                 for c in t["components"] if c.get("clause") == clause), None)
+
+
+def _where(term, clause, ab=None, sign=None):
+    """'Consolidated EBITDA add-back (j)' / 'deduction (iv)' for an earnings measure, the way a credit analyst says it;
+    'Indebtedness clause (j)' elsewhere (an item added to debt isn't an add-back)."""
     if not term:
         return ""
     lab = clause_label(clause)
-    if lab.startswith("exclusion"):
+    if lab.startswith("deduction"):
         return f"{term} {lab}"
-    return f"{term} {lab}" if lab.startswith("(") and lab[1:4] in ("mai", "ope", "las", "cov", "pro", "par", "ove", "sta") else f"{term} clause {lab}" if lab else term
+    if lab.startswith("(") and lab[1:4] in ("mai", "ope", "las", "cov", "pro", "par", "ove", "sta"):
+        return f"{term} {lab}"
+    if not lab:
+        return term
+    sign = sign or _sign(ab, term, clause)
+    if EARNINGS.search(term) and sign in ("+", "-"):
+        return f"{term} {'add-back' if sign == '+' else 'deduction'} {lab}"
+    return f"{term} clause {lab}"
 
 
 def clean(text):
@@ -90,7 +107,7 @@ def item_text(row, ab):
     w = (row.get("what") or "").split(". Model's reading")[0]
     term, clause = row.get("term") or "", row.get("clause") or ""
     kind = row.get("kind", "")
-    where = _where(term, clause)
+    where = _where(term, clause, ab)
     if kind == "review/3":
         comp = next((c for t in ab.get("terms", []) if t["name"] == term for c in t["components"] if c.get("clause") == clause), {})
         how = SIGN.get(comp.get("sign"), "counted")
@@ -118,7 +135,7 @@ def item_text(row, ab):
         if m:
             comps = next((t["components"] for t in ab.get("terms", []) if t["name"] == m.group(1)), [])
             k = int(cid.rsplit(":", 1)[1])
-            w2 = _where(m.group(1), comps[k].get("clause") if k < len(comps) else "")
+            w2 = _where(m.group(1), comps[k].get("clause") if k < len(comps) else "", ab)
             if claim.get("verdict") == "not_found":
                 return f"Confirm how {w2} is recorded against the evidence."
             return f"Check how {w2} is recorded against the evidence."
@@ -169,11 +186,11 @@ def where_label(row, ab=None):
             return f"{c['metric']}, §{c['ref']}"
     m = re.match(r"term:(.+):(\d+)$", row.get("id") or "")
     if row.get("term"):
-        return _where(row["term"], row.get("clause"))
+        return _where(row["term"], row.get("clause"), ab)
     if m:
         t = next((t for t in (ab or {}).get("terms", []) if t["name"] == m.group(1)), None)
         k = int(m.group(2))
-        return _where(m.group(1), t["components"][k].get("clause")) if t and k < len(t["components"]) else m.group(1)
+        return _where(m.group(1), t["components"][k].get("clause"), ab) if t and k < len(t["components"]) else m.group(1)
     w = row.get("where") or ""
     if w.startswith(("reg:", "cov:")):
         return w.split(":")[1].replace("_", " ")
@@ -215,7 +232,7 @@ def explain(row, ab, gpt=None):
         return (f"{lead}: {_lc(why)}" if lead else f"Flagged because {_lc(why)}").rstrip(".") + "."
     if kind == "review/3":
         t, c = next(((t, c) for t in ab.get("terms", []) if t["name"] == term for c in t["components"] if c.get("clause") == clause), (None, {}))
-        what = f"{_where(term, clause)} is " + {"+": "added", "-": "subtracted"}.get(c.get("sign"), "part of the calculation")
+        what = f"{_where(term, clause, ab)} is " + {"+": "added", "-": "subtracted"}.get(c.get("sign"), "part of the calculation")
         r = reading(note)
         if r:                                       # the card title already names the clause
             f1 = _first(r).rstrip(".")
@@ -244,7 +261,7 @@ def explain(row, ab, gpt=None):
         if m:
             t = next((t for t in ab.get("terms", []) if t["name"] == m.group(1)), None)
             c = t["components"][int(m.group(2))] if t and int(m.group(2)) < len(t["components"]) else {}
-            what = f"{_where(m.group(1), c.get('clause'))} is {SIGN.get(c.get('sign'), 'counted')} in the calculation"
+            what = f"{_where(m.group(1), c.get('clause'), ab)} is {SIGN.get(c.get('sign'), 'counted')} in the calculation"
         else:
             what = "This term"
         if "could not find" in diff or not diff:
