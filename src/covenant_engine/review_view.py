@@ -43,7 +43,7 @@ def _defined_at(doc, flat, name, sentence=False):
     for i, t in enumerate(flat):
         if want + "means" not in t and want + "ofanypersonmeans" not in t and want + "ofanypersonasofanydatemeans" not in t:
             continue
-        ws = doc[i].get_text("words", sort=True)
+        ws = _live_words(doc[i])
         for k, w in enumerate(ws):
             if not _flat(w[4]).startswith(_flat(name.split()[0])):
                 continue
@@ -144,12 +144,51 @@ def _search(page, text):
     return []
 
 
+def _live_words(page, sort=True):
+    """The page's words without struck-through (deleted) text: the same rule ingest uses for the text the model reads
+    (ingest/extract.py), so the evidence a reviewer sees is the current agreement, not a redline's deleted words. A word
+    that is partly struck ('Period' struck + 'not' kept, printed as 'Periodnot') keeps only its live letters."""
+    from .ingest.extract import _is_struck, _strike_segments
+    ws = page.get_text("words", sort=sort)
+    segs = _strike_segments(page)
+    if not segs:
+        return ws
+    chars = []                                   # (x0, y0, x1, y1, c, struck)
+    for b in page.get_text("rawdict")["blocks"]:
+        for ln in b.get("lines", []):
+            for sp in ln["spans"]:
+                st = bool(sp["chars"]) and _is_struck(sp["bbox"], segs)
+                chars += [(*ch["bbox"], ch["c"], st) for ch in sp["chars"]]
+    if not any(c[5] for c in chars):
+        return ws
+    struck_rows = {}                             # only words on a line that has struck text need the letter check
+    for c in chars:
+        struck_rows.setdefault(round((c[1] + c[3]) / 2), []).append(c)
+    rows_with_strike = {k for k, cs in struck_rows.items() if any(c[5] for c in cs)}
+    out = []
+    for w in ws:
+        x0, y0, x1, y1 = w[:4]
+        near = [r for r in range(int(y0) - 1, int(y1) + 2) if r in rows_with_strike]
+        if not near:
+            out.append(w)
+            continue
+        inside = sorted((c for r in near for c in struck_rows[r] if x0 - 0.5 <= (c[0] + c[2]) / 2 <= x1 + 0.5
+                         and y0 - 0.5 <= (c[1] + c[3]) / 2 <= y1 + 0.5 and not c[4].isspace()), key=lambda c: c[0])
+        if not inside or not any(c[5] for c in inside):
+            out.append(w)
+            continue
+        live = [c for c in inside if not c[5]]
+        if live:
+            out.append((min(c[0] for c in live), y0, max(c[2] for c in live), y1, "".join(c[4] for c in live), *w[5:]))
+    return out
+
+
 def _flat(t):
     return re.sub(r"[^a-z0-9]", "", (t or "").lower())
 
 
 ABBR = re.compile(r"^(?:\(?[a-z0-9]{1,4}\)|No|Nos|Sec|Secs|U\.S|Inc|Corp|Co|Ltd|L\.P|N\.A|e\.g|i\.e|etc|vs)\.$", re.I)
-LOCATE_V = "words-9"      # bump to re-locate every quote when the matching changes
+LOCATE_V = "words-11"      # bump to re-locate every quote when the matching changes
 
 
 def _ends_sentence(w):
@@ -257,10 +296,10 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
         pages = [i for i, t in enumerate(flat) if probe and probe in t] or \
                 [i for i, t in enumerate(flat) if tail and tail in t]       # its start is on the page before
         for i in pages:
-            ws = words.setdefault(i, doc[i].get_text("words", sort=True))
+            ws = words.setdefault(i, _live_words(doc[i]))
             m = _match_words(ws, parts[0])
             if not m:                       # a table cell that wraps: sorting by position interleaves it with the next
-                raw = doc[i].get_text("words")                # cell, so retry in the PDF's own reading order
+                raw = _live_words(doc[i], sort=False)            # cell, so retry in the PDF's own reading order
                 m = _match_words(raw, parts[0])
                 if m:
                     ws = raw

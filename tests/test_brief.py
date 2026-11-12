@@ -116,3 +116,16 @@ def test_defined_term_is_found_where_it_is_defined():
     page, rects = _defined_at(doc, flat, "Indebtedness")
     assert page == 1 and len(rects) == 1 and rects[0][1] < 80
     assert _defined_at(doc, flat, "Consolidated EBITDA") is None
+
+
+def test_evidence_drops_struck_through_text():
+    # a redline's deleted words are dropped from the evidence the reviewer sees, as ingest drops them for the model
+    import pymupdf
+    from covenant_engine.review_view import _live_words
+    doc = pymupdf.open()
+    p = doc.new_page()
+    p.insert_text((72, 72), "shall", fontsize=10)
+    p.insert_text((100, 72), "trigger", fontsize=10)              # deleted
+    p.insert_text((136, 72), "not be resumed", fontsize=10)
+    p.draw_line((99, 69), (133, 69), width=0.6)                    # strike line through the middle of 'trigger'
+    assert [w[4] for w in _live_words(p)] == ["shall", "not", "be", "resumed"]
