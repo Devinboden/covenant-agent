@@ -35,8 +35,9 @@ def pdf_path(b, ab):
 DNAME = "@name"            # marker: locate the defined term ('"Indebtedness" of any Person means') by pattern
 
 
-def _defined_at(doc, flat, name):
-    """(page, rects) of the defined term where the agreement defines it: “Name” [of any Person] means."""
+def _defined_at(doc, flat, name, sentence=False):
+    """(page, rects[, text]) of the defined term where the agreement defines it: “Name” [of any Person] means.
+    sentence=True widens to the definition's opening sentence (for an item's evidence)."""
     import re as _re
     want = _flat(name)
     for i, t in enumerate(flat):
@@ -51,6 +52,9 @@ def _defined_at(doc, flat, name):
                 z = k + m[1]
                 nxt = " ".join(x[4] for x in ws[z + 1:z + 6]).lower()
                 if _re.match(r"(of any person (as of any date )?)?means", nxt):
+                    if sentence:
+                        s, e = _sentence(ws, k, z + 5)
+                        return i, _boxes(ws, s, e), re.sub(r"\s+", " ", " ".join(w[4] for w in ws[s:e + 1])).strip()
                     return i, _boxes(ws, k, z)
     return None
 
@@ -105,6 +109,8 @@ def evidences(ab, row):
         if quote and k and not any(k in x or x in k for x in seen):
             seen.add(k)
             out.append({"label": label, "quote": quote})
+    if row.get("kind") == "review/terms":
+        return [{"label": f"Definition of {row.get('term')}", "quote": DNAME + row.get("term", "")}]
     t, c = _component(ab, row)
     if c:
         add("This part of the agreement", c.get("quote", ""))
@@ -238,6 +244,11 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
             hit = _defined_at(doc, flat, key.split(":", 1)[1])
             if hit:
                 out["loc"][key] = {"page": hit[0], "rects": hit[1], "sentence": key.split(":", 1)[1]}
+            continue
+        if (q or "").startswith(DNAME):                    # an item's evidence: the term's whole definition sentence
+            hit = _defined_at(doc, flat, q[len(DNAME):], sentence=True)
+            if hit:
+                out["loc"][key] = {"page": hit[0], "rects": hit[1], "sentence": hit[2]}
             continue
         parts = [x.strip() for x in (q or "").split("|") if x.strip()]
         if not parts:

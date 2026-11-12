@@ -282,7 +282,8 @@ function evidence(it) {
   const norm = t => String(t || "").replace(/\s+/g, " ").trim();
   const piece = (e, k) => {
     const l = D.locs.loc[e.loc];
-    const S = norm((l && l.sentence) || e.quote), Q = norm(e.quote);
+    const Q = /^@name/.test(e.quote || "") ? "" : norm(e.quote);      // a definition found by its term, not by a quote
+    const S = norm((l && l.sentence) || Q || e.label);
     const at = Q ? S.toLowerCase().indexOf(Q.slice(0, 60).toLowerCase()) : -1;
     const body = at >= 0 ? esc(S.slice(0, at)) + "<mark>" + esc(S.slice(at, at + Q.length)) + "</mark>" + esc(S.slice(at + Q.length)) : esc(S);
     const cap = [k && e.label && e.label !== "This part of the agreement" ? e.label : "", l ? `Page ${l.page + 1}` : "Not found on a page"].filter(Boolean).join(", ");

@@ -34,17 +34,18 @@ def gpt_check(borrower, out_dir="data/gpt_blind"):
     """Blind second-model check (gpt_blind.py): GPT answers the abstract's questions without seeing its answers; code
     compares. Needs the Codex CLI signed in (CODEX_HOME)."""
     from . import gpt_blind as GB
+    from ..model import call_model
     home = os.environ.get("CODEX_HOME")
     if not home or not CODEX or not os.path.exists(CODEX):
         return {"skipped": "Codex not signed in (set CODEX_HOME)"}
     GB.prepare([borrower], out_dir)
     d = ROOT / out_dir / borrower
-    with open(d / "prompt.md") as fin, open(d / "codex.log", "w") as log:
-        r = subprocess.run([CODEX, "exec", "--skip-git-repo-check", "--ephemeral", "--output-schema", "schema.json",
-                            "-o", "answers.json", "-"], cwd=d, stdin=fin, stdout=log, stderr=subprocess.STDOUT,
-                           timeout=2400)
-    if r.returncode or not (d / "answers.json").exists():
-        return {"error": f"codex exit {r.returncode}; see {d / 'codex.log'}"}
+    r = call_model("", (d / "prompt.md").read_text(encoding="utf-8"),             # through the one model gate
+                   json.loads((d / "schema.json").read_text(encoding="utf-8")), model="codex", timeout=2400)
+    (d / "codex.log").write_text(json.dumps({k: v for k, v in r.items() if k != "output"}, indent=1), encoding="utf-8")
+    if not r.get("ok"):
+        return {"error": r.get("error") or "codex call failed"}
+    (d / "answers.json").write_text(json.dumps(r["output"], indent=1), encoding="utf-8")
     tally, _ = GB.score(borrower, out_dir, write=True)
     return tally
 
@@ -61,7 +62,8 @@ def review_rows(ab, rec):
     # A term-check item names a clause of a defined term; its evidence is that clause's text from the agreement (so the
     # screen can find and highlight it). The model's own reading ("note") is part of what to check, never the quote.
     clause_quote = {(t["name"], c.get("clause")): c.get("quote", "") for t in ab.get("terms", []) for c in t.get("components", [])}
-    for r in ab.get("review", []):
+    from .signoff import review_list
+    for r in review_list(ab):
         from .signoff import item_key
         k = item_key("review", r)
         what = r.get("why") or r.get("item") or r.get("claim") or ""

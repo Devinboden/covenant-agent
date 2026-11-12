@@ -77,3 +77,57 @@ def test_adding_a_cap_saves_and_validates():
     new, log = C.apply(ab, item, [{"path": f["path"], "value": "125,000,000"}], ABSTRACT_SCHEMA)
     cap = next(t for t in new["terms"] if t["name"] == "Unrestricted Cash")["components"][0]["caps"][0]
     assert cap["value"] == "125000000" and log[0]["after"] == "125,000,000"
+
+
+def test_value_must_be_in_its_quote():
+    # code proves the stored number is in the quote (not just that the quote is in the agreement)
+    from covenant_engine.abstract.value_check import value_in_quote
+    assert value_in_quote("3.50", "The Borrower will not permit the Ratio to exceed 3.50 to 1.00") is None
+    assert value_in_quote("0.20", "shall not exceed 20% of Consolidated EBITDA for such period") is None
+    assert value_in_quote("125000000", "in an amount not to exceed $125,000,000 in the aggregate") is None
+    assert value_in_quote("2500000", "not to exceed $2.5 million in any fiscal year") is None
+    assert value_in_quote("6000000", "December 31, 2025 | 6.0") is None             # table row in millions
+    assert value_in_quote("4.25", "The Borrower will not permit the Ratio to exceed 4.50 to 1.00")      # misread
+    assert value_in_quote("9.99", "exceed")                                           # quote too short
+    assert value_in_quote("lesser of x|y", "anything") is None                        # not a number: not this check
+
+
+def test_blind_comparison_is_exact_except_stated_percentages():
+    from covenant_engine.abstract.gpt_blind import _same_num, _cap_num, _months
+    assert not _same_num("1000000", "100000000")        # $1M is not $100M
+    assert _same_num("4.50", "4.5")
+    assert _cap_num({"type": "pct_of_ebitda"}, 20) == 0.20 and _cap_num({"type": "fixed_amount"}, 20) == 20
+    assert _months("12", "months") == _months("4", "fiscal quarters") == _months("1", "year")
+    assert _months("12", "months") != _months("12", "quarters")
+
+
+def test_a_correction_must_be_a_number_where_the_pipeline_requires_one():
+    """A level typed as text used to be accepted; corrections now meet the same rule the pipeline holds the model to."""
+    import json, pytest
+    from covenant_engine.abstract import corrections as C
+    from covenant_engine.abstract.build import ABSTRACT_SCHEMA
+    ab = json.load(open("data/abstract/v1/CARS.abstract.json"))
+    item = {"kind": "flag", "where": ab["covenants"][0]["ref"]}
+    lvl = next(x for x in C.fields(ab, item) if x["path"][-1] == "value" and "schedule" in x["path"])
+    with pytest.raises(C.CorrectionError, match="number"):
+        C.apply(ab, item, [{"path": lvl["path"], "value": "not a number"}], ABSTRACT_SCHEMA)
+    new, _ = C.apply(ab, item, [{"path": lvl["path"], "value": "3.75"}], ABSTRACT_SCHEMA)
+    assert new["covenants"][0]["schedule"][0]["value"] == "3.75"
+
+
+def test_gpt_check_goes_through_the_one_model_gate():
+    # 'codex' routes to the Codex backend inside call_model's live backend; without a sign-in it fails loudly, not empty
+    from covenant_engine import model as M
+    live = M.Live()
+    seen = []
+    live.codex.complete_json = lambda *a, **k: seen.append("codex") or {"ok": True}
+    live.claude.complete_json = lambda *a, **k: seen.append("claude") or {"ok": True}
+    live.complete_json("", "q", {}, model="codex"); live.complete_json("", "q", {}, model="claude-sonnet-5-5")
+    assert seen == ["codex", "claude"]
+    import os
+    old = os.environ.pop("CODEX_HOME", None)
+    try:
+        assert M.CodexCLI().complete_json("", "q", {})["ok"] is False
+    finally:
+        if old:
+            os.environ["CODEX_HOME"] = old

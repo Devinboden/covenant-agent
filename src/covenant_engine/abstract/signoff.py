@@ -46,11 +46,20 @@ def item_key(kind, x):
     return hashlib.sha1("|".join(map(str, basis)).encode()).hexdigest()[:10]
 
 
+def review_list(ab):
+    """The abstract's review entries, plus code checks run on the stored abstract: each level or cap whose value isn't
+    in its own quote, and one per defined term the covenants rely on that wasn't broken into its parts
+    (no category for it, or the depth / term limit cut it off). Skipped terms are never silent."""
+    from .value_check import checks
+    return ab.get("review", []) + checks(ab) + [{"step": "terms", "term": t, "item": f"{t} is used in the covenant calculation but "
+                                    f"its parts weren't recorded"} for t in ab.get("terms_pending", [])]
+
+
 def items(ab):
     out = {}
     for f in ab.get("flags", []):
         out[item_key("flag", f)] = {"kind": "flag", "text": f"{f['type']} {f['ref']}: {f['note'][:200]}"}
-    for r in ab.get("review", []):
+    for r in review_list(ab):
         what = r.get("why") or r.get("item") or r.get("claim") or ""
         out[item_key("review", r)] = {"kind": f"review/{r.get('step')}",
                                       "text": f"{r.get('term', '')} {r.get('clause', '') or r.get('id', '')}: {what[:200]}".strip()}

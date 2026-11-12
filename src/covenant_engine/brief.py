@@ -355,6 +355,10 @@ def level(item, gpt, stored=None):
         if agrees and ACCURACY["clause_uncapped"]["rate"] >= CONFIRM_AT:
             return _lv("confirm", 2, "No limit on this item, and GPT, reading separately, agrees on how it counts.", "clause_uncapped")
         return _lv("decide", 2, "The automatic checks couldn't confirm this clause" + (" and GPT didn't either." if gpt else "."))
+    if kind == "review/value":
+        return _lv("decide", 1, "The recorded number isn't in the text it was taken from.")
+    if kind == "review/terms":
+        return _lv("decide", 2, "A definition the covenant relies on wasn't broken down, so its effect on the ratio isn't recorded.")
     if kind in ("review/calc", "review/pricing"):
         return _lv("decide", 1, "Needs a document that isn't in the public filings, or a judgment call.")
     return _lv("decide", 1 if kind != "review/3" else 2, "Needs a judgment call on how the agreement reads.")

@@ -140,10 +140,25 @@ def _n(s):
 
 
 def _same_num(a, b):
+    """Same number, exactly. (It used to accept x100 and /100 so 20% matched 0.20, which also let $1M match $100M;
+    percentages are now normalised where they're stated, in _cap_num.)"""
     a, b = _n(a), _n(b)
     if a is None or b is None:
         return a is None and b is None
-    return any(abs(x - y) < 1e-6 * max(1, abs(y)) for x in (a, a / 100, a * 100) for y in (b,))
+    return abs(a - b) < 1e-6 * max(1, abs(b))
+
+
+def _cap_num(cap, x):
+    """A % of EBITDA cap as a fraction whichever way it was written (20 or 0.20); other caps as stated."""
+    return x / 100 if cap.get("type") == "pct_of_ebitda" and x > 1 else x
+
+
+MONTHS = {"month": 1, "quarter": 3, "fiscal quarter": 3, "year": 12, "fiscal year": 12}
+
+
+def _months(count, unit):
+    n, u = _n(count), re.sub(r"s$", "", (unit or "").strip().lower())
+    return n * MONTHS[u] if n is not None and u in MONTHS else None
 
 
 def _field(ans, name):
@@ -181,7 +196,11 @@ def compare(cid, value, ans, meta=None):
                 if not _same_num(_field(ans, k), value[k]):
                     diffs.append(f"{k} {value[k]} vs {_field(ans, k) or '—'}")
         dur = value.get("duration") or {}
-        if dur.get("count") and not _same_num(_field(ans, "duration_count"), dur["count"]):
+        mine_m, his_m = _months(dur.get("count"), dur.get("unit")), _months(_field(ans, "duration_count"), _field(ans, "duration_unit"))
+        if mine_m is not None and his_m is not None:
+            if abs(mine_m - his_m) > 1e-6:
+                diffs.append(f"duration {dur['count']} {dur.get('unit')} vs {_field(ans, 'duration_count')} {_field(ans, 'duration_unit')}")
+        elif dur.get("count") and not _same_num(_field(ans, "duration_count"), dur["count"]):
             diffs.append(f"duration {dur['count']} {dur.get('unit')} vs {_field(ans, 'duration_count') or '—'} {_field(ans, 'duration_unit')}")
     elif p[0] == "term":
         meta = meta or {}
@@ -201,7 +220,7 @@ def compare(cid, value, ans, meta=None):
         # Claude sometimes types a dollar limit 'other'; a bare number there is still a limit ('excess_over:N' is a
         # threshold, not a cap). GPT's 'other' entries are conditions, so only its typed limits count.
         mine_ok = lambda c: c.get("type") in hard or (c.get("type") == "other" and re.fullmatch(r"[\d.,]+", str(c.get("value", "")).strip()))
-        vals = lambda caps, ok: sorted({round(x, 6) for c in caps if ok(c) for x in _nums(c["value"])[:1]})
+        vals = lambda caps, ok: sorted({round(_cap_num(c, x), 6) for c in caps if ok(c) for x in _nums(c["value"])[:1]})
         own, term = vals(value.get("caps", []), mine_ok), vals((meta or {}).get("term_caps", []), mine_ok)
         his = vals(ans.get("caps", []), lambda c: c.get("type") in ("fixed_amount", "pct_of_ebitda"))
         # A cap written in the definition this part points to (e.g. '$125M' in 'Unrestricted Cash', reached through
@@ -236,7 +255,8 @@ def compare(cid, value, ans, meta=None):
                 diffs.append(f"{k} {value[k]} vs {_field(ans, k) or '—'}")
         want = sorted(_n(m["value"]) for m in value.get("margins", []) if _n(m["value"]) is not None)
         got = _nums(_field(ans, "margins"))
-        if want and not all(any(_same_num(w, g) for g in got) for w in want):
+        bps = lambda w, g: _same_num(w, g) or _same_num(w * 100, g) or _same_num(w, g * 100)   # 1.75% = 175 bps
+        if want and not all(any(bps(w, g) for g in got) for w in want):
             diffs.append(f"margins {want} vs {got or '—'}")
     return not diffs, "; ".join(diffs)
 
@@ -263,10 +283,10 @@ def ref_caps(ab, ans, ref, own):
         if t["name"] != ref:
             continue
         for i, c in enumerate(t["components"]):
-            out += [x for k in c.get("caps", []) if k.get("type") in ("fixed_amount", "pct_of_ebitda") or
+            out += [_cap_num(k, x) for k in c.get("caps", []) if k.get("type") in ("fixed_amount", "pct_of_ebitda") or
                     re.fullmatch(r"[\d.,]+", str(k.get("value", "")).strip()) for x in _nums(k["value"])[:1]]
             a = ans.get(f"term:{ref}:{i}") or {}
-            out += [x for k in a.get("caps", []) if k.get("type") in ("fixed_amount", "pct_of_ebitda") for x in _nums(k["value"])[:1]]
+            out += [_cap_num(k, x) for k in a.get("caps", []) if k.get("type") in ("fixed_amount", "pct_of_ebitda") for x in _nums(k["value"])[:1]]
     return out
 
 
@@ -288,6 +308,10 @@ def score(b, out_dir, abs_dir="data/abstract/v1", write=False):
         a = ans.get(cid)
         if not a:
             tally["missing_answer"] += 1
+            per[cid] = {"verdict": "not_found", "evidence_verbatim": False, "value_in_text": "GPT gave no answer", "evidence": "",
+                        "note": "", "mode": "blind"}
+            review.append({"step": "gpt", "id": cid, "claim": c["claim"][:200], "gpt_reads": "GPT could not find it in the agreement",
+                           "evidence": "", "note": "no answer returned for this question"})
             continue
         ok_ev = bool(a["evidence"]) and squash(a["evidence"])[:120] in live
         absent_claim = cid == "loan:cure" and not (c["value"] or {}).get("present")

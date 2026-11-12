@@ -21,6 +21,27 @@ REGIME_FIELDS = [("increment", "Step-up increment (x)", "text"), ("ceiling", "Ce
 SIGNS = ["+", "-"]
 
 
+NUMERIC_CAPS = ("fixed_amount", "pct_of_ebitda", "per_transaction", "lifetime_amount")
+
+
+def _number_rule(ab, path, val):
+    """The same rule the pipeline holds the model to: levels, increments and amounts are numbers; counts are whole
+    numbers. None if the value is fine (blank is fine where the field allows it)."""
+    v = val.replace(",", "")
+    name = str(path[-1])
+    if name == "value" and "schedule" in path:                            # a covenant level
+        return None if re.fullmatch(r"\d+(\.\d+)?", v) else "a level is a number, e.g. 3.50"
+    if path[0] == "regimes" and name in ("increment", "ceiling", "level"):
+        return None if not v or re.fullmatch(r"\d+(\.\d+)?", v) else "a number, e.g. 0.50, or blank"
+    if name in ("count", "max_uses"):
+        return None if not v or re.fullmatch(r"\d+", v) else "a whole number, or blank"
+    if name == "value" and "caps" in path:
+        cap = _get(ab, path[:-1])
+        if cap.get("type") in NUMERIC_CAPS and not re.fullmatch(r"\d+(\.\d+)?", v):
+            return "this limit is a number (dollars, or a fraction for a % of EBITDA, e.g. 0.20)"
+    return None
+
+
 def _get(obj, path):
     for p in path:
         obj = obj[p]
@@ -133,6 +154,9 @@ def apply(ab, item, changes, schema):
             raise CorrectionError(f"{f['label']}: {val!r} is not one of {f['options']}")
         if f["type"] == "date" and val and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", val):
             raise CorrectionError(f"{f['label']}: dates are YYYY-MM-DD")
+        why = _number_rule(new, path, val)
+        if why:
+            raise CorrectionError(f"{f['label']}: {why}")
         if path[-1] == "+":                                                      # add a fixed-amount cap
             if not val:
                 continue

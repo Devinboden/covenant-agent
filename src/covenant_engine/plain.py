@@ -177,6 +177,8 @@ def where_label(row, ab=None):
             return f"Deemed {m.group(1)} ({m.group(2)})"
     if kind == "review/pricing":
         return "Pricing grid"
+    if kind == "review/terms":
+        return f"{row.get('term')} (definition not broken down)"
     if kind == "review/loan" and "equity cure" in w0:
         return "Equity cure"
     if kind == "flag" and ab:
@@ -290,6 +292,12 @@ def explain(row, ab, gpt=None):
         if cid.startswith("loan:fiscal_year_end"):
             what = "The fiscal year end sets the test dates"
         return f"{what}; flagged because {why}."
+    if kind == "review/value":
+        what = w.split(":")[0]
+        return f"{what} is recorded, but that number isn't in the quoted agreement text; flagged so the figure is checked against the agreement."
+    if kind == "review/terms":
+        return (f"{term} feeds the covenant calculation, but its parts weren't recorded in the abstract; flagged so its "
+                f"definition is checked by hand.")
     if kind == "review/calc":
         m = re.search(r"values for (.+?) are on (Schedule [\w.()]+)", w)
         if m:

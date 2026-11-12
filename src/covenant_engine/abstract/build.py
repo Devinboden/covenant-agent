@@ -85,7 +85,7 @@ def terms_for(cov, defs, packet_chunks):
     return {t for t in found if not SKIP.match(t) and CALC.search(t) and t != m}
 
 
-def build(borrower, model="sonnet", max_terms=12, reuse_step2=False, out="data/abstract/v1"):
+def build(borrower, model="sonnet", max_terms=25, reuse_step2=False, out="data/abstract/v1"):
     bdir = bundle_dir(borrower)
     report = json.loads((bdir / "report.json").read_text(encoding="utf-8"))
     defs = json.loads((bdir / "definitions.json").read_text(encoding="utf-8"))
@@ -123,6 +123,7 @@ def build(borrower, model="sonnet", max_terms=12, reuse_step2=False, out="data/a
                 level.append(t)
             else:
                 pending.add(t)
+        pending.update(level[max_terms - len(s3):])          # cut by the term limit: recorded, never silent
         level = level[:max_terms - len(s3)]
         with ThreadPoolExecutor(4) as ex:
             res = dict(zip(level, ex.map(lambda t: S3.run(borrower, t, model=model, used_by=[
@@ -139,6 +140,7 @@ def build(borrower, model="sonnet", max_terms=12, reuse_step2=False, out="data/a
                 used_by.setdefault(x, set()).update(used_by.get(t, set()))
                 queue.append(x)
         depth += 1
+    pending.update(t for t in queue if t not in seen and t in defs["defined"])   # cut by the depth limit
     # code: cap 'covenant' may name ratios the text uses ("Secured Net Leverage Ratio"); map to the covenants' sections
     metric_sec = {c["metric"].split(":")[0].strip().lower(): c["ref"] for c in out2["covenants"]}
     for r in s3.values():

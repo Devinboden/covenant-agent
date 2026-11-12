@@ -129,7 +129,7 @@ def test_declined_form_changes_nothing(abs_dir, tmp_path):
     for action in ("decline", "cancel"):
         r = call(s, "resolve_item", {"borrower": "CXT", "key": key}, answer=person(action))
         assert r.structured_content["recorded"] is False
-    assert call(s, "signoff_status", {"borrower": "CXT"}).structured_content["open"] == 6
+    assert call(s, "signoff_status", {"borrower": "CXT"}).structured_content["open"] == 8   # 6 review entries + 2 terms the covenants use that were not broken down
 
 
 def test_four_eyes_through_mcp(abs_dir, tmp_path):
@@ -140,7 +140,7 @@ def test_four_eyes_through_mcp(abs_dir, tmp_path):
         r = call(r1, "resolve_item", {"borrower": "CXT", "key": it["key"], "proposed_decision": "reject"},
                  answer=person(decision="accept", seen=seen))
         assert r.structured_content["decision"] == "accept"                          # the person's answer wins
-    assert len(seen) == 6 and all("CXT" in m for m in seen)
+    assert len(seen) == 8 and all("CXT" in m for m in seen)
     assert call(r1, "verify", {"borrower": "CXT"}, answer=person(confirm=False)).structured_content["verified"] is False
     assert call(r1, "verify", {"borrower": "CXT"}).structured_content["verified"]
     same = call(r1, "sign_off", {"borrower": "CXT"})

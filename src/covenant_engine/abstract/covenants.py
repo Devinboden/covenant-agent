@@ -202,7 +202,10 @@ def check(out, live_sq, closing=None):
     cids = {c["id"] for c in out["covenants"]}
     rids = {g["id"] for g in out["regimes"]}
 
-    def q(where, s):
+    def q(where, s, required=False):
+        if required and len(squash(s or "")) < 15:            # a level, covenant or regime must say where it came from
+            P.append(f"{where}: quote missing or too short to locate in the agreement: {s!r}")
+            return
         if s and squash(s)[:80] not in live_sq:
             P.append(f"{where}: quote not found verbatim in the agreement: {s[:80]!r}")
 
@@ -217,7 +220,7 @@ def check(out, live_sq, closing=None):
                     P.append(f"{where}: {side} date {p['date']!r} is not YYYY-MM-DD")
                 if p["kind"] == "quarters_after" and (_num(p["count"]) is None or not p["anchor"]):
                     P.append(f"{where}: relative {side} needs a count and an anchor")
-            q(where, r["quote"])
+            q(where, r["quote"], required=True)
         dated = [(r, _d(r["start"]), _d(r["end"])) for r in rs if _d(r["start"]) not in (None, "bad")]
         dated.sort(key=lambda x: x[1])
         for (r1, s1, e1), (r2, s2, e2) in zip(dated, dated[1:]):
@@ -228,7 +231,7 @@ def check(out, live_sq, closing=None):
 
     for c in out["covenants"]:
         w = f"covenant {c['id']}"
-        q(w, c["quote"])
+        q(w, c["quote"], required=True)
         # spec v1.1: a row starts on its first test date (month end / quarter end), not a period start or effective date
         for r in c["schedule"] + [r for g in out["regimes"] for s in g["schedules"] if s["covenant_id"] == c["id"] for r in s["rows"]]:
             d = _d(r["start"])
@@ -247,7 +250,7 @@ def check(out, live_sq, closing=None):
         rows(w, c["schedule"])
     for g in out["regimes"]:
         w = f"regime {g['id']}"
-        q(w, g["quote"])
+        q(w, g["quote"], required=True)
         for cid in g["applies_to"] + [s["covenant_id"] for s in g["schedules"]] + [a["covenant_id"] for a in g["early_exit"]["after_levels"]]:
             if cid not in cids:
                 P.append(f"{w}: covenant id {cid!r} doesn't exist")
