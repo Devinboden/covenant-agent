@@ -219,12 +219,30 @@ def _lc(s):
     return s[:1].lower() + s[1:] if s and not s[:2].isupper() else s
 
 
+def _d(iso):
+    from datetime import date
+    try:
+        return date.fromisoformat(iso).strftime("%B %-d, %Y")
+    except ValueError:
+        return iso
+
+
 def explain(row, ab, gpt=None):
     """One sentence for the reviewer: what this item is and why it was flagged. Plain words, no mention of which model
     or check raised it. Built by code from the item and the abstract."""
     kind, term, clause = row.get("kind", ""), row.get("term") or "", row.get("clause") or ""
     w = (row.get("what") or "").split(". Model's reading")[0]
     note = row.get("note") or ""
+    if kind == "flag" and row.get("type") == "ambiguous_date" and ab:
+        # A period that starts at the Closing Date: say what the abstract stores, not the model's guess in its note
+        # (code sets the first test to the first quarter end on or after the Closing Date).
+        q = re.sub(r"\s+", " ", row.get("evidence") or "")
+        hit = next(((c, r) for c in ab.get("covenants", []) for r in c.get("schedule", [])
+                    if q and re.sub(r"\s+", " ", r.get("quote", "")) == q and "Closing Date" in q), None)
+        cd = ((ab.get("loan") or {}).get("closing_date") or {}).get("value")
+        if hit and hit[1]["start"].get("date") and cd:
+            return (f"This period starts at the Closing Date ({_d(cd)}) and the agreement doesn't name the first test; "
+                    f"recorded as {_d(hit[1]['start']['date'])}, the first quarter end on or after the Closing Date.")
     if kind == "flag":
         why = next((x for x in _sentences(clean(w)) if UNSURE.search(x) and not re.match(r"nothing\b", x, re.I)), None) \
             or _first(clean(w))
