@@ -108,10 +108,12 @@ async function goPage(p) {
     $("cap").innerHTML = `${esc(citedCap)} · you're on page ${p + 1} <a href="#" id="backCited">back to page ${citedPage + 1}</a>`;
     $("backCited").onclick = e => { e.preventDefault(); goPage(citedPage); };
   } else if (citedPage !== null) $("cap").textContent = `${citedCap} · page ${p + 1}`;
+  if (legend) $("cap").insertAdjacentHTML("beforeend", `<div class="legend">${legend}</div>`);
   [p - 1, p + 1].filter(n => n >= lo && n <= hi).forEach(n => pageImg(n).catch(() => {}));   // next flip is instant
 }
-async function show(key, caption) {
-  sel = key;
+let extras = [], legend = "";          // a definition row also marks the defined term and the words that make the part count
+async function show(key, caption, opt = {}) {
+  sel = key; extras = opt.extras || []; legend = opt.legend || "";
   document.querySelectorAll(".sel").forEach(e => e.classList.remove("sel"));
   document.querySelectorAll(`[data-loc="${CSS.escape(key)}"]`).forEach(e => e.classList.add("sel"));
   const l = D.locs.loc[key];
@@ -134,12 +136,13 @@ function drawHL(l) {
   const s = Math.min(cw / D.locs.pw, ch / D.locs.ph);
   const ox = img.offsetLeft + (cw - D.locs.pw * s) / 2, oy = img.offsetTop + (ch - D.locs.ph * s) / 2;
   let first = null;
-  for (const [x0, y0, x1, y1] of l.rects) {
+  const marks = [...extras.map(([k, c]) => [D.locs.loc[k], "hl hl-" + c]).filter(([m]) => m && m.page === curPage), [l, "hl"]];
+  for (const [m, cls] of marks) for (const [x0, y0, x1, y1] of m.rects) {
     const d = document.createElement("div");
-    d.className = "hl";
+    d.className = cls;
     Object.assign(d.style, { left: ox + x0 * s + "px", top: oy + y0 * s + "px", width: (x1 - x0) * s + "px", height: (y1 - y0) * s + "px" });
     $("page").appendChild(d);
-    first = first || d;
+    if (cls === "hl") first = first || d;
   }
   const scroll = () => { const sc = $("scroller"); sc.scrollTo({ top: Math.max(0, $("page").offsetTop + first.offsetTop - sc.clientHeight / 3) }); };
   if (first) $("pageImg").complete ? requestAnimationFrame(scroll) : $("pageImg").addEventListener("load", scroll, { once: true });
@@ -166,8 +169,8 @@ function render(p) {
   if (!p.locs.pdf) { $("page").hidden = true; $("pgLabel").textContent = ""; $("prev").hidden = $("next").hidden = true; }
   const f = p.facts;
   const facts = [["Agent", (f.agent || "—").replace(/, NATIONAL ASSOCIATION/i, "")],
-    ["Facility", f.commitment ? `${money(f.commitment)} ${f.facility || ""}` : "—"], ["Matures", fmtD(f.maturity)],
-    ["Latest amendment", fmtD(f.latest_amendment)], ["Covenants", `${p.covs.length} tests · ${p.regs.length} regimes`], ["Closing date", fmtD(f.closing)]];
+    ["Covenants", `${p.covs.length} tests · ${p.regs.length} regimes`],
+    ["Facility", f.commitment ? `${money(f.commitment)} ${f.facility || ""}` : "—"]];
   $("facts").innerHTML = facts.map(([k, v]) => `<div class="fact"><small>${k}</small><div>${esc(v)}</div></div>`).join("");
   pipeline(); items(); covenants(); trail(); progress();
   if (!sel && p.items.length) show("item:" + p.items[0].key, `§${p.items[0].where}`);
@@ -193,12 +196,12 @@ function items() {
   const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
   const done = D.items.filter(i => i.resolution);
   const head = "";
-  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Quick confirm <span class="count">${confirm.length}</span></h2><p class="gsub">Lower-risk items. Check each, or confirm them all at once.</p>
+  const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Low priority <span class="count">${confirm.length}</span></h2><p class="gsub">Check each against the agreement, or confirm them all at once.</p>
       ${editable ? `<button class="primary" id="acceptAll">Confirm all ${confirm.length}</button>` : ""}</div>
       <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
         <span class="csent">${esc(plain(it))}${it.explain ? `<span class="cexp">${esc(it.explain)}</span>` : ""}</span>
         ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Confirm</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
-  const dec = `<section class="group"><h2>Needs your decision <span class="count">${decide.length}</span></h2><p class="gsub">${decide.length ? "Compare what the abstract recorded with the agreement text, then confirm or change it." : "Nothing left to decide."}</p>
+  const dec = `<section class="group"><h2>High priority <span class="count">${decide.length}</span></h2><p class="gsub">${decide.length ? "Compare what the abstract recorded with the agreement text, then confirm or change it." : "No high-priority items left."}</p>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
   const dn = done.length ? `<details class="group done-group" ${openGroups.done ? "open" : ""}><summary><h2>Done <span class="count">${done.length}</span></h2></summary>
       <div class="items">${done.map(it => card(it, editable)).join("")}</div></details>` : "";
@@ -465,7 +468,8 @@ function covenants() {
     const defs = sc.definitions.map(d => `<li><details class="defitem"><summary><b>${esc(d.name)}</b>${d.starts_from ? `, starts from ${esc(d.starts_from)}` : ""}:
         ${d.adds} item${d.adds === 1 ? "" : "s"} added, ${d.subtracts} subtracted${d.capped.length ? `, ${d.capped.length} with a limit` : ""}</summary>
         <table class="mini defs-t"><thead><tr><th>Clause</th><th>Effect</th><th>What it is</th><th>Limit</th></tr></thead><tbody>
-        ${(d.items || []).map(x => `<tr title="${esc(x.text)}"><td>${esc(x.clause)}</td><td>${esc(x.effect)}</td><td>${esc(x.what)}<div class="deftext">${esc(x.text)}</div></td><td>${esc(x.limit || "none")}</td></tr>`).join("")}
+        ${(d.items || []).map(x => `<tr class="defrow" data-loc="${esc(x.loc)}" data-lead="${esc(x.lead || "")}" data-name="${esc(x.name_loc || "")}"
+          data-term="${esc(d.name)}" data-clause="${esc(x.clause)}" data-effect="${esc(x.effect)}" title="Show in the agreement"><td>${esc(x.clause)}</td><td>${esc(x.effect)}</td><td>${esc(x.what)}<div class="deftext">${esc(x.text)}</div></td><td>${esc(x.limit || "none")}</td></tr>`).join("")}
         </tbody></table></details></li>`).join("");
     const rp = sc.reported;
     const rep = rp ? (rp.cushion != null && rp.threshold
@@ -499,9 +503,21 @@ function covenants() {
         <tr class="ctx"><td colspan="3">${esc(t.context)}</td></tr>`).join("")}</tbody></table></div></article>` : "";
   $("view-cov").innerHTML = `<div class="items">${intro}${covCards}${deal}${other}<p class="note">Dashed purple in a chart = relief schedule.</p></div>`;
   $("view-cov").querySelectorAll(".row").forEach(e => e.onclick = () => show(e.dataset.loc, e.dataset.cap));
+  $("view-cov").querySelectorAll(".defrow").forEach(e => e.onclick = () => {
+    const x = e.dataset, L = D.locs.loc, cl = L[x.loc];
+    const page = k => k && L[k] ? (cl && L[k].page !== cl.page ? ` (p. ${L[k].page + 1})` : "") : null;
+    const parts = [[x.name, "name", x.term + page(x.name)], [x.lead, "lead", `“${(L[x.lead] || {}).sentence || ""}”: ${x.effect}${page(x.lead)}`],
+      [x.loc, "cl", `${x.term} ${x.clause}`]].filter(([k]) => k && L[k]);
+    show(x.loc, `${x.term} ${x.clause}`, { extras: [[x.name, "name"], [x.lead, "lead"]].filter(([k]) => k && L[k]),
+      legend: parts.map(([, c, t]) => `<span class="lg"><i class="sw ${c}"></i>${esc(t.length > 90 ? t.slice(0, 88) + "…" : t)}</span>`).join("") });
+  });
 }
 function trail() {
-  $("view-trail").innerHTML = `<h2>Sign-off record <em>every decision and status change</em></h2><div class="trail">` +
+  const f = D.facts;
+  const deal = [["Matures", fmtD(f.maturity)], ["Latest amendment", fmtD(f.latest_amendment)], ["Closing date", fmtD(f.closing)],
+    ["Source", D.header.source_file]];
+  $("view-trail").innerHTML = `<h2>Deal record</h2><dl class="sheet dealrec">${deal.map(([k, v]) => `<div class="kv"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+    <h2>Sign-off record <em>every decision and status change</em></h2><div class="trail">` +
     D.trail.map(r => `<div><span>${esc(r.date)}</span><span style="font-family:var(--ui);color:var(--ink)">${esc(r.by)} · ${esc(r.what)}</span></div>`).join("") + `</div>`;
 }
 function progress() {

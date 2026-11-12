@@ -32,6 +32,29 @@ def pdf_path(b, ab):
     return p if p.exists() else None
 
 
+DNAME = "@name"            # marker: locate the defined term ('"Indebtedness" of any Person means') by pattern
+
+
+def _defined_at(doc, flat, name):
+    """(page, rects) of the defined term where the agreement defines it: “Name” [of any Person] means."""
+    import re as _re
+    want = _flat(name)
+    for i, t in enumerate(flat):
+        if want + "means" not in t and want + "ofanypersonmeans" not in t and want + "ofanypersonasofanydatemeans" not in t:
+            continue
+        ws = doc[i].get_text("words", sort=True)
+        for k, w in enumerate(ws):
+            if not _flat(w[4]).startswith(_flat(name.split()[0])):
+                continue
+            m = _match_words(ws[k:k + 12], name)
+            if m and m[0] == 0:
+                z = k + m[1]
+                nxt = " ".join(x[4] for x in ws[z + 1:z + 6]).lower()
+                if _re.match(r"(of any person (as of any date )?)?means", nxt):
+                    return i, _boxes(ws, k, z)
+    return None
+
+
 def _quotes(ab, rv):
     q = {}
     for c in ab["covenants"]:
@@ -43,6 +66,15 @@ def _quotes(ab, rv):
         for s in g["schedules"]:
             for k, r in enumerate(s["rows"]):
                 q[f"rrow:{g['id']}:{s['covenant_id']}:{k}"] = r["quote"]
+    for t in ab.get("terms", []):                      # Covenants tab: each part of a definition, and what makes it count
+        for k, c in enumerate(t["components"]):
+            if c.get("quote"):
+                q[f"dcl:{t['name']}:{k}"] = c["quote"]
+        for lead, sign in (("lead-in", "+"), ("minus lead-in", "-")):
+            c = next((c for c in t["components"] if c.get("clause") == lead and c.get("quote")), None)
+            if c:
+                q[f"dlead:{t['name']}:{sign}"] = c["quote"]
+        q[f"dname:{t['name']}"] = DNAME                 # found by pattern: the defined term where it is defined
     for it in rv["items"]:
         for n, e in enumerate(evidences(ab, it)):
             q[f"item:{it['key']}" + (f":{n}" if n else "")] = e["quote"]
@@ -111,7 +143,7 @@ def _flat(t):
 
 
 ABBR = re.compile(r"^(?:\(?[a-z0-9]{1,4}\)|No|Nos|Sec|Secs|U\.S|Inc|Corp|Co|Ltd|L\.P|N\.A|e\.g|i\.e|etc|vs)\.$", re.I)
-LOCATE_V = "words-6"      # bump to re-locate every quote when the matching changes
+LOCATE_V = "words-7"      # bump to re-locate every quote when the matching changes
 
 
 def _ends_sentence(w):
@@ -202,6 +234,11 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
     flat = [_flat(page.get_text()) for page in doc]          # cheap pre-filter: only search pages that contain the text
     words = {}
     for key, q in quotes.items():
+        if q == DNAME:
+            hit = _defined_at(doc, flat, key.split(":", 1)[1])
+            if hit:
+                out["loc"][key] = {"page": hit[0], "rects": hit[1], "sentence": key.split(":", 1)[1]}
+            continue
         parts = [x.strip() for x in (q or "").split("|") if x.strip()]
         if not parts:
             continue
@@ -222,6 +259,8 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
                                 rects += _boxes(ws, k + mm[0], k + mm[1])
                                 break
                 out["loc"][key] = {"page": i, "rects": rects, "sentence": re.sub(r"\s+", " ", q)}
+            elif key.startswith("dlead:"):                   # the words that make a part count, not the whole sentence
+                out["loc"][key] = {"page": i, "rects": _boxes(ws, *m), "sentence": re.sub(r"\s+", " ", q)}
             else:
                 s, e = _sentence(ws, *m)
                 out["loc"][key] = {"page": i, "rects": _boxes(ws, s, e),
@@ -428,8 +467,8 @@ def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
              *(f"Regime: {g['name']} ({g['type']}): increment {g['increment'] or '—'}, ceiling {g['ceiling'] or '—'}, level "
                f"{g['level'] or '—'}, duration {(g.get('duration') or {}).get('count') or '—'} {(g.get('duration') or {}).get('unit') or ''}, "
                f"max uses {g['max_uses'] or 'no limit stated'}" for g in p["regs"]),
-             f"Open items: {sum(1 for i in open_ if i['level'] != 'confirm')} need a decision, "
-             f"{sum(1 for i in open_ if i['level'] == 'confirm')} quick confirm (lower risk).",
+             f"Open items: {sum(1 for i in open_ if i['level'] != 'confirm')} high priority, "
+             f"{sum(1 for i in open_ if i['level'] == 'confirm')} low priority. Every item needs the reviewer's decision.",
              *(f"- [{i['key']}] ({i['level']}) §{i['where'] or '—'}: {i['what'][:160]}"
                               for i in open_)]
     return {"borrower": b, "name": p["name"], "status": p["status"], "open": p["open"], "total": p["total"],

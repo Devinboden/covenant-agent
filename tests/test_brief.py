@@ -101,3 +101,18 @@ def test_highlight_positions_follow_the_pdf(tmp_path, monkeypatch):
     monkeypatch.setattr(RVm, "pdf_path", lambda b, a: fake)
     second = RVm.locate("CARS", ab, rv)
     assert second["hash"] != first["hash"]
+
+
+def test_defined_term_is_found_where_it_is_defined():
+    # Covenants tab: clicking a definition item also marks the defined term, at its definition (not an earlier mention)
+    import pymupdf
+    from covenant_engine.review_view import _defined_at, _flat
+    doc = pymupdf.open()
+    doc.new_page().insert_text((72, 72), "Total Indebtedness shall be tested quarterly.", fontsize=10)
+    p = doc.new_page()
+    p.insert_text((72, 72), "“Indebtedness” of any Person means, without duplication,", fontsize=10)
+    p.insert_text((72, 86), "(a) all obligations of such Person for borrowed money", fontsize=10)
+    flat = [_flat(pg.get_text()) for pg in doc]
+    page, rects = _defined_at(doc, flat, "Indebtedness")
+    assert page == 1 and len(rects) == 1 and rects[0][1] < 80
+    assert _defined_at(doc, flat, "Consolidated EBITDA") is None

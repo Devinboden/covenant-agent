@@ -93,7 +93,8 @@ def term_summary(ab, name):
               for c in amount if c.get("caps")]
     custom = [c["clause"] for c in amount if c["category"] == "custom"]
     from .plain import clause_label
-    items = [{"clause": clause_label(c.get("clause")), "effect": {"+": "added", "-": "subtracted"}.get(c["sign"], "either way"),
+    items = [{"loc": f"dcl:{name}:{t['components'].index(c)}", "lead": f"dlead:{name}:{c['sign']}" if c["sign"] in ("+", "-") else "",
+              "name_loc": f"dname:{name}", "clause": clause_label(c.get("clause")), "effect": {"+": "added", "-": "subtracted"}.get(c["sign"], "either way"),
               "what": cat_label(c["category"]), "limit": "; ".join(cap_text(k) for k in c.get("caps", [])),
               "text": re.sub(r"\s+", " ", c.get("quote") or "")[:220]} for c in amount]
     return {"name": name, "starts_from": t.get("starts_from", ""), "adds": len(adds), "subtracts": len(subs),

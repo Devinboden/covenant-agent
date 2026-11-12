@@ -508,4 +508,16 @@ body.inline .tabs { top: var(--bar-h, 58px); }
 .details-body { padding: 0 18px 14px; }
 th { text-transform: none; letter-spacing: 0; font-size: 12px; }
 .chk { background: none; color: var(--ok); padding: 0; }
+/* definition rows: click to see the clause; the defined term and the words that make it count are marked too */
+.defrow { cursor: pointer; }
+.defrow:hover td { background: var(--hover, rgba(0,0,0,.035)); }
+.hl.hl-name { background: rgba(59, 130, 246, .28); outline: 1.5px solid #2563eb; }
+.hl.hl-lead { background: rgba(34, 197, 94, .28); outline: 1.5px solid #16a34a; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; font-size: 12px; }
+.legend .lg { display: inline-flex; align-items: center; gap: 6px; }
+.legend .sw { width: 12px; height: 10px; border-radius: 2px; display: inline-block; }
+.legend .sw.cl { background: rgba(250, 204, 21, .6); outline: 1px solid #d9a400; }
+.legend .sw.name { background: rgba(59, 130, 246, .45); outline: 1px solid #2563eb; }
+.legend .sw.lead { background: rgba(34, 197, 94, .45); outline: 1px solid #16a34a; }
+.dealrec { margin-bottom: 18px; }
 </style>
