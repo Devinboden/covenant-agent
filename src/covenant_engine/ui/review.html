@@ -527,6 +527,9 @@ th { text-transform: none; letter-spacing: 0; font-size: 12px; }
 .legend .sw.name { background: rgba(59, 130, 246, .45); outline: 1px solid #2563eb; }
 .legend .sw.lead { background: rgba(34, 197, 94, .45); outline: 1px solid #16a34a; }
 .dealrec { margin-bottom: 18px; }
+/* Done cards: one quiet border on every side; the green stamp carries the state. Selected = light fill, not an outline */
+.item.done, .item.done[data-state] { border: 1px solid var(--line); }
+.item.done.sel { border-color: var(--line); box-shadow: var(--shadow); background: var(--sunk); }
 </style>
 
 </head>
