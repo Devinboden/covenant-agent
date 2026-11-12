@@ -12,7 +12,7 @@ Structure choices that make the step-2 spike's errors impossible to express:
 """
 import json
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from ..ingest.exceptions import call_model, squash
 from ..core.decompose_term import bundle_dir
@@ -174,6 +174,19 @@ def closing_date(B):
     if not m:
         return None
     return datetime.strptime(f"{m.group(1)} {m.group(2)} {m.group(3)}", "%B %d %Y").date()
+
+
+FIRST_TEST = {"on_or_after_closing": "the first quarter end on or after the Closing Date",
+              "first_full_quarter": "the end of the first full quarter after the Closing Date"}
+
+
+def first_test_date(closing, rule="on_or_after_closing"):
+    """The first test date of a period that runs 'from the Closing Date'. The agreement often doesn't say; the reading is
+    a setting a reviewer can change (settings.first_test), and code works out the date from it."""
+    q = first_quarter_end(closing)
+    if rule == "first_full_quarter" and not (closing.day == 1 and closing.month in (1, 4, 7, 10)):
+        q = first_quarter_end(q + timedelta(days=1))
+    return q
 
 
 def first_quarter_end(d):

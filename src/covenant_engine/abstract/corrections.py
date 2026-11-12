@@ -70,9 +70,18 @@ def _regime_fields(ab, gi):
     return out
 
 
+FIRST_TEST_LABELS = {"on_or_after_closing": "first quarter end on or after closing",
+                     "first_full_quarter": "end of the first full quarter after closing"}
+
+
 def _covenant_fields(ab, ci):
     c = ab["covenants"][ci]
     out = []
+    if any("Closing Date" in r.get("quote", "") for r in c["schedule"]) and \
+            ((ab.get("loan") or {}).get("closing_date") or {}).get("value"):
+        out.append({"path": ["settings", "first_test"], "group": f"{c['metric']} ({c['ref']})",
+                    "label": "First test after closing", "type": "enum", "options": list(FIRST_TEST_LABELS),
+                    "labels": FIRST_TEST_LABELS, "value": (ab.get("settings") or {}).get("first_test", "on_or_after_closing")})
     for k, r in enumerate(c["schedule"]):
         span = f"{r['start'].get('date') or 'start'} to {r['end'].get('date') or 'thereafter'}"
         out.append({"path": ["covenants", ci, "schedule", k, "value"], "group": f"{c['metric']} ({c['ref']})",
@@ -171,8 +180,12 @@ def apply(ab, item, changes, schema):
         before = f["value"]
         if val == before:
             continue
+        if path[0] == "settings":
+            new.setdefault("settings", {})
         _set(new, path, val)
         log.append({"group": f["group"], "label": f["label"], "path": path, "before": before or "—", "after": val or "—"})
+        if path == ["settings", "first_test"]:
+            log += _apply_first_test(new, val)
     if not log:
         raise CorrectionError("nothing changed: change a field, or Accept if the abstract is right")
     import jsonschema
@@ -181,6 +194,27 @@ def apply(ab, item, changes, schema):
         e = errs[0]
         raise CorrectionError(f"that change breaks the abstract: {'/'.join(map(str, e.path))}: {e.message[:120]}")
     return new, log
+
+
+def _apply_first_test(ab, rule):
+    """Code, not the reviewer, works out the dates: every quarterly row that runs from the Closing Date gets the first
+    test date the chosen reading gives."""
+    from datetime import date
+    from .covenants import first_test_date
+    cd = ((ab.get("loan") or {}).get("closing_date") or {}).get("value") or ""
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", cd):
+        return []
+    first = first_test_date(date.fromisoformat(cd), rule).isoformat()
+    log = []
+    for ci, c in enumerate(ab["covenants"]):
+        if c.get("frequency") != "quarterly":
+            continue
+        for k, r in enumerate(c["schedule"]):
+            if "Closing Date" in r.get("quote", "") and r["start"].get("kind") == "date" and r["start"].get("date") != first:
+                log.append({"group": f"{c['metric']} ({c['ref']})", "label": f"From date (row {k + 1})",
+                            "path": ["covenants", ci, "schedule", k, "start", "date"], "before": r["start"]["date"], "after": first})
+                r["start"]["date"] = first
+    return log
 
 
 def summary(log):

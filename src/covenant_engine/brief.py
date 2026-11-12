@@ -271,8 +271,20 @@ def statement(ab, item, fields):
             T("; " if j else "")
             T("$" if usd else "")
             seg.append({"f": k})
-            T(("" if usd else "x") + (f" from {a_}" if a_ else "") + (f" through {b_}" if b_ else (" onward" if a_ else "")))
+            T("" if usd else "x")
+            dp = lambda side: next((i for i, f in enumerate(fields) if f["path"][:4] == fields[k]["path"][:4]
+                                    and f["path"][4:] == [side, "date"]), None)
+            for side, word, txt in (("start", " from ", a_), ("end", " through ", b_)):
+                if txt:
+                    T(word)
+                    i = dp(side)
+                    seg.append({"f": i}) if i is not None else T(txt)
+            if a_ and not b_:
+                T(" onward")
         T(f", tested {FREQ.get(c['frequency'], c['frequency'])}.")
+        ft = next((i for i, f in enumerate(fields) if f["path"] == ["settings", "first_test"]), None)
+        if ft is not None and n == 0:
+            T(" First test after the Closing Date: "); seg.append({"f": ft}); T(".")
     regs = {}
     for k, f in enumerate(fields):
         if f["path"][0] == "regimes":

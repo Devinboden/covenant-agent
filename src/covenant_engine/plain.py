@@ -241,8 +241,10 @@ def explain(row, ab, gpt=None):
                     if q and re.sub(r"\s+", " ", r.get("quote", "")) == q and "Closing Date" in q), None)
         cd = ((ab.get("loan") or {}).get("closing_date") or {}).get("value")
         if hit and hit[1]["start"].get("date") and cd:
+            from .abstract.covenants import FIRST_TEST
+            rule = (ab.get("settings") or {}).get("first_test", "on_or_after_closing")
             return (f"This period starts at the Closing Date ({_d(cd)}) and the agreement doesn't name the first test; "
-                    f"recorded as {_d(hit[1]['start']['date'])}, the first quarter end on or after the Closing Date.")
+                    f"recorded as {_d(hit[1]['start']['date'])}, {FIRST_TEST[rule]}.")
     if kind == "flag":
         why = next((x for x in _sentences(clean(w)) if UNSURE.search(x) and not re.match(r"nothing\b", x, re.I)), None) \
             or _first(clean(w))

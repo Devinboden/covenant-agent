@@ -47,7 +47,8 @@ ABSTRACT_SCHEMA = {
         "deemed_values": {"type": "array"},
         "pricing_grid": {"anyOf": [PR.STORED, {"type": "null"}]},
         "flags": {"type": "array", "items": S2.FLAG},
-        "review": {"type": "array"}}}
+        "review": {"type": "array"},
+        "settings": {"type": "object", "properties": {"first_test": {"enum": ["on_or_after_closing", "first_full_quarter"]}}}}}
 
 DECOMPOSE_NOW = re.compile(r"EBITDA", re.I)
 SKIP = re.compile(r"^(GAAP|Subsidiar|Lender|Administrative Agent|Agent|Borrower|Holdings|Parent|Loan Part|Statements|"

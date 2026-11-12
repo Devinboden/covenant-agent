@@ -131,3 +131,22 @@ def test_gpt_check_goes_through_the_one_model_gate():
     finally:
         if old:
             os.environ["CODEX_HOME"] = old
+
+
+def test_first_test_reading_is_a_setting_and_code_works_out_the_dates():
+    """'Closing Date through ...': the reviewer picks the reading; code moves every covenant's first test date."""
+    import json
+    from datetime import date
+    from covenant_engine.abstract import corrections as C
+    from covenant_engine.abstract.build import ABSTRACT_SCHEMA
+    from covenant_engine.abstract.covenants import first_test_date
+    assert first_test_date(date(2023, 6, 28)) == date(2023, 6, 30)
+    assert first_test_date(date(2023, 6, 28), "first_full_quarter") == date(2023, 9, 30)
+    assert first_test_date(date(2023, 7, 1), "first_full_quarter") == date(2023, 9, 30)    # closed on a quarter's first day
+    ab = json.load(open("data/abstract/v1/MEC.abstract.json"))
+    item = {"kind": "flag", "where": "9.15(a)"}
+    assert any(f["path"] == ["settings", "first_test"] for f in C.fields(ab, item))
+    new, log = C.apply(ab, item, [{"path": ["settings", "first_test"], "value": "first_full_quarter"}], ABSTRACT_SCHEMA)
+    assert new["settings"]["first_test"] == "first_full_quarter"
+    assert {c["schedule"][0]["start"]["date"] for c in new["covenants"] if "Closing Date" in c["schedule"][0]["quote"]} == {"2023-09-30"}
+    assert len([x for x in log if x["label"].startswith("From date")]) == 2
