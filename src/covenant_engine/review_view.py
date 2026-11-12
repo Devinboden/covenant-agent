@@ -149,7 +149,7 @@ def _flat(t):
 
 
 ABBR = re.compile(r"^(?:\(?[a-z0-9]{1,4}\)|No|Nos|Sec|Secs|U\.S|Inc|Corp|Co|Ltd|L\.P|N\.A|e\.g|i\.e|etc|vs)\.$", re.I)
-LOCATE_V = "words-7"      # bump to re-locate every quote when the matching changes
+LOCATE_V = "words-9"      # bump to re-locate every quote when the matching changes
 
 
 def _ends_sentence(w):
@@ -253,10 +253,23 @@ def locate(b, ab, rv, abs_dir=config.ABSTRACT_DIR):
         parts = [x.strip() for x in (q or "").split("|") if x.strip()]
         if not parts:
             continue
-        probe = _flat(parts[0])[:30]
-        for i in (i for i, t in enumerate(flat) if probe and probe in t):
+        probe, tail = _flat(parts[0])[:30], _flat(parts[0])[-30:]
+        pages = [i for i, t in enumerate(flat) if probe and probe in t] or \
+                [i for i, t in enumerate(flat) if tail and tail in t]       # its start is on the page before
+        for i in pages:
             ws = words.setdefault(i, doc[i].get_text("words", sort=True))
             m = _match_words(ws, parts[0])
+            if not m:                       # a table cell that wraps: sorting by position interleaves it with the next
+                raw = doc[i].get_text("words")                # cell, so retry in the PDF's own reading order
+                m = _match_words(raw, parts[0])
+                if m:
+                    ws = raw
+            if not m:                       # a quote running over a page break: the longest start of it on this page
+                qw = parts[0].split()
+                for n in range(len(qw) - 1, 5, -1):
+                    m = _match_words(ws, " ".join(qw[:n])) or _match_words(ws, " ".join(qw[-n:]))
+                    if m:
+                        break
             if not m:
                 continue
             if len(parts) > 1:                                 # a table row: highlight each cell on that line

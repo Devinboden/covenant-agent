@@ -116,7 +116,11 @@ async function show(key, caption, opt = {}) {
   sel = key; extras = opt.extras || []; legend = opt.legend || "";
   document.querySelectorAll(".sel").forEach(e => e.classList.remove("sel"));
   document.querySelectorAll(`[data-loc="${CSS.escape(key)}"]`).forEach(e => e.classList.add("sel"));
-  const l = D.locs.loc[key];
+  let l = D.locs.loc[key];
+  if (!l && key.startsWith("item:")) {               // the item's first passage wasn't found: open its next one
+    const alt = Object.keys(D.locs.loc).find(k => k.startsWith(key + ":"));
+    if (alt) { l = D.locs.loc[alt]; sel = alt; }
+  }
   if (!D.locs.pdf) {
     const it = key.startsWith("item:") && D.items.find(i => "item:" + i.key === key);
     $("noPdfQuote").textContent = it && it.evidence ? `${caption ? caption + " — " : ""}“${it.evidence}”` : "";
