@@ -352,15 +352,22 @@ def level(item, gpt, stored=None):
             return _lv("confirm", 2, "GPT couldn't find this clause, but Claude's quote matches the agreement exactly.", "gpt_not_found")
         return _lv("decide", 1, "A different reading here would change the covenant result.")
     if kind == "flag":
+        if item.get("outside"):
+            return _lv("decide", 1, f"The answer depends on {item['outside']}, which isn't in this filing.")
         if t in HARD_FLAGS:
             what = {"conflict": "Two parts of the agreement say different things", "ambiguous_date": "The dates are ambiguous",
                     "dangling_reference": "It refers to something that isn't in the agreement",
                     "missing_schedule": "A schedule it relies on is missing"}[t]
             return _lv("decide", 1, f"{what}, and that decides which level applies when.", "dates")
-        if agrees and ACCURACY["flag_note"]["rate"] >= CONFIRM_AT:
+        from .abstract.related import numbers
+        said = numbers(item.get("what", ""))                     # the figures the flag is about
+        read = {x for c in (gpt or {}).get("claims", []) if c.get("verdict") == "agree"
+                for x in numbers(str(c.get("value_in_text", "")) + " " + str(c.get("evidence", "")))}
+        if agrees and said and said <= read and ACCURACY["flag_note"]["rate"] >= CONFIRM_AT:
             return _lv("confirm", 1, f"Claude raised a question here; GPT, reading the agreement separately, got the same "
                                      f"{gpt['total']} number{'s' if gpt['total'] > 1 else ''} for this covenant.", "flag_note")
-        return _lv("decide", 1, "Claude raised a question that GPT's separate reading doesn't settle.")
+        return _lv("decide", 1, "Claude raised a question that GPT's separate reading doesn't settle"
+                   + (": it's about timing or scope, not figures GPT read." if agrees else "."))
     if kind == "review/3" and stored:
         if stored.get("caps"):
             return _lv("decide", 1, "This item has a limit, and the limit changes the ratio.", "clause_capped")

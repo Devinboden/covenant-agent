@@ -129,3 +129,25 @@ def test_evidence_drops_struck_through_text():
     p.insert_text((136, 72), "not be resumed", fontsize=10)
     p.draw_line((99, 69), (133, 69), width=0.6)                    # strike line through the middle of 'trigger'
     assert [w[4] for w in _live_words(p)] == ["shall", "not", "be", "resumed"]
+
+
+def test_flag_brings_the_passages_its_reading_rests_on_and_names_a_missing_document():
+    import json
+    from covenant_engine.abstract.related import passages, outside, numbers
+    ab = json.load(open("data/abstract/v1/MEC.abstract.json"))
+    mixes = next(f for f in ab["flags"] if "mixes standard and relief" in f["note"])
+    labels = [lab for lab, _ in passages(ab, mixes)]
+    assert "Definition of Covenant Adjustment Period" in labels and "How the Covenant Adjustment Period can end early" in labels
+    why = outside(ab, mixes, "MEC")
+    assert why and "before the Third Amendment" in why and "1st amendment 2025-06" in why
+    cap = next(f for f in ab["flags"] if "4.00 ceiling" in f["note"])
+    assert outside(ab, cap, "MEC") is None                          # answered on the page itself
+    assert numbers("levels of 5.25 and 5.00 from 2026-03-31, §9.15") == {5.25, 5.0}
+
+
+def test_gpt_agreement_only_demotes_a_flag_about_figures_it_read():
+    from covenant_engine import brief as BR
+    gpt = {"total": 2, "agree": 2, "claims": [{"verdict": "agree", "value_in_text": "4.00"}, {"verdict": "agree", "value_in_text": "5.25"}]}
+    assert BR.level({"kind": "flag", "type": "other", "what": "unclear whether 4.00 caps the 5.25 level"}, gpt)["level"] == "confirm"
+    assert BR.level({"kind": "flag", "type": "other", "what": "no cap on the number of uses"}, gpt)["level"] == "decide"
+    assert BR.level({"kind": "flag", "type": "other", "what": "x", "outside": "an earlier version"}, gpt)["level"] == "decide"

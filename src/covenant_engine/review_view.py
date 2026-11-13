@@ -125,6 +125,11 @@ def evidences(ab, row):
             add("Also cited", row["evidence"])
     else:
         add("The agreement", row.get("evidence", ""))
+        if row.get("kind") == "flag":           # the passages its reading rests on: what it cited, regimes it names
+            from .abstract.related import find_flag, passages
+            f = find_flag(ab, row)
+            for lab, q in (passages(ab, f) if f else []):
+                add(lab, q)
         w = row.get("what") or ""
         m = re.search(r"values for (.+?) are on (Schedule [\w.()]+)", w)
         if m:                                   # a missing schedule: the sentence that points to it
@@ -449,6 +454,11 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
               "detail": details.get((i.get("term"), i.get("clause"))), "fields": C.fields(ab, i), "gpt": gpt_for(ab, i)} for i in rv["items"]]
     comp = {(t["name"], c.get("clause")): c for t in ab.get("terms", []) for c in t["components"]}
     for it, raw in zip(items, rv["items"]):
+        if raw.get("kind") == "flag":           # does its answer need a document this filing doesn't contain?
+            from .abstract.related import find_flag, outside
+            f = find_flag(ab, raw)
+            raw = {**raw, "outside": outside(ab, f, b) if f else None}
+            it["outside"] = raw["outside"]
         it["check_detail"], it["what"] = it["what"], PL.item_text(raw, ab)
         it["where_label"] = PL.where_label(raw, ab)
         it["explain"] = PL.explain(raw, ab, it.get("gpt"))

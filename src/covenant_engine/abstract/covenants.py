@@ -84,11 +84,15 @@ REGIME = {"type": "object", "additionalProperties": False,
 FLAG = {"type": "object", "additionalProperties": False, "required": ["type", "ref", "quote", "note"],
         "properties": {"type": {"type": "string", "enum": ["dangling_reference", "conflict", "ambiguous_date",
                                                            "missing_schedule", "other"]},
-                       "ref": {"type": "string"}, "quote": {"type": "string"}, "note": {"type": "string"}}}
+                       "ref": {"type": "string"}, "quote": {"type": "string"}, "note": {"type": "string"},
+                       "also": {"type": "array", "items": {"type": "string"}}}}
+# What the model must return: every flag lists the other passages it relied on (empty if none). Stored abstracts
+# from before this change have no "also", so the stored-abstract schema (FLAG) keeps it optional.
+FLAG_OUT = {**FLAG, "required": FLAG["required"] + ["also"]}
 SCHEMA = {"type": "object", "additionalProperties": False,
           "required": ["covenants", "regimes", "flags", "needs_context", "search_for"],
           "properties": {"covenants": {"type": "array", "items": COVENANT}, "regimes": {"type": "array", "items": REGIME},
-                         "flags": {"type": "array", "items": FLAG},
+                         "flags": {"type": "array", "items": FLAG_OUT},
                          "needs_context": {"type": "array", "items": {"type": "string"}},
                          "search_for": {"type": "array", "items": {"type": "string"}}}}
 
@@ -116,7 +120,9 @@ RULES = """1. covenants: every MAINTENANCE financial covenant (tested periodical
      (increment, ceiling); duration with its unit as written; max_uses; min_gap = time required between uses.
    - not_during: ids of regimes it cannot overlap with. conditions: notice, minimum acquisition size, etc.
 3. flags: things a reviewer must see, e.g. a reference to a mechanism that no longer exists (dangling_reference),
-   two provisions that conflict, a date that can't be pinned down.
+   two provisions that conflict, a date that can't be pinned down. quote = the passage in question; also = every
+   other passage your reading relies on (a proviso, a definition, the clause that ends a period), each copied exactly.
+   If the answer depends on text you were not given (an earlier version of the agreement, an annex), say so in note.
 4. needs_context: sections ("Section 9.3(i)") or defined terms you need that are NOT in the packet; search_for: short
    phrases to look up. Ask here instead of flagging text as missing; leave both empty if the packet is enough."""
 
@@ -291,6 +297,8 @@ def check(out, live_sq, closing=None):
             q(w + " condition", cnd["quote"])
     for f in out["flags"]:
         q(f"flag {f['type']}", f["quote"])
+        for a in f.get("also", []):
+            q(f"flag {f['type']} (also)", a)
     return P
 
 

@@ -245,6 +245,9 @@ def explain(row, ab, gpt=None):
             rule = (ab.get("settings") or {}).get("first_test", "on_or_after_closing")
             return (f"This period starts at the Closing Date ({_d(cd)}) and the agreement doesn't name the first test; "
                     f"recorded as {_d(hit[1]['start']['date'])}, {FIRST_TEST[rule]}.")
+    if kind == "flag" and row.get("outside"):
+        return (f"The answer depends on {row['outside']}, which isn't in this filing; it can't be confirmed from these "
+                f"pages, so the reviewer needs that document.")
     if kind == "flag":
         why = next((x for x in _sentences(clean(w)) if UNSURE.search(x) and not re.match(r"nothing\b", x, re.I)), None) \
             or _first(clean(w))
