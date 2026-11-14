@@ -197,7 +197,8 @@ const TIER = { 1: ["t1", "Affects pass/fail"], 2: ["t2", "Affects an input"] };
 function items() {
   const editable = D.status === "draft" && !D.view_only;     // the public demo shows everything and changes nothing
   const open = D.items.filter(i => !i.resolution);
-  const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
+  const decide = open.filter(i => i.level !== "confirm" && i.level !== "ack"), confirm = open.filter(i => i.level === "confirm");
+  const acks = open.filter(i => i.level === "ack");
   const done = D.items.filter(i => i.resolution);
   const head = "";
   const conf = confirm.length ? `<section class="group confirm-group"><div class="ghead"><h2>Low priority <span class="count">${confirm.length}</span></h2><p class="gsub">Check each against the agreement, or confirm them all at once.</p>
@@ -207,9 +208,16 @@ function items() {
         <span class="cbtns">${editable ? `<button class="dbtn" data-d="accept">Confirm</button>` : ""}<button class="dbtn" data-open="1">Review in full</button></span></li>`).join("")}</ul></section>` : "";
   const dec = `<section class="group"><h2>High priority <span class="count">${decide.length}</span></h2><p class="gsub">${decide.length ? "Compare what the abstract recorded with the agreement text, then confirm or change it." : "No high-priority items left."}</p>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
+  // Acknowledgments: notes with nothing recorded to change and nothing missing (a typo, a reserved clause, a
+  // cross-reference that goes nowhere). The reviewer acknowledges each; the approver sees them in the summary.
+  const ack = acks.length ? `<section class="group confirm-group ack-group"><div class="ghead"><h2>Acknowledgments <span class="count">${acks.length}</span></h2><p class="gsub">Worth knowing; nothing in the abstract to change.</p>
+      ${editable ? `<button class="primary" id="ackAll">Acknowledge all ${acks.length}</button>` : ""}</div>
+      <ul class="clist">${acks.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
+        <span class="csent">${esc(it.explain || plain(it))}</span>
+        <span class="cbtns">${editable ? `<button class="dbtn" data-d="accept">Acknowledge</button>` : ""}</span></li>`).join("")}</ul></section>` : "";
   const dn = done.length ? `<details class="group done-group" ${openGroups.done ? "open" : ""}><summary><h2>Done <span class="count">${done.length}</span></h2></summary>
       <div class="items">${done.map(it => card(it, editable)).join("")}</div></details>` : "";
-  $("view-items").innerHTML = (D.status === "verified" ? approverSummary() : "") + head + dec + conf + dn;
+  $("view-items").innerHTML = (D.status === "verified" ? approverSummary() : "") + head + dec + conf + ack + dn;
   const dg = $("view-items").querySelector(".done-group");
   if (dg) dg.ontoggle = () => { openGroups.done = dg.open; };
   wireCards(editable);
@@ -220,6 +228,14 @@ function items() {
     if (acc) acc.onclick = () => act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "" });
     const op = row.querySelector("[data-open]");
     if (op) op.onclick = () => { it.level = "decide"; items(); const c = document.querySelector(`.item[data-key="${it.key}"]`); if (c) { c.scrollIntoView({ block: "center" }); show("item:" + it.key, (it.where_label || "§" + it.where)); } };
+  });
+  const aa = $("ackAll");
+  if (aa) aa.onclick = () => ask(`Acknowledge all ${acks.length} as ${D.viewer}?`, "Acknowledge all", async () => {
+    busy = true; setBusy(true);
+    let last = null;
+    try { for (const it of acks) last = await call("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: "" }); }
+    catch (e) { say(e.message); }
+    finally { busy = false; setBusy(false); if (last) { render(last); say(`Acknowledged ${acks.length}.`, true); } }
   });
   const all = $("acceptAll");
   if (all) all.onclick = () => ask(`Confirm all ${confirm.length} as ${D.viewer}? Each is recorded as confirmed by you, one by one.`, "Confirm all", async () => {
@@ -268,7 +284,7 @@ function valText(f, v) {
 function editControl(it, i, v) {
   const f = it.fields[i];
   v = v == null ? f.value : v;
-  if (f.type === "enum") return `<select class="inl" data-i="${i}" title="${esc(f.label)}">${f.options.map(o => `<option value="${esc(o)}" ${o === v ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`;
+  if (f.type === "enum" || f.type === "bool") return `<select class="inl" data-i="${i}" title="${esc(f.label)}">${f.options.map(o => `<option value="${esc(o)}" ${o === v ? "selected" : ""}>${esc((f.labels || {})[o] || o)}</option>`).join("")}</select>`;
   const money = /^(Cap |Add a cap)/.test(f.label);
   return `<span class="inlwrap"><input class="inl" data-i="${i}" value="${esc(v)}" placeholder="${v ? "" : money ? "enter amount" : "none"}"
     style="width:${fitW(v, money ? "enter amount" : "none")}ch" title="${esc(f.label)}" type="${f.type === "date" ? "date" : "text"}"
@@ -315,13 +331,15 @@ function card(it, editable) {
     ${(it.readings || []).length >= 2 ? `<ol class="readings">${it.readings.map(r => `<li>${esc(r)}</li>`).join("")}</ol>` : ""}
     <dl class="rows">
       ${stated ? `<div class="r"><dt>Abstract</dt><dd class="says"><p>${sentence}</p>${on ? '<span class="hint">Click an underlined value to change it</span>' : ""}</dd></div>`
-        : it.explain ? "" : `<div class="r"><dt>Decision</dt><dd><p>${esc(it.what)}</p></dd></div>`}
+        : it.explain || extra.length ? "" : `<div class="r"><dt>Decision</dt><dd><p>${esc(it.what)}</p></dd></div>`}
+      ${extra.length && !stated ? `<div class="r"><dt>${it.action === "add" ? "Add it" : "Abstract"}</dt><dd class="says fieldlist">${extra.map(([f, i]) =>
+          `<div class="fl"><span class="flab">${esc(f.label)}</span> ${inlineField(it, i, on)}</div>`).join("")}${on ? `<span class="hint">${it.action === "add" ? "Fill in the missing part, or confirm nothing is missing" : "Click a value to change it"}</span>` : ""}</dd></div>` : ""}
       ${evidence(it)}
 
     </dl>
 
     ${on ? `<div class="act">
-        <button class="primary go" data-go="1">Confirm</button>
+        <button class="primary go" data-go="1">${it.action === "send" ? "Send to approver" : it.action === "add" ? "Nothing missing" : "Confirm"}</button>
         <span class="links"><a href="#" data-d="defer">Later</a><a href="#" data-note="1">${r.note ? "Edit note" : "Note"}</a></span></div>
       <textarea class="note" id="note-${it.key}" ${r.note ? "" : "hidden"} placeholder="Note for the approver: why, or where a value came from">${esc(r.note || "")}</textarea>`
     : `<div class="decide">${r.by ? `<span class="stamp ${r.decision}">${STAMP[r.decision] || esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}${r.note ? " · “" + esc(r.note) + "”" : ""}</span>` : ""}
@@ -347,7 +365,8 @@ function wireCards(editable) {
     const changed = () => [...pend].filter(([i, v]) => String(v).trim() !== String(it.fields[i].value)).map(([i, v]) => ({ i, v }));
     const refresh = () => {
       const n = changed();
-      if (go) { go.textContent = n.length ? `Save change${n.length > 1 ? "s" : ""}` : "Confirm"; go.classList.toggle("saving", !!n.length); }
+      const idle = it.action === "send" ? "Send to approver" : it.action === "add" ? "Nothing missing" : "Confirm";
+      if (go) { go.textContent = n.length ? (it.action === "add" ? "Add part" : `Save change${n.length > 1 ? "s" : ""}`) : idle; go.classList.toggle("saving", !!n.length); }
       card.classList.toggle("pending", !!n.length);
     };
     card.addEventListener("click", e => {
@@ -361,7 +380,12 @@ function wireCards(editable) {
     const ta = card.querySelector("textarea.note");
     const send = () => {                                   // Confirm, or Save change when a value was edited
       const ch = changed();
-      if (!ch.length) return act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept", note: note() });
+      if (!ch.length && it.action === "send" && !note().trim()) {   // the approver needs to know what to get
+        ta.hidden = false; ta.placeholder = "For the approver: what's needed (e.g. obtain Schedule 1.01(c) from the agent)"; ta.focus();
+        return say("Add a note for the approver first: what document is needed, or what you checked.");
+      }
+      if (!ch.length) return act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept",
+                                                     note: it.action === "send" ? "Sent to approver: " + note().trim() : note() });
       const changes = ch.map(({ i, v }) => ({ path: it.fields[i].path, value: v }));
       act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Change saved to the abstract.");
     };

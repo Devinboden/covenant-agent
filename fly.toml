@@ -8,6 +8,9 @@ primary_region = "iad"
 [env]
   COVENANT_HOME = "/data/home"
   COVENANT_ALLOWED_HOSTS = "covenant-agent-demo.fly.dev"
+  # Public demo: /view/mcp is a view-only MCP app (no decide / verify / sign / start), and no model is ever called here.
+  COVENANT_PUBLIC_VIEW = "1"
+  COVENANT_MODEL_CALLS = "off"
 
 [[mounts]]
   source = "covenant_data"

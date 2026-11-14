@@ -526,4 +526,8 @@ th { text-transform: none; letter-spacing: 0; font-size: 12px; }
 /* the readings a structured flag asks the reviewer to choose between */
 .readings { margin: 2px 0 0; padding-left: 20px; color: var(--muted); font-size: 13px; line-height: 1.45; max-width: 72ch; }
 .readings li { margin: 1px 0; }
+/* fields that aren't part of a sentence (deal facts, a part to add): one per line */
+.fieldlist .fl { display: flex; gap: 8px; align-items: baseline; margin: 2px 0; }
+.fieldlist .flab { color: var(--muted); font-size: 13px; min-width: 15ch; }
+.ack-group .csent { color: var(--muted); }
 </style>

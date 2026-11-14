@@ -230,6 +230,8 @@ def _pricing(ab):
 
 def statement(ab, item, fields):
     """Segments: {"t": text} or {"f": index into fields}. Built from the same fields a correction can change."""
+    if fields and all(f["path"][0] in ("add", "loan") for f in fields):
+        return []                      # nothing recorded to describe: the card shows the fields as a form instead
     idx = {f["label"]: i for i, f in enumerate(fields)}
     seg = []
     T = lambda s: seg.append({"t": s}) if s else None

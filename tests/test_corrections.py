@@ -178,3 +178,41 @@ def test_scorer_checks_what_applies_if_relief_ends_early():
                        {**lev["schedule"][1], "start": dt("2027-03-31")}]
     s = score_abstract("MEC", bad, terms=False)["summary"]
     assert "early exit 7/7" not in s, s
+
+
+def test_every_card_has_a_way_to_disagree():
+    """Each card either changes the abstract (edit / add), routes the question (send to the approver), or is an FYI
+    with nothing recorded to change (acknowledge). No card leaves the reviewer with nothing to do if it's wrong."""
+    from covenant_engine import review_view as R
+    from covenant_engine.store import store
+    for b in store().deals():
+        for it in R.payload(b, "t")["items"]:
+            a = it["action"]
+            assert a in ("edit", "add", "send", "ack"), (b, it["where_label"])
+            if a == "edit":
+                assert it["fields"] and any(f["path"][0] != "add" for f in it["fields"])
+            if a == "add":
+                assert it["fields"] and all(f["path"][0] == "add" for f in it["fields"])
+            if a in ("send", "ack"):
+                assert not it["fields"]
+            assert (it["level"] == "ack") == (a == "ack")
+
+
+def test_reviewer_can_add_a_missing_part_and_edit_the_equity_cure():
+    import json, pytest
+    from covenant_engine.abstract import corrections as C
+    from covenant_engine.abstract.build import ABSTRACT_SCHEMA
+    ab = json.load(open("data/abstract/v1/TRS.abstract.json"))
+    item = {"kind": "review/terms", "term": "Preferred Dividends"}
+    q = "any cash dividends of Holdings permitted hereunder paid with respect to preferred stock of Holdings"
+    with pytest.raises(C.CorrectionError):
+        C.apply(ab, item, [{"path": ["add", "Preferred Dividends", "clause"], "value": "base"}], ABSTRACT_SCHEMA)  # no text
+    new, log = C.apply(ab, item, [{"path": ["add", "Preferred Dividends", "clause"], "value": "base"},
+                                  {"path": ["add", "Preferred Dividends", "quote"], "value": q}], ABSTRACT_SCHEMA)
+    t = next(t for t in new["terms"] if t["name"] == "Preferred Dividends")
+    assert t["components"][0]["quote"] == q and "Preferred Dividends" not in new["terms_pending"]
+    cxt = json.load(open("data/abstract/v1/CXT.abstract.json"))
+    cure = {"kind": "review/loan", "what": "the agreement contains equity cure wording"}
+    new, _ = C.apply(cxt, cure, [{"path": ["loan", "equity_cure", "present"], "value": "yes"},
+                                 {"path": ["loan", "equity_cure", "effect"], "value": "add_to_ebitda"}], ABSTRACT_SCHEMA)
+    assert new["loan"]["equity_cure"]["present"] is True and new["loan"]["equity_cure"]["effect"] == "add_to_ebitda"

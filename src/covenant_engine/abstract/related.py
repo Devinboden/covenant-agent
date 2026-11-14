@@ -14,8 +14,8 @@ import re
 from pathlib import Path
 
 PRIOR = re.compile(r"as in effect (?:immediately )?prior to (?:the )?(\w+) Amendment", re.I)
-NOT_GIVEN = re.compile(r"not (?:available|provided|included|present) in the (?:text|packet|document|filing)"
-                       r"|not in the (?:text|packet|document) (?:provided|given)", re.I)
+NOT_GIVEN = re.compile(r"not (?:available|provided|included|present) in the (?:\w+ )?(?:text|packet|document|filing)"
+                       r"|not in the (?:\w+ )?(?:text|packet|document|filing) (?:provided|given)", re.I)
 ORDINAL = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8,
            "ninth": 9, "tenth": 10, "eleventh": 11, "twelfth": 12}
 _NTH = re.compile(r"(\d+)(?:st|nd|rd|th)\b", re.I)
@@ -86,7 +86,7 @@ def outside(ab, flag, borrower=None):
         regs = [g for t in flag.get("targets", []) if t["kind"] == "regime" for g in ab.get("regimes", []) if g["id"] == t["id"]]
         named = prior([flag.get("quote", "")] + flag.get("also", []) +
                       [x for g in regs for x in (g.get("quote", ""), (g.get("early_exit") or {}).get("quote", ""))])
-        return named or nt.get("what") or "text the agreement refers to that isn't in this filing"
+        return named or nt.get("what") or "text the agreement refers to"
     # older abstracts: 1. the passages the flag itself rests on point to an earlier version
     own = prior([flag.get("quote", "")] + flag.get("also", []))
     if own:
@@ -95,7 +95,7 @@ def outside(ab, flag, borrower=None):
     if NOT_GIVEN.search(flag.get("note", "")):
         named = _named_regimes(ab, flag.get("note", "") + " " + flag.get("quote", ""))
         return prior([x for g in named for x in (g.get("quote", ""), (g.get("early_exit") or {}).get("quote", ""))]) \
-            or "text the agreement refers to that isn't in this filing"
+            or "text the agreement refers to"
     return None
 
 

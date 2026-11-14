@@ -111,6 +111,47 @@ def _component_fields(ab, ti, pi, categories):
     return out
 
 
+CURE_EFFECTS = ["add_to_ebitda", "reduce_debt", "add_to_ebitda_or_reduce_debt", "other", "n/a"]
+
+
+def _loan_fields(ab, which):
+    """Deal facts a card is about: the equity cure, the fiscal year end."""
+    ln = ab.get("loan") or {}
+    if which == "equity_cure" and isinstance(ln.get("equity_cure"), dict):
+        ec, base = ln["equity_cure"], ["loan", "equity_cure"]
+        yn = lambda v: "yes" if v else "no"
+        return [{"path": base + ["present"], "group": "Equity cure", "label": "Equity cure in the agreement", "type": "bool",
+                 "options": ["yes", "no"], "value": yn(ec.get("present"))},
+                {"path": base + ["section"], "group": "Equity cure", "label": "Section", "type": "text", "value": ec.get("section", "")},
+                {"path": base + ["effect"], "group": "Equity cure", "label": "What the cure money does", "type": "enum",
+                 "options": CURE_EFFECTS, "labels": {"add_to_ebitda": "added to EBITDA", "reduce_debt": "reduces debt",
+                 "add_to_ebitda_or_reduce_debt": "added to EBITDA or reduces debt", "other": "other", "n/a": "none"},
+                 "value": ec.get("effect", "n/a")},
+                {"path": base + ["deadline_count"], "group": "Equity cure", "label": "Deadline (number)", "type": "text",
+                 "value": ec.get("deadline_count", "")},
+                {"path": base + ["deadline_unit"], "group": "Equity cure", "label": "Deadline unit", "type": "enum",
+                 "options": ["business_days", "days", "n/a"], "value": ec.get("deadline_unit", "n/a")},
+                {"path": base + ["prepayment_required"], "group": "Equity cure", "label": "Cure money must prepay loans",
+                 "type": "bool", "options": ["yes", "no"], "value": yn(ec.get("prepayment_required"))}]
+    if which in ln and isinstance(ln[which], dict) and "value" in ln[which]:
+        label = {"fiscal_year_end": "Fiscal year end (MM-DD)"}.get(which, which.replace("_", " ").capitalize())
+        return [{"path": ["loan", which, "value"], "group": "Deal facts", "label": label, "type": "text", "value": ln[which]["value"]}]
+    return []
+
+
+def _add_fields(ab, term, clause=""):
+    """Record a part the abstract doesn't have (a skipped term, a clause the model didn't return). It is checked the
+    same way as the model's parts: clause and quote required, category from the library, a cap is a number."""
+    grp = f"Add to {term}"
+    return [{"path": ["add", term, "clause"], "group": grp, "label": "Clause (e.g. (g), base)", "type": "text", "value": clause},
+            {"path": ["add", term, "sign"], "group": grp, "label": "Effect", "type": "enum", "options": SIGNS,
+             "labels": {"+": "added", "-": "subtracted"}, "value": "+"},
+            {"path": ["add", term, "category"], "group": grp, "label": "Category", "type": "enum", "options": _categories(),
+             "value": "custom"},
+            {"path": ["add", term, "quote"], "group": grp, "label": "Agreement text (copy it exactly)", "type": "text", "value": ""},
+            {"path": ["add", term, "cap"], "group": grp, "label": "Limit, if any (dollars)", "type": "text", "value": ""}]
+
+
 def _categories():
     from ..core.decompose_term import CATEGORIES
     return list(CATEGORIES)
@@ -126,11 +167,24 @@ def fields(ab, item):
     """Editable fields for one review row (a dict from review_data: kind, where, term, clause, ...)."""
     out = []
     kind = item.get("kind", "")
+    if kind == "review/terms":                       # a term the covenants use that was never broken down: add its parts
+        return _add_fields(ab, item.get("term", ""))
+    if kind == "review/loan" and "cure" in (item.get("what") or "").lower():
+        return _loan_fields(ab, "equity_cure")
+    if kind == "review/gpt" and (item.get("id") or "").startswith("loan:"):
+        return _loan_fields(ab, item["id"].split(":", 1)[1])
     if item.get("term") and item.get("clause"):                                  # a clause of a defined term
         for ti, t in enumerate(ab.get("terms", [])):
             for pi, p in enumerate(t.get("components", [])):
                 if t["name"] == item["term"] and p.get("clause") == item["clause"]:
                     out += _component_fields(ab, ti, pi, _categories())
+        if not out:                                  # the item names something that isn't a stored part
+            t = next(((ti, t) for ti, t in enumerate(ab.get("terms", [])) if t["name"] == item["term"]), None)
+            if t and item["clause"] == "cap_on_total":                           # the definition's overall limits
+                out += [f for pi, p in enumerate(t[1]["components"]) if p.get("caps")
+                        for f in _component_fields(ab, t[0], pi, _categories())]
+            elif item["clause"] not in ("starts_from",):                          # a clause the model didn't return
+                out += _add_fields(ab, item["term"], item["clause"])
     elif kind == "flag" and _targets(ab, item):          # a structured flag says exactly what it's about
         for t in _targets(ab, item):
             if t["kind"] == "covenant":
@@ -153,8 +207,12 @@ def fields(ab, item):
         # ratio ("Total Net Leverage Ratio") or a regime ("Covenant Holiday Period"). Resolve each to its fields.
         refs = {r.strip().lstrip("§") for r in re.split(r"/|,|&|\band\b", ref) if r.strip()}
         low = ref.lower()
+        under = lambda cr: any(r == cr or r.startswith(cr + "(") or cr.startswith(r + "(") for r in refs)
         covs = [i for i, c in enumerate(ab["covenants"]) if cid.startswith(f"cov:{c['id']}") or
-                (c["ref"] and (c["ref"] == ref or c["ref"] in refs)) or (c.get("metric") and c["metric"].lower() == low)]
+                (c["ref"] and (c["ref"] == ref or under(c["ref"]))) or (c.get("metric") and c["metric"].lower() == low)]
+        if not covs:                                 # a sibling subsection (the relief table 6.09(a)(ii) of 6.09(a)(i)):
+            refs = {re.sub(r"\([^()]*\)$", "", r) for r in refs if r.endswith(")")}     # the parent section's covenant
+            covs = [i for i, c in enumerate(ab["covenants"]) if c["ref"] and refs and under(c["ref"])]
         cov_ids = {ab["covenants"][i]["id"] for i in covs}
         named = [i for i, g in enumerate(ab["regimes"]) if g.get("name") and g["name"].lower() == low]
         regs = named or [i for i, g in enumerate(ab["regimes"]) if set(g.get("applies_to", [])) & cov_ids or cid.startswith(f"reg:{g['id']}")]
@@ -186,13 +244,17 @@ def apply(ab, item, changes, schema):
     allowed = {tuple(map(str, f["path"])): f for f in fields(ab, item)}
     new = copy.deepcopy(ab)
     log = []
+    adds = {}
     for ch in changes:
         path = [int(p) if isinstance(p, int) or (isinstance(p, str) and p.isdigit()) else p for p in ch.get("path", [])]
         f = allowed.get(tuple(map(str, path)))
         if not f:
             raise CorrectionError(f"{'/'.join(map(str, path))} is not a field of this item")
         val = str(ch.get("value", "")).strip()
-        if f["type"] == "enum" and val not in f["options"]:
+        if path[0] == "add":                                                    # collected, applied as one part below
+            adds.setdefault(path[1], {})[path[2]] = val
+            continue
+        if f["type"] in ("enum", "bool") and val not in f["options"]:
             raise CorrectionError(f"{f['label']}: {val!r} is not one of {f['options']}")
         if f["type"] == "date" and val and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", val):
             raise CorrectionError(f"{f['label']}: dates are YYYY-MM-DD")
@@ -215,10 +277,12 @@ def apply(ab, item, changes, schema):
             continue
         if path[0] == "settings":
             new.setdefault("settings", {})
-        _set(new, path, val)
+        _set(new, path, (val == "yes") if f["type"] == "bool" else val)
         log.append({"group": f["group"], "label": f["label"], "path": path, "before": before or "—", "after": val or "—"})
         if path == ["settings", "first_test"]:
             log += _apply_first_test(new, val)
+    for term, a in adds.items():
+        log += _add_part(new, term, {**{f["path"][2]: f["value"] for f in allowed.values() if f["path"][:2] == ["add", term]}, **a})
     if not log:
         raise CorrectionError("nothing changed: change a field, or Accept if the abstract is right")
     import jsonschema
@@ -227,6 +291,27 @@ def apply(ab, item, changes, schema):
         e = errs[0]
         raise CorrectionError(f"that change breaks the abstract: {'/'.join(map(str, e.path))}: {e.message[:120]}")
     return new, log
+
+
+def _add_part(ab, term, a):
+    clause, quote, cap = (a.get("clause") or "").strip(), re.sub(r"\s+", " ", a.get("quote") or "").strip(), (a.get("cap") or "").replace(",", "").strip()
+    if not clause or len(quote) < 15:
+        raise CorrectionError("to add a part, give its clause and copy its text from the agreement (at least a phrase)")
+    if cap and not re.fullmatch(r"\d+(\.\d+)?", cap):
+        raise CorrectionError("a limit is a dollar amount, e.g. 25000000")
+    from .clause_labels import label
+    t = next((t for t in ab["terms"] if t["name"] == term), None)
+    if t is None:                                    # a skipped term: it becomes a term, no longer pending
+        t = {"name": term, "family": "other", "starts_from": "", "components": [], "review": []}
+        ab["terms"].append(t)
+        ab["terms_pending"] = [x for x in ab.get("terms_pending", []) if x != term]
+    t["components"].append({"clause": label(clause), "category": a.get("category") or "custom", "ref_term": "", "ref_clauses": "",
+                            "sign": a.get("sign") or "+", "quote": quote, "source": "n/a", "needs_judgment": False,
+                            "note": "added by the reviewer", "caps": [{"type": "fixed_amount", "value": cap, "from": "", "to": "",
+                                                                       "during": "", "covenant": "all", "pool": "", "basis": "n/a",
+                                                                       "quote": quote}] if cap else []})
+    return [{"group": f"Add to {term}", "label": f"Part added: {label(clause)}", "path": ["terms", term], "before": "none",
+             "after": f"{a.get('sign') or '+'} {quote[:60]}"}]
 
 
 def _apply_first_test(ab, rule):

@@ -476,6 +476,24 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
                 f["labels"] = {o: BR.cat_label(o) for o in f["options"]}
         it["statement"] = BR.statement(ab, raw, it["fields"])
         it |= BR.level(raw, it["gpt"], comp.get((raw.get("term"), raw.get("clause"))))
+        # Every card says what the reviewer can do if it's wrong. edit: change recorded values; add: record a part the
+        # abstract doesn't have; send: the answer needs a document not in the filing, so it goes to the approver with
+        # a note; ack: nothing recorded to change and nothing missing, an FYI acknowledged in one click.
+        missing_doc = bool(raw.get("outside")) or "not in the filed documents" in (it["check_detail"] or "")
+        if it["fields"] and all(f["path"][0] == "add" for f in it["fields"]):
+            it["action"] = "add"
+        elif it["fields"]:
+            it["action"] = "edit"
+        elif missing_doc:
+            it["action"] = "send"
+            it |= {"level": "decide", "tier": 1, "level_why": "Needs a document that isn't in the public filing."}
+        else:
+            it["action"] = "ack"
+            t = next((t for t in ab.get("terms", []) if t["name"] == raw.get("term")), None)
+            if raw.get("clause") == "starts_from" and t and t.get("components"):
+                it["explain"] = (f"{t['name']} is a list of items ({', '.join(c['clause'] for c in t['components'][:2])} …), "
+                                 f"not an amount with additions, so there's no starting amount to record.")
+            it |= {"level": "ack", "level_why": "Nothing recorded to change and nothing missing: noted for the approver."}
     locs = locate(b, ab, rv, abs_dir)
     for it in items:                       # two quotes from the same sentence are one passage on screen
         seen, keep = {}, []
