@@ -41,7 +41,7 @@ def item_key(kind, x):
     if kind == "flag":
         basis = ["flag", x.get("type"), x.get("ref"), (x.get("quote") or "")[:120]]
     else:
-        basis = ["review", str(x.get("step")), x.get("term") or "", x.get("clause") or x.get("id") or "",
+        basis = ["review", str(x.get("step")), x.get("term") or "", x.get("key_clause") or x.get("clause") or x.get("id") or "",
                  (x.get("why") or x.get("item") or x.get("claim") or "")[:160]]
     return hashlib.sha1("|".join(map(str, basis)).encode()).hexdigest()[:10]
 
@@ -51,7 +51,12 @@ def review_list(ab):
     in its own quote, and one per defined term the covenants rely on that wasn't broken into its parts
     (no category for it, or the depth / term limit cut it off). Skipped terms are never silent."""
     from .value_check import checks
-    return ab.get("review", []) + checks(ab) + [{"step": "terms", "term": t, "item": f"{t} is used in the covenant calculation but "
+    from .clause_labels import match
+    # An entry's clause written another way than the stored part's ("(g)(exclusion)" vs "(g) (exclusion)") is matched
+    # to it, so every lookup downstream finds the part; the original label keeps the item's key (and any decision on it).
+    rows = [r if not (r.get("term") and r.get("clause")) or match(ab, r["term"], r["clause"]) == r["clause"]
+            else {**r, "clause": match(ab, r["term"], r["clause"]), "key_clause": r["clause"]} for r in ab.get("review", [])]
+    return rows + checks(ab) + [{"step": "terms", "term": t, "item": f"{t} is used in the covenant calculation but "
                                     f"its parts weren't recorded"} for t in ab.get("terms_pending", [])]
 
 

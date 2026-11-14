@@ -456,9 +456,11 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     for it, raw in zip(items, rv["items"]):
         if raw.get("kind") == "flag":           # does its answer need a document this filing doesn't contain?
             from .abstract.related import find_flag, outside
-            f = find_flag(ab, raw)
-            raw = {**raw, "outside": outside(ab, f, b) if f else None}
+            f = find_flag(ab, raw) or {}
+            raw = {**raw, "outside": outside(ab, f, b) if f else None, "question": f.get("question"),
+                   "readings": f.get("readings"), "abstract_reads": f.get("abstract_reads")}
             it["outside"] = raw["outside"]
+            it["readings"] = f.get("readings") or []
         it["check_detail"], it["what"] = it["what"], PL.item_text(raw, ab)
         it["where_label"] = PL.where_label(raw, ab)
         it["explain"] = PL.explain(raw, ab, it.get("gpt"))

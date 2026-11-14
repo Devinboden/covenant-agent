@@ -530,6 +530,9 @@ th { text-transform: none; letter-spacing: 0; font-size: 12px; }
 /* Done cards: one quiet border on every side; the green stamp carries the state. Selected = light fill, not an outline */
 .item.done, .item.done[data-state] { border: 1px solid var(--line); }
 .item.done.sel { border-color: var(--line); box-shadow: var(--shadow); background: var(--sunk); }
+/* the readings a structured flag asks the reviewer to choose between */
+.readings { margin: 2px 0 0; padding-left: 20px; color: var(--muted); font-size: 13px; line-height: 1.45; max-width: 72ch; }
+.readings li { margin: 1px 0; }
 </style>
 
 </head>
@@ -693,6 +696,7 @@ container holding the app. Specify either width or maxWidth, and either height o
     ${r?'inputmode="numeric" data-money="1"':""}><span class="inlhint" aria-live="polite"></span></span>`}var em=e=>{let t=e.where||"",n=t.match(/^term:(.+):\d+$/);return n?n[1]:t.startsWith("cov:")||t.startsWith("reg:")?t.split(":")[1].replace(/_/g," "):/^\d/.test(t)?"\xA7"+t:t||"\u2014"};function DT(e){let t=e.evidences&&e.evidences.length?e.evidences:e.evidence?[{label:"",quote:e.evidence,loc:"item:"+e.key}]:[];if(!t.length)return"";let n=r=>String(r||"").replace(/\s+/g," ").trim(),o=(r,i)=>{let a=L.locs.loc[r.loc],s=/^@name/.test(r.quote||"")?"":n(r.quote),c=n(a&&a.sentence||s||r.label),l=s?c.toLowerCase().indexOf(s.slice(0,60).toLowerCase()):-1,d=l>=0?R(c.slice(0,l))+"<mark>"+R(c.slice(l,l+s.length))+"</mark>"+R(c.slice(l+s.length)):R(c),m=[i&&r.label&&r.label!=="This part of the agreement"?r.label:"",a?`Page ${a.page+1}`:"Not found on a page"].filter(Boolean).join(", ");return`<button type="button" class="evpiece" data-ev="${R(r.loc)}"><q>${d}</q><span class="evcap">${R(m)}</span></button>`};return`<div class="r"><dt>Agreement</dt><dd class="evid">${t.map(o).join("")}</dd></div>`}var vz={accept:"Confirmed",correct:"Changed",defer:"Later",reject:"Doesn't belong"};function uz(e,t){let n=e.resolution||{},o=t&&(!n.decision||r_.has(e.key));if(n.decision&&!o)return MT(e,n,t);let r=!!L.locs.loc["item:"+e.key],i=new Set((e.statement||[]).filter(p=>p.f!=null).map(p=>p.f)),a=(e.fields||[]).map((p,g)=>[p,g]).filter(([p,g])=>!i.has(g)),s=e.statement&&e.statement.length?e.statement.filter(p=>o||!p.edit).map(p=>p.t!=null?R(p.t):jT(e,p.f,o)).join(""):R(e.what),[c,l]=lz[e.tier]||lz[1],d=!!(e.statement&&e.statement.length),m=(p,g,_="")=>`<button class="dbtn ${_}" data-d="${p}" aria-pressed="${n.decision===p}" ${o?"":"disabled"}>${g}</button>`;return`<article class="item" data-key="${e.key}" data-loc="item:${e.key}" data-state="${n.decision||""}" tabindex="0">
     <header class="ch"><h3>${R(e.where_label||em(e))}</h3><span class="tier ${c}">${l}</span></header>
     ${e.explain?`<p class="explain">${R(e.explain)}</p>`:""}
+    ${(e.readings||[]).length>=2?`<ol class="readings">${e.readings.map(p=>`<li>${R(p)}</li>`).join("")}</ol>`:""}
     <dl class="rows">
       ${d?`<div class="r"><dt>Abstract</dt><dd class="says"><p>${s}</p>${o?'<span class="hint">Click an underlined value to change it</span>':""}</dd></div>`:e.explain?"":`<div class="r"><dt>Decision</dt><dd><p>${R(e.what)}</p></dd></div>`}
       ${DT(e)}

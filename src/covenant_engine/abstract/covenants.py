@@ -86,9 +86,22 @@ FLAG = {"type": "object", "additionalProperties": False, "required": ["type", "r
                                                            "missing_schedule", "other"]},
                        "ref": {"type": "string"}, "quote": {"type": "string"}, "note": {"type": "string"},
                        "also": {"type": "array", "items": {"type": "string"}}}}
-# What the model must return: every flag lists the other passages it relied on (empty if none). Stored abstracts
-# from before this change have no "also", so the stored-abstract schema (FLAG) keeps it optional.
-FLAG_OUT = {**FLAG, "required": FLAG["required"] + ["also"]}
+# A flag says exactly what it's about and what's uncertain, in fixed fields, so code (not text matching) decides which
+# fields a reviewer can edit, which evidence to show, whether GPT's agreement settles it, and how to word the card.
+TARGET = {"type": "object", "additionalProperties": False, "required": ["kind", "id", "clause"],
+          "properties": {"kind": {"type": "string", "enum": ["covenant", "regime", "term"]},
+                         "id": {"type": "string"},          # covenant / regime id from this extraction, or a defined term
+                         "clause": {"type": "string"}}}     # a term's clause ("(a)(ii)"), else ""
+NEEDS = {"type": "object", "additionalProperties": False, "required": ["needed", "what"],
+         "properties": {"needed": {"type": "boolean"}, "what": {"type": "string"}}}
+STRUCT = {"also": {"type": "array", "items": {"type": "string"}},
+          "targets": {"type": "array", "items": TARGET},
+          "question": {"type": "string"},                  # the decision a reviewer makes, one plain sentence
+          "readings": {"type": "array", "items": {"type": "string"}},   # the plausible readings of the text
+          "abstract_reads": {"type": "string"},            # which reading this extraction recorded
+          "needs_text": NEEDS}                             # does the answer depend on text not in this filing?
+FLAG["properties"].update(STRUCT)                      # stored abstracts: optional (older ones don't have them)
+FLAG_OUT = {**FLAG, "required": FLAG["required"] + list(STRUCT)}
 SCHEMA = {"type": "object", "additionalProperties": False,
           "required": ["covenants", "regimes", "flags", "needs_context", "search_for"],
           "properties": {"covenants": {"type": "array", "items": COVENANT}, "regimes": {"type": "array", "items": REGIME},
@@ -120,9 +133,17 @@ RULES = """1. covenants: every MAINTENANCE financial covenant (tested periodical
      (increment, ceiling); duration with its unit as written; max_uses; min_gap = time required between uses.
    - not_during: ids of regimes it cannot overlap with. conditions: notice, minimum acquisition size, etc.
 3. flags: things a reviewer must see, e.g. a reference to a mechanism that no longer exists (dangling_reference),
-   two provisions that conflict, a date that can't be pinned down. quote = the passage in question; also = every
-   other passage your reading relies on (a proviso, a definition, the clause that ends a period), each copied exactly.
-   If the answer depends on text you were not given (an earlier version of the agreement, an annex), say so in note.
+   two provisions that conflict, a date that can't be pinned down.
+   - quote = the passage in question; also = every other passage your reading relies on (a proviso, a definition,
+     the clause that ends a period), each copied exactly.
+   - targets = exactly what in YOUR extraction the flag is about: {"kind": "covenant"|"regime", "id": <the id you gave
+     it>, "clause": ""} or {"kind": "term", "id": <defined term as written, e.g. "Total Net Leverage Ratio">,
+     "clause": <its clause, e.g. "(a)(ii)", or "">}. At least one.
+   - question = the decision the reviewer makes, one plain sentence, no jargon ("Does the 4.00x cap also limit the
+     relief-period levels?"). readings = the plausible readings (at least two for an ambiguity; one if the flag only
+     reports something). abstract_reads = which reading your extraction records. note = your reasoning.
+   - needs_text = {"needed": true, "what": <what text>} if the answer depends on text you were not given (an earlier
+     version of the agreement, an annex, a schedule); else {"needed": false, "what": ""}.
 4. needs_context: sections ("Section 9.3(i)") or defined terms you need that are NOT in the packet; search_for: short
    phrases to look up. Ask here instead of flagging text as missing; leave both empty if the packet is enough."""
 
@@ -295,10 +316,27 @@ def check(out, live_sq, closing=None):
             q(w + " early_exit", ex["quote"])
         for cnd in g["conditions"]:
             q(w + " condition", cnd["quote"])
+    cov_ids = {c["id"] for c in out["covenants"]}
+    reg_ids = {g["id"] for g in out["regimes"]}
     for f in out["flags"]:
         q(f"flag {f['type']}", f["quote"])
         for a in f.get("also", []):
             q(f"flag {f['type']} (also)", a)
+        if "targets" in f:                      # structured flags (model output from this version on)
+            w = f"flag {f['type']} {f['ref']}"
+            if not f["targets"]:
+                P.append(f"{w}: targets is empty; name the covenant, regime or defined term the flag is about")
+            for t in f["targets"]:
+                if t["kind"] == "covenant" and t["id"] not in cov_ids:
+                    P.append(f"{w}: target covenant '{t['id']}' is not one of your covenant ids {sorted(cov_ids)}")
+                elif t["kind"] == "regime" and t["id"] not in reg_ids:
+                    P.append(f"{w}: target regime '{t['id']}' is not one of your regime ids {sorted(reg_ids)}")
+                elif t["kind"] == "term" and squash(t["id"]) not in live_sq:
+                    P.append(f"{w}: target term '{t['id']}' is not a term in the agreement text")
+            if not f.get("question", "").strip():
+                P.append(f"{w}: question is empty")
+            if f.get("needs_text", {}).get("needed") and not f["needs_text"].get("what", "").strip():
+                P.append(f"{w}: needs_text.needed is true but what is empty")
     return P
 
 

@@ -312,6 +312,7 @@ function card(it, editable) {
   return `<article class="item" data-key="${it.key}" data-loc="item:${it.key}" data-state="${r.decision || ""}" tabindex="0">
     <header class="ch"><h3>${esc(it.where_label || whereLabel(it))}</h3><span class="tier ${tc}">${tl}</span></header>
     ${it.explain ? `<p class="explain">${esc(it.explain)}</p>` : ""}
+    ${(it.readings || []).length >= 2 ? `<ol class="readings">${it.readings.map(r => `<li>${esc(r)}</li>`).join("")}</ol>` : ""}
     <dl class="rows">
       ${stated ? `<div class="r"><dt>Abstract</dt><dd class="says"><p>${sentence}</p>${on ? '<span class="hint">Click an underlined value to change it</span>' : ""}</dd></div>`
         : it.explain ? "" : `<div class="r"><dt>Decision</dt><dd><p>${esc(it.what)}</p></dd></div>`}

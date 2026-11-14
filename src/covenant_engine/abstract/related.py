@@ -34,9 +34,13 @@ def _named_regimes(ab, text):
 def passages(ab, flag):
     """[(label, quote)] beyond the flag's own quote: what the model cited, then the regimes the flag names."""
     out = [("Also relied on", q) for q in flag.get("also", []) if q]
-    text = " ".join([flag.get("note", ""), flag.get("quote", "")] + flag.get("also", []))
     from ..review_view import DNAME
-    for g in _named_regimes(ab, text):
+    if flag.get("targets"):                    # structured: exactly the regimes and terms it's about
+        regs = [g for t in flag["targets"] if t["kind"] == "regime" for g in ab.get("regimes", []) if g["id"] == t["id"]]
+        out += [(f"Definition of {t['id']}", DNAME + t["id"]) for t in flag["targets"] if t["kind"] == "term"]
+    else:                                      # older abstracts: regimes the note names
+        regs = _named_regimes(ab, " ".join([flag.get("note", ""), flag.get("quote", "")] + flag.get("also", [])))
+    for g in regs:
         # The regime's own quote is where the model found its effect (often the covenant clause, e.g. "during a
         # Covenant Holiday Period ... 4.50 to 1.00"), not its definition: show both, each labelled for what it is.
         out.append((f"Definition of {g['name']}", DNAME + g["name"]))
@@ -75,7 +79,15 @@ def outside(ab, flag, borrower=None):
                 where = f" (earlier filings for this deal: {', '.join(earlier)})" if earlier else ""
                 return f"the agreement as it stood before the {m.group(1).title()} Amendment{where}"
         return None
-    # 1. the passages the flag itself rests on point to an earlier version
+    nt = flag.get("needs_text")
+    if nt is not None:                         # structured: the model said whether it needed text it wasn't given
+        if not nt.get("needed"):
+            return prior([flag.get("quote", "")] + flag.get("also", []))      # the quoted text itself may still point back
+        regs = [g for t in flag.get("targets", []) if t["kind"] == "regime" for g in ab.get("regimes", []) if g["id"] == t["id"]]
+        named = prior([flag.get("quote", "")] + flag.get("also", []) +
+                      [x for g in regs for x in (g.get("quote", ""), (g.get("early_exit") or {}).get("quote", ""))])
+        return named or nt.get("what") or "text the agreement refers to that isn't in this filing"
+    # older abstracts: 1. the passages the flag itself rests on point to an earlier version
     own = prior([flag.get("quote", "")] + flag.get("also", []))
     if own:
         return own

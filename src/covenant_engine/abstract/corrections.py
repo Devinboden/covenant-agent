@@ -116,6 +116,12 @@ def _categories():
     return list(CATEGORIES)
 
 
+def _targets(ab, item):
+    from .related import find_flag
+    f = find_flag(ab, item) if item.get("kind") == "flag" else None
+    return (f or {}).get("targets") or []
+
+
 def fields(ab, item):
     """Editable fields for one review row (a dict from review_data: kind, where, term, clause, ...)."""
     out = []
@@ -125,7 +131,22 @@ def fields(ab, item):
             for pi, p in enumerate(t.get("components", [])):
                 if t["name"] == item["term"] and p.get("clause") == item["clause"]:
                     out += _component_fields(ab, ti, pi, _categories())
-    elif kind == "flag" or kind == "review/gpt":
+    elif kind == "flag" and _targets(ab, item):          # a structured flag says exactly what it's about
+        for t in _targets(ab, item):
+            if t["kind"] == "covenant":
+                out += [f for ci, c in enumerate(ab["covenants"]) if c["id"] == t["id"] for f in _covenant_fields(ab, ci)]
+            elif t["kind"] == "regime":
+                out += [f for gi, g in enumerate(ab["regimes"]) if g["id"] == t["id"] for f in _regime_fields(ab, gi)]
+            else:
+                from .clause_labels import key
+                for ti, term in enumerate(ab.get("terms", [])):
+                    if term["name"] == t["id"]:
+                        for pi, p in enumerate(term["components"]):
+                            if (key(p.get("clause")) == key(t["clause"])) if t["clause"] else p.get("caps"):
+                                out += _component_fields(ab, ti, pi, _categories())
+        seen = set()
+        out = [f for f in out if not (tuple(map(str, f["path"])) in seen or seen.add(tuple(map(str, f["path"]))))]
+    elif kind == "flag" or kind == "review/gpt":         # older abstracts: resolve the flag's free-text reference
         ref = item.get("where") or ""
         cid = (item.get("id") or "")
         # A flag names what it's about in the model's words: a section ("6.13"), several ("6.12/6.13"), a covenant's

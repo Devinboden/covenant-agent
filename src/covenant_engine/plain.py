@@ -245,6 +245,13 @@ def explain(row, ab, gpt=None):
             rule = (ab.get("settings") or {}).get("first_test", "on_or_after_closing")
             return (f"This period starts at the Closing Date ({_d(cd)}) and the agreement doesn't name the first test; "
                     f"recorded as {_d(hit[1]['start']['date'])}, {FIRST_TEST[rule]}.")
+    if kind == "flag" and row.get("question"):           # structured flag: say it in its own fixed parts
+        out = row["question"].strip()
+        if row.get("outside"):
+            out += f" The answer depends on {row['outside']}, which isn't in this filing."
+        elif row.get("abstract_reads"):
+            out += f" The abstract records: {row['abstract_reads'].strip().rstrip('.')}."
+        return out
     if kind == "flag" and row.get("outside"):
         return (f"The answer depends on {row['outside']}, which isn't in this filing; it can't be confirmed from these "
                 f"pages, so the reviewer needs that document.")

@@ -217,6 +217,8 @@ def build(borrower, model="sonnet", max_terms=25, reuse_step2=False, out="data/a
         "calculation_rules": (cr["output"] or {}).get("rules", []), "deemed_values": cr.get("deemed", []),
         "pricing_grid": pr["output"],
         "flags": out2["flags"], "review": review}
+    from .clause_labels import canonical
+    canonical(abstract)                                     # one way to write every clause label
     errs = sorted(jsonschema.Draft202012Validator(ABSTRACT_SCHEMA).iter_errors(abstract), key=lambda e: list(e.path))
     abstract["review"] += [{"step": "schema", "item": f"{'/'.join(map(str, e.path))}: {e.message[:160]}"} for e in errs[:20]]
     cost = s2["cost"] + sum(r.get("cost", 0) for r in s3.values()) + sum(r["cost"] for r in parts.values())

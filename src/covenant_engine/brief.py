@@ -359,8 +359,10 @@ def level(item, gpt, stored=None):
                     "dangling_reference": "It refers to something that isn't in the agreement",
                     "missing_schedule": "A schedule it relies on is missing"}[t]
             return _lv("decide", 1, f"{what}, and that decides which level applies when.", "dates")
+        if item.get("readings") is not None and len(item["readings"]) >= 2:
+            return _lv("decide", 1, "The text supports more than one reading; GPT's separate reading of the figures doesn't choose between them.")
         from .abstract.related import numbers
-        said = numbers(item.get("what", ""))                     # the figures the flag is about
+        said = numbers(item.get("what", ""))                     # the figures the flag is about (older abstracts)
         read = {x for c in (gpt or {}).get("claims", []) if c.get("verdict") == "agree"
                 for x in numbers(str(c.get("value_in_text", "")) + " " + str(c.get("evidence", "")))}
         if agrees and said and said <= read and ACCURACY["flag_note"]["rate"] >= CONFIRM_AT:
