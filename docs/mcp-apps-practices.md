@@ -11,7 +11,8 @@ informs, a probe decides); **[open]** = not yet tested in a real host.
   [probed: `mcp_server.view_uri`, test_view_uri_is_a_content_hash] [doc: sunpeak "versioned UI"; OpenAI forum says
   ChatGPT no longer snapshots HTML permanently, so the hash is belt and braces]
 - **Keep old URIs readable.** Old conversations and published metadata still point at earlier URIs. We serve the
-  pre-hash URI as an alias of the current HTML. [probed] [doc: sunpeak]
+  pre-hash URI and every earlier hashed URI (a `ui://.../review-{build}.html` resource template) as aliases of the
+  current HTML, so a host holding a stale tool listing still renders instead of failing "resource not found". [probed] [doc: sunpeak]
 - Serve as `text/html;profile=mcp-app`, one self-contained file: bundle JS and CSS inline (esbuild), no external
   script URLs, no `data:` script src. Watch the size: ours is ~620 KB; hosts cap it (8 MB default in some). [probed] [doc]
 - Build output is committed (`npm run build:ui`) so Python users need no Node. Rebuild before every commit that touches

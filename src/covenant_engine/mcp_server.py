@@ -280,6 +280,13 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
                       "arithmetic yourself: every value and date comes from get_abstract."),
         extensions=[apps])
 
+    # Any earlier build's URI serves the current screen. A host that cached an older tool listing still asks for the
+    # URI it was given; without this it gets "resource not found" and shows nothing until its tools are refreshed.
+    @server.resource("ui://covenant-agent/review-{build}.html", name="Covenant review (earlier build)",
+                     title="Covenant review", mime_type="text/html;profile=mcp-app", meta=meta)
+    def earlier_build(build: str) -> str:
+        return html
+
     def who_or_none(ctx):
         return authenticated_principal(ctx.request_context) or user or None
 

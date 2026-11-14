@@ -89,6 +89,8 @@ def test_review_screen(abs_dir, tmp_path):
             assert uris == sorted([UI_URI, "ui://covenant-agent/review.html"])        # hashed + legacy alias
             uri = UI_URI
             html = (await c.read_resource(uri)).contents[0]
+            old = (await c.read_resource("ui://covenant-agent/review-0123456789ab.html")).contents[0]
+            assert old.text == html.text and old.mime_type == html.mime_type   # an earlier build's URI still renders
             return html
     html = asyncio.run(go())
     assert html.mime_type == "text/html;profile=mcp-app" and "Sign off" in html.text
