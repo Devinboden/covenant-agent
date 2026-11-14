@@ -151,3 +151,12 @@ def test_gpt_agreement_only_demotes_a_flag_about_figures_it_read():
     assert BR.level({"kind": "flag", "type": "other", "what": "unclear whether 4.00 caps the 5.25 level"}, gpt)["level"] == "confirm"
     assert BR.level({"kind": "flag", "type": "other", "what": "no cap on the number of uses"}, gpt)["level"] == "decide"
     assert BR.level({"kind": "flag", "type": "other", "what": "x", "outside": "an earlier version"}, gpt)["level"] == "decide"
+
+
+def test_a_flag_question_is_one_decision():
+    from covenant_engine.abstract.covenants import two_questions
+    assert not two_questions("Does the relief period cover the March 31, 2027 test, or do the table's levels apply?")
+    assert not two_questions("Is the 0.50x step-up a per-use increment bound by the 4.00x ceiling?")
+    assert two_questions("Does the Accu-Fab period count toward the two-use limit, and does the 4.00x cap limit the relief levels?")
+    assert two_questions("Must a second holiday be separated by two quarters, and what happens if they are closer together?")
+    assert two_questions("Is this right? Is that right?")

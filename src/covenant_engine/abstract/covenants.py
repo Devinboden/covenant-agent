@@ -132,7 +132,7 @@ RULES = """1. covenants: every MAINTENANCE financial covenant (tested periodical
    - step_up (incl. "covenant holiday", "leverage increase period"): effect set_level (level) or add_increment
      (increment, ceiling); duration with its unit as written; max_uses; min_gap = time required between uses.
    - not_during: ids of regimes it cannot overlap with. conditions: notice, minimum acquisition size, etc.
-3. flags: things a reviewer must see, e.g. a reference to a mechanism that no longer exists (dangling_reference),
+3. flags: things a reviewer must see (one decision per flag), e.g. a reference to a mechanism that no longer exists (dangling_reference),
    two provisions that conflict, a date that can't be pinned down.
    - quote = the passage in question; also = every other passage your reading relies on (a proviso, a definition,
      the clause that ends a period), each copied exactly.
@@ -171,6 +171,16 @@ READING PACKET:
 <<<
 {packet}
 >>>"""
+
+
+SECOND_Q = re.compile(r"[,;]?\s+and\s+(does|do|did|is|are|was|were|can|could|should|must|will|would|what|which|when|"
+                      r"how|whether|who|where)\b", re.I)
+
+
+def two_questions(q):
+    """A flag's question is one decision. 'Does X apply, or does Y?' is one choice between readings; 'Does X count, and
+    does the cap limit Y?' (MEC re-run, 2026-11-14) and 'Must they be separated, and what happens if...' are two."""
+    return q.count("?") > 1 or bool(SECOND_Q.search(q))
 
 
 def _num(x):
@@ -333,8 +343,11 @@ def check(out, live_sq, closing=None):
                     P.append(f"{w}: target regime '{t['id']}' is not one of your regime ids {sorted(reg_ids)}")
                 elif t["kind"] == "term" and squash(t["id"]) not in live_sq:
                     P.append(f"{w}: target term '{t['id']}' is not a term in the agreement text")
-            if not f.get("question", "").strip():
+            qn = f.get("question", "").strip()
+            if not qn:
                 P.append(f"{w}: question is empty")
+            elif two_questions(qn):
+                P.append(f"{w}: question asks two things ({qn!r}); make it one decision and put the other in its own flag")
             if f.get("needs_text", {}).get("needed") and not f["needs_text"].get("what", "").strip():
                 P.append(f"{w}: needs_text.needed is true but what is empty")
     return P

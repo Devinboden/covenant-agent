@@ -160,3 +160,21 @@ def test_flag_naming_a_regime_several_sections_or_a_ratio_gets_its_fields():
     assert ("regimes", 0) in paths("Covenant Holiday Period")
     assert {("covenants", 0), ("covenants", 1)} <= paths("6.12/6.13")
     assert ("terms", 1) in paths("Total Net Leverage Ratio")                       # the cash netting caps
+
+
+def test_scorer_checks_what_applies_if_relief_ends_early():
+    """MEC: if the relief period ends early, 3.50x leverage applies. An abstract that says 'back to the standard
+    schedule' while its standard schedule still carries the 5.25x relief rows gets this wrong; the score must show it."""
+    import copy, json
+    from covenant_engine.abstract.score import score_abstract
+    ab = json.load(open("data/abstract/v1/MEC.abstract.json"))
+    assert "early exit 7/7" in score_abstract("MEC", ab, terms=False)["summary"]
+    bad = copy.deepcopy(ab)
+    g = next(g for g in bad["regimes"] if g["type"] == "relief_period")
+    g["early_exit"]["after"], g["early_exit"]["after_levels"] = "revert_to_standard", []
+    lev = next(c for c in bad["covenants"] if c["id"] == "total_leverage")
+    dt = lambda x: {"kind": "date", "date": x, "count": "", "anchor": ""}
+    lev["schedule"] = [lev["schedule"][0], {**lev["schedule"][1], "start": dt("2026-03-31"), "end": dt("2026-06-30"), "value": "5.25"},
+                       {**lev["schedule"][1], "start": dt("2027-03-31")}]
+    s = score_abstract("MEC", bad, terms=False)["summary"]
+    assert "early exit 7/7" not in s, s

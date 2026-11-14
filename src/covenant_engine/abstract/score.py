@@ -51,7 +51,7 @@ def score_abstract(b, ab, terms=True):
     keys = key_maintenance(b)
     if keys is None:
         return {"summary": "no answer key", "misses": [], "terms": {}}
-    found = pts = ok = n_keys = 0
+    found = pts = ok = n_keys = ex_ok = ex_n = 0
     for kc in keys:
         base = nref(kc["ref"])
         if (b, base) in KEY_ARTIFACTS:
@@ -90,6 +90,28 @@ def score_abstract(b, ab, terms=True):
                     ok += 1
                 elif len(misses) < 12:
                     misses.append(f"{kc['ref']} {regime} {q}: key {kv} model {mv}")
+        # Early exit: if the relief period ends early, what level applies at each relief-period quarter? The key states
+        # it (early_exit_override); the abstract answers through the relief regime's early-exit rule: back to the
+        # standard schedule, or fixed after-levels. A standard schedule that still carries the relief levels gives the
+        # wrong answer here even though the dated table itself scores (MEC re-run, 2026-11-14).
+        ov = (kc.get("early_exit_override") or {}).get("value")
+        if ov is not None:
+            regs = [g for g in ab["regimes"] if g["type"] == "relief_period" and g["early_exit"]["allowed"]]
+            for q in QTRS:
+                if at(kr, q, "relief") is None:
+                    continue
+                ex_n += 1
+                mv = None
+                for g in regs:
+                    after = {x["covenant_id"]: num(x["value"]) for x in g["early_exit"]["after_levels"]}
+                    if g["early_exit"]["after"] == "fixed_levels" and ids & set(after):
+                        mv = next(after[i] for i in ids if i in after)
+                    elif g["early_exit"]["after"] == "revert_to_standard":
+                        mv = at(std, q, "standard")
+                if mv is not None and abs(mv - num(ov)) < 1e-6:
+                    ex_ok += 1
+                elif len(misses) < 16:
+                    misses.append(f"{kc['ref']} early exit {q}: key {num(ov)} model {mv}")
     exp_ok = exp_n = 0
     for e in EXPECTED.get(b, []):
         t = "step_up" if e["type"] == "step_up_election" else e["type"]
@@ -118,5 +140,6 @@ def score_abstract(b, ab, terms=True):
         misses += bad
     ts = score_terms(b, ab) if terms else {}
     ebitda = "".join(f" | {n} {v}" for n, v in ts.items() if "EBITDA" in n)
-    return {"summary": f"covenants {found}/{n_keys} schedule {ok}/{pts} regime fields {exp_ok}/{exp_n}{ebitda}",
+    early = f" | early exit {ex_ok}/{ex_n}" if ex_n else ""
+    return {"summary": f"covenants {found}/{n_keys} schedule {ok}/{pts} regime fields {exp_ok}/{exp_n}{ebitda}{early}",
             "misses": misses, "terms": ts}
