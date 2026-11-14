@@ -50,9 +50,15 @@ pip install -e ".[dev,render]" && playwright install chromium
 SEC_USER_AGENT="Your Name you@example.com" python scripts/fetch_filings.py TRS   # download, render, ingest
 python -m covenant_engine.abstract.new_deal TRS data/pdf/TRS/amendment_10th-amendment-2026-03-conformed.pdf
 python -m covenant_engine.abstract.signoff status TRS
+python -m covenant_engine.export_xlsx TRS    # covenant testing workbook (needs the xlsx extra)
 pytest -q                    # fast regression tests on the stored abstracts (no model calls)
 pytest -m live               # end-to-end rebuild against the keys (calls models)
 ```
+The testing workbook is built by code from the abstract: a calendar of test dates and levels, the definitions in plain
+words, and a test sheet with one line per add-back or deduction (four quarters for income items, the balance for debt
+and cash), the agreement's caps as formulas, the ratios, headroom, status and EBITDA cushion, and a column for the
+borrower's certificate figures (`compliance_test.py` decides the lines, `export_xlsx.py` writes them).
+
 Model calls use the local `claude -p` CLI today (`covenant_engine/model.py`); Bedrock comes at deployment.
 
 ## MCP server
