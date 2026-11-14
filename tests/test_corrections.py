@@ -150,3 +150,13 @@ def test_first_test_reading_is_a_setting_and_code_works_out_the_dates():
     assert new["settings"]["first_test"] == "first_full_quarter"
     assert {c["schedule"][0]["start"]["date"] for c in new["covenants"] if "Closing Date" in c["schedule"][0]["quote"]} == {"2023-09-30"}
     assert len([x for x in log if x["label"].startswith("From date")]) == 2
+
+
+def test_flag_naming_a_regime_several_sections_or_a_ratio_gets_its_fields():
+    import json
+    from covenant_engine.abstract import corrections as C
+    ab = json.load(open("data/abstract/v1/TRS.abstract.json"))
+    paths = lambda where: {tuple(f["path"][:2]) for f in C.fields(ab, {"kind": "flag", "where": where})}
+    assert ("regimes", 0) in paths("Covenant Holiday Period")
+    assert {("covenants", 0), ("covenants", 1)} <= paths("6.12/6.13")
+    assert ("terms", 1) in paths("Total Net Leverage Ratio")                       # the cash netting caps

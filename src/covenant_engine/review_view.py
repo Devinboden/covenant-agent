@@ -41,7 +41,7 @@ def _defined_at(doc, flat, name, sentence=False):
     import re as _re
     want = _flat(name)
     for i, t in enumerate(flat):
-        if want + "means" not in t and want + "ofanypersonmeans" not in t and want + "ofanypersonasofanydatemeans" not in t:
+        if not any(want + x in t for x in ("means", "shallmean", "ofanypersonmeans", "ofanypersonasofanydatemeans")):
             continue
         ws = _live_words(doc[i])
         for k, w in enumerate(ws):
@@ -51,7 +51,7 @@ def _defined_at(doc, flat, name, sentence=False):
             if m and m[0] == 0:
                 z = k + m[1]
                 nxt = " ".join(x[4] for x in ws[z + 1:z + 6]).lower()
-                if _re.match(r"(of any person (as of any date )?)?means", nxt):
+                if _re.match(r"(of any person (as of any date )?)?(means|shall mean)", nxt):
                     if sentence:
                         s, e = _sentence(ws, k, z + 5)
                         return i, _boxes(ws, s, e), re.sub(r"\s+", " ", " ".join(w[4] for w in ws[s:e + 1])).strip()
@@ -193,7 +193,7 @@ def _flat(t):
 
 
 ABBR = re.compile(r"^(?:\(?[a-z0-9]{1,4}\)|No|Nos|Sec|Secs|U\.S|Inc|Corp|Co|Ltd|L\.P|N\.A|e\.g|i\.e|etc|vs)\.$", re.I)
-LOCATE_V = "words-11"      # bump to re-locate every quote when the matching changes
+LOCATE_V = "words-13"      # bump to re-locate every quote when the matching changes
 
 
 def _ends_sentence(w):
@@ -476,12 +476,16 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
         it |= BR.level(raw, it["gpt"], comp.get((raw.get("term"), raw.get("clause"))))
     locs = locate(b, ab, rv, abs_dir)
     for it in items:                       # two quotes from the same sentence are one passage on screen
-        seen, keep = set(), []
+        seen, keep = {}, []
         for e in it["evidences"]:
+            if (e.get("quote") or "").startswith(DNAME) and e["loc"] not in locs["loc"]:
+                continue                       # a definition found by its term only, and not found: leave it off
             k = re.sub(r"\W", "", ((locs["loc"].get(e["loc"]) or {}).get("sentence") or e["quote"]).lower())[:200]
             if k not in seen:
-                seen.add(k)
+                seen[k] = e
                 keep.append(e)
+            elif e["label"].startswith("Definition of"):   # the same passage, found as a definition: say so
+                seen[k]["label"] = e["label"]
         it["evidences"] = keep
     its, open_, deferred, _ = SO.summary(ab, rec)
     trail = [{"date": ab["header"].get("built"), "by": "system",

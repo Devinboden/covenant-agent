@@ -128,9 +128,21 @@ def fields(ab, item):
     elif kind == "flag" or kind == "review/gpt":
         ref = item.get("where") or ""
         cid = (item.get("id") or "")
-        covs = [i for i, c in enumerate(ab["covenants"]) if c["ref"] and (c["ref"] == ref or cid.startswith(f"cov:{c['id']}"))]
+        # A flag names what it's about in the model's words: a section ("6.13"), several ("6.12/6.13"), a covenant's
+        # ratio ("Total Net Leverage Ratio") or a regime ("Covenant Holiday Period"). Resolve each to its fields.
+        refs = {r.strip().lstrip("§") for r in re.split(r"/|,|&|\band\b", ref) if r.strip()}
+        low = ref.lower()
+        covs = [i for i, c in enumerate(ab["covenants"]) if cid.startswith(f"cov:{c['id']}") or
+                (c["ref"] and (c["ref"] == ref or c["ref"] in refs)) or (c.get("metric") and c["metric"].lower() == low)]
         cov_ids = {ab["covenants"][i]["id"] for i in covs}
-        regs = [i for i, g in enumerate(ab["regimes"]) if set(g.get("applies_to", [])) & cov_ids or cid.startswith(f"reg:{g['id']}")]
+        named = [i for i, g in enumerate(ab["regimes"]) if g.get("name") and g["name"].lower() == low]
+        regs = named or [i for i, g in enumerate(ab["regimes"]) if set(g.get("applies_to", [])) & cov_ids or cid.startswith(f"reg:{g['id']}")]
+        if kind == "flag":                       # a ratio's own definition: the parts that carry a limit (e.g. cash netting)
+            for ti, t in enumerate(ab.get("terms", [])):
+                if t["name"].lower() == low:
+                    for pi, p in enumerate(t["components"]):
+                        if p.get("caps"):
+                            out += _component_fields(ab, ti, pi, _categories())
         for gi in regs:
             out += _regime_fields(ab, gi)
         for ci in covs:

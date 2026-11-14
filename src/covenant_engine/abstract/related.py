@@ -35,8 +35,12 @@ def passages(ab, flag):
     """[(label, quote)] beyond the flag's own quote: what the model cited, then the regimes the flag names."""
     out = [("Also relied on", q) for q in flag.get("also", []) if q]
     text = " ".join([flag.get("note", ""), flag.get("quote", "")] + flag.get("also", []))
+    from ..review_view import DNAME
     for g in _named_regimes(ab, text):
-        out.append((f"Definition of {g['name']}", g.get("quote", "")))
+        # The regime's own quote is where the model found its effect (often the covenant clause, e.g. "during a
+        # Covenant Holiday Period ... 4.50 to 1.00"), not its definition: show both, each labelled for what it is.
+        out.append((f"Definition of {g['name']}", DNAME + g["name"]))
+        out.append((f"What the {g['name']} changes", g.get("quote", "")))
         ex = g.get("early_exit") or {}
         if ex.get("allowed") and ex.get("quote"):
             out.append((f"How the {g['name']} can end early", ex["quote"]))
