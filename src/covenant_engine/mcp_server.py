@@ -165,9 +165,16 @@ class Confirm(BaseModel):
     confirm: bool = Field(description="Tick to confirm")
 
 
-def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=None, edgar=None):
+# View-only (public demo): anyone can open a deal's abstract and review screen; nothing can be changed, verified,
+# signed or started, so no model is ever called on a visitor's behalf.
+CHANGING_TOOLS = ("review_decide", "review_verify", "review_sign", "start_deal", "find_credit_agreements",
+                  "start_abstraction", "resolve_item", "verify", "sign_off")
+
+
+def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=None, edgar=None, view_only=False):
     """Build the server. user = the configured person behind an unauthenticated (local) connection.
-    edgar = the EDGAR intake module (tests pass a stand-in; default covenant_engine.tools.edgar)."""
+    edgar = the EDGAR intake module (tests pass a stand-in; default covenant_engine.tools.edgar).
+    view_only = the public demo: only the tools that show things are registered (see CHANGING_TOOLS)."""
     if runner is None:
         from .abstract.new_deal import abstract_deal as runner
     if edgar is None:
@@ -202,7 +209,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     # connection, never from an argument.
 
     def _view(ctx, b):
-        return RV.payload(b, who_or_none(ctx), abs_dir)
+        return RV.payload(b, who_or_none(ctx), abs_dir) | {"view_only": view_only}
 
     @apps.tool(**VIEW, annotations=READ)
     def open_review(borrower: str, ctx: Context) -> dict[str, Any]:
@@ -275,7 +282,12 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
                       "resolve_item, verify and sign_off ask the person directly with a form; you can propose a "
                       "decision but only their answer counts. open_review shows the review screen. "
                       "To start a new company, start_abstraction takes its name or ticker, finds its credit agreement on SEC "
-                      "EDGAR and starts the run; find_credit_agreements lists the options."),
+                      "EDGAR and starts the run; find_credit_agreements lists the options."
+                      if not view_only else
+                      "Covenant abstraction demo, view only: list_deals shows the deals; open_review shows a deal's review "
+                      "screen (open items, evidence highlighted on the agreement, covenant schedules); get_abstract returns "
+                      "its contents. Nothing can be changed, verified, signed or started here. Never do covenant "
+                      "arithmetic yourself: every value and date comes from get_abstract."),
         extensions=[apps])
 
     def who_or_none(ctx):
@@ -552,6 +564,9 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         return {"borrower": b, "signed_off": True, "by": by, "status": "signed_off"}
 
     server.jobs = jobs
+    if view_only:
+        for name in CHANGING_TOOLS:
+            server.remove_tool(name)
     return server
 
 

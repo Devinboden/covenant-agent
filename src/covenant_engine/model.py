@@ -136,4 +136,6 @@ def set_backend(b):
 
 
 def call_model(system, user, schema, model=DEFAULT_MODEL, timeout=180):
+    if config.MODEL_CALLS == "off":            # the one gate every model call passes: off = no call, no cost
+        return {"ok": False, "error": "model calls are off on this server (view-only demo)", "seconds": 0, "cost_usd": 0}
     return backend().complete_json(system, user, schema, model=model, timeout=timeout)

@@ -15,6 +15,8 @@ DATA = ROOT / "data"
 ABSTRACT_DIR = "data/abstract/v1"            # relative to ROOT (kept relative: CLIs take it as an argument)
 
 MODEL_BACKEND = os.environ.get("COVENANT_MODEL", "claude-cli")
+# "off" blocks every model call (the public view-only demo): call_model refuses before any backend runs.
+MODEL_CALLS = os.environ.get("COVENANT_MODEL_CALLS", "on").lower()
 RECORD_DIR = os.environ.get("COVENANT_RECORD") or None
 REPLAY_DIR = os.environ.get("COVENANT_REPLAY") or None
 

@@ -164,7 +164,7 @@ $("next").onclick = () => step(1);
 function render(p) {
   D = p;
   $("loading").hidden = true;
-  $("viewer").textContent = p.viewer || "not signed in";
+  $("viewer").textContent = p.view_only ? "View only" : (p.viewer || "not signed in");
   $("dealName").textContent = `${p.name} (${p.borrower})`;
   $("dealSub").textContent = `${p.header.source_file} · built ${p.header.built} · spec ${p.header.spec}`;
   $("file").textContent = p.header.source_file;
@@ -195,7 +195,7 @@ let openGroups = { done: false, confirm: false };
 const reopened = new Set();     // cards the person reopened to change a decision (a new decision overwrites the old)
 const TIER = { 1: ["t1", "Affects pass/fail"], 2: ["t2", "Affects an input"] };
 function items() {
-  const editable = D.status === "draft";
+  const editable = D.status === "draft" && !D.view_only;     // the public demo shows everything and changes nothing
   const open = D.items.filter(i => !i.resolution);
   const decide = open.filter(i => i.level !== "confirm"), confirm = open.filter(i => i.level === "confirm");
   const done = D.items.filter(i => i.resolution);
@@ -204,7 +204,7 @@ function items() {
       ${editable ? `<button class="primary" id="acceptAll">Confirm all ${confirm.length}</button>` : ""}</div>
       <ul class="clist">${confirm.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
         <span class="csent">${esc(plain(it))}${it.explain ? `<span class="cexp">${esc(it.explain)}</span>` : ""}</span>
-        ${editable ? `<span class="cbtns"><button class="dbtn" data-d="accept">Confirm</button><button class="dbtn" data-open="1">Review in full</button></span>` : ""}</li>`).join("")}</ul></section>` : "";
+        <span class="cbtns">${editable ? `<button class="dbtn" data-d="accept">Confirm</button>` : ""}<button class="dbtn" data-open="1">Review in full</button></span></li>`).join("")}</ul></section>` : "";
   const dec = `<section class="group"><h2>High priority <span class="count">${decide.length}</span></h2><p class="gsub">${decide.length ? "Compare what the abstract recorded with the agreement text, then confirm or change it." : "No high-priority items left."}</p>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
   const dn = done.length ? `<details class="group done-group" ${openGroups.done ? "open" : ""}><summary><h2>Done <span class="count">${done.length}</span></h2></summary>
@@ -532,7 +532,10 @@ function progress() {
   $("meter").style.width = (n ? done / n * 100 : 100) + "%";
   $("confirm").hidden = true;
   const btn = $("mainBtn");
-  if (D.status === "draft") {
+  btn.hidden = !!D.view_only;
+  if (D.view_only) {
+    $("progText").textContent = `View-only demo: ${done} of ${n} items resolved. Decisions, verification and sign-off are turned off here.`;
+  } else if (D.status === "draft") {
     $("progText").textContent = `${done} of ${n} items resolved` + (D.deferred ? ` · ${D.deferred} deferred (blocks verify)` : "");
     btn.textContent = "Verify abstract";
     btn.disabled = D.open > 0 || D.deferred > 0;

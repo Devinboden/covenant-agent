@@ -66,6 +66,9 @@ def build(reviewer_map=None, allowed_hosts=None):
     security = TransportSecuritySettings(enable_dns_rebinding_protection=bool(hosts), allowed_hosts=hosts,
                                          allowed_origins=origins)
     subs = []
+    if os.environ.get("COVENANT_PUBLIC_VIEW") == "1":       # the public demo: no secret, view-only tools
+        subs.append(("__view__", create_server(user="Visitor", view_only=True).streamable_http_app(
+            streamable_http_path="/mcp", transport_security=security, host="0.0.0.0")))
     for secret, name in reviewer_map.items():
         srv = create_server(user=name)
         subs.append((secret, srv.streamable_http_app(streamable_http_path="/mcp", transport_security=security,
@@ -82,11 +85,15 @@ def build(reviewer_map=None, allowed_hosts=None):
         return JSONResponse({"ok": True, "reviewers": len(subs)})
 
     async def root(request):
-        return PlainTextResponse("covenant-agent demo. Connect an MCP client to your reviewer URL.")
+        view = os.environ.get("COVENANT_PUBLIC_VIEW") == "1"
+        return PlainTextResponse("covenant-agent demo. " + (f"View-only MCP app: add {request.base_url}view/mcp as a "
+                                 "custom connector in ChatGPT or Claude. " if view else "")
+                                 + "Reviewers connect to their own URL.")
 
     logging.getLogger("uvicorn.access").addFilter(_Redact())
     return Starlette(routes=[Route("/health", health), Route("/", root)] +
-                     [Mount(f"/r/{secret}", app=sub) for secret, sub in subs], lifespan=lifespan)
+                     [Mount("/view" if secret == "__view__" else f"/r/{secret}", app=sub) for secret, sub in subs],
+                     lifespan=lifespan)
 
 
 def __getattr__(name):                                # `uvicorn covenant_engine.hosted:app` builds on import

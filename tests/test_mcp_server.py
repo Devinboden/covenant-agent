@@ -192,3 +192,20 @@ def test_start_deal_job(abs_dir, tmp_path, monkeypatch):
     assert st["state"] == "ready_for_review" and st["progress"] == ["ingest: ok"]
     assert calls == [("ZZZ", "data/pdf/ZZZ/credit.pdf", {"run_ingest": True, "gpt": False})]
     assert call(s, "run_status", {"job_id": "nope"}).is_error
+
+
+def test_view_only_server_shows_and_changes_nothing():
+    """The public demo: no tool that changes, verifies, signs or starts anything is registered; no model call runs."""
+    import asyncio
+    from covenant_engine import config, model
+    from covenant_engine.mcp_server import create_server, CHANGING_TOOLS
+    srv = create_server(user="Visitor", view_only=True)
+    names = {t.name for t in asyncio.run(srv.list_tools())}
+    assert names and not names & set(CHANGING_TOOLS)
+    assert {"open_review", "list_deals", "get_abstract"} <= names
+    old, config.MODEL_CALLS = config.MODEL_CALLS, "off"
+    try:
+        r = model.call_model("s", "u", {})
+        assert r["ok"] is False and "off" in r["error"]
+    finally:
+        config.MODEL_CALLS = old
