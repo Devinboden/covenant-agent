@@ -22,7 +22,7 @@ informs, a probe decides); **[open]** = not yet tested in a real host.
   `structuredContent`. Keep `ui://` URIs and HTML out of the text the model reads. [probed] [doc: nanohub]
 - **Decisions are app-only tools** (`_meta.ui.visibility = ["app"]`): the model never sees them, so a recorded decision
   is a person's click. Identity comes from the connection (auth principal / reviewer URL), never from a tool argument.
-  Four-eyes rules live in code, not in the prompt. [probed: test_tools_and_who_decides]
+  Sign-off rules live in code, not in the prompt. [probed: test_tools_and_who_decides]
 - Model-callable decision tools ask the person with an MCP elicitation form; the model can only pre-fill. Headless
   clients cancel forms, so nothing is recorded. [probed] Which hosts render forms: [open]
 - Long work returns a `job_id` at once and the model polls `run_status`; never block a tool call for minutes. [probed]
@@ -49,7 +49,7 @@ informs, a probe decides); **[open]** = not yet tested in a real host.
   `_meta.ui.csp` (`connectDomains`, `resourceDomains`); empty lists are the secure default. [doc]
 
 ## Testing
-1. In-memory MCP client tests (`mcp.Client`) for tools, visibility, identity and four eyes. [probed]
+1. In-memory MCP client tests (`mcp.Client`) for tools, visibility, identity and sign-off rules. [probed]
 2. Local dev host (`--http --dev-host`, ext-apps `AppBridge`) to click through the widget headless with Playwright. [probed]
 3. A real-host smoke test per host (ChatGPT, Claude) from the UAT script before claiming it works there.
 Say which of these a claim rests on.

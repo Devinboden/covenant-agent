@@ -4,8 +4,8 @@
   (reviewer secrets: COVENANT_REVIEWERS='{"<secret>": "Reviewer 1", ...}' or <COVENANT_HOME>/reviewers.json, made on first boot)
 
 Each reviewer connects to https://<host>/r/<secret>/mcp. Hosts' custom connectors can't send a fixed API key, so the
-secret in the URL is the access control, and which URL you connected with is who you are (four eyes still holds:
-signoff.py refuses a sign-off by the verifier). Real sign-in (Entra / Cognito) replaces this at the AgentCore step.
+secret in the URL is the access control, and which URL you connected with is who you are (the sign-off
+record names that reviewer). Real sign-in (Entra / Cognito) replaces this at the AgentCore step.
 Unknown paths get 404 and secrets never appear in logs (the access log prints /r/<redacted>/...).
 """
 import contextlib
@@ -46,7 +46,7 @@ def reviewers():
     if bad or not m:
         raise SystemExit("COVENANT_REVIEWERS needs at least one entry, each secret 32+ chars of [A-Za-z0-9_-]")
     if len(set(m.values())) != len(m):
-        raise SystemExit("each reviewer secret must map to a different name (four eyes)")
+        raise SystemExit("each reviewer secret must map to a different name (the sign-off record names who acted)")
     return m
 
 

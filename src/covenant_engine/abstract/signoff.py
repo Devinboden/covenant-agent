@@ -1,17 +1,16 @@
-"""Sign-off record (#31). An abstract moves draft -> verified -> signed_off; the record lives next to it
-(<B>.signoff.json) so rebuilding the abstract never overwrites a person's decisions.
+"""Sign-off record (#31). An abstract moves draft -> signed_off: one person reviews it and signs off. The record lives
+next to it (<B>.signoff.json) so rebuilding the abstract never overwrites a person's decisions.
 
 - Every flag and review item gets a stable key (hash of what it is about, not its position), so a rebuild maps old
   resolutions onto the same items; new items arrive unresolved.
 - resolve: decision accept | correct | reject | defer, by, date, note (and the corrected value for 'correct').
-- verify: allowed only when every item is resolved and none is deferred. Records the abstract's content hash.
-- sign: allowed only for a verified abstract whose hash is unchanged, by a different person than the verifier.
-- Any change to the abstract's content after verify / sign drops the status back to draft (transition logged).
+- sign: allowed only when every item is resolved, none is deferred and there are no schema errors. Records who signed
+  and the abstract's content hash.
+- Any change to the abstract's content after sign-off drops the status back to draft (transition logged).
 
   python -m covenant_engine.abstract.signoff status WEST
   python -m covenant_engine.abstract.signoff resolve WEST <key> accept --by "Reviewer 1" --note "..."
-  python -m covenant_engine.abstract.signoff verify WEST --by "Reviewer 1"
-  python -m covenant_engine.abstract.signoff sign WEST --by "Reviewer 2"
+  python -m covenant_engine.abstract.signoff sign WEST --by "Reviewer 1"
 """
 import argparse
 import hashlib
@@ -75,13 +74,18 @@ def load(b, abs_dir=ABSTRACT_DIR):
     st = store(abs_dir)
     ab = st.load(b, "abstract")
     rec = st.load(b, "signoff", default={
-        "borrower": b, "status": "draft", "hash": None, "verified_by": None, "signed_by": None,
+        "borrower": b, "status": "draft", "hash": None, "signed_by": None,
         "resolutions": {}, "transitions": []})
     h = content_hash(ab)
-    if rec["status"] != "draft" and rec["hash"] != h:          # content changed since verify/sign
+    rec.pop("verified_by", None)                               # records from the two-step flow
+    if rec["status"] == "verified":                            # half-way under the old flow: not signed off
+        rec["transitions"].append({"from": "verified", "to": "draft", "by": "system", "date": date.today().isoformat(),
+                                   "why": "sign-off is now one step"})
+        rec["status"] = "draft"
+    if rec["status"] != "draft" and rec["hash"] != h:          # content changed since sign-off
         rec["transitions"].append({"from": rec["status"], "to": "draft", "by": "system", "date": date.today().isoformat(),
-                                   "why": "abstract content changed after verification"})
-        rec.update(status="draft", verified_by=None, signed_by=None)
+                                   "why": "abstract content changed after sign-off"})
+        rec.update(status="draft", signed_by=None)
     return ab, rec, h
 
 
@@ -131,41 +135,31 @@ def resolve(b, key, decision, by, note="", correction="", abs_dir=ABSTRACT_DIR, 
     save(b, ab, rec, abs_dir)
 
 
-def verify(b, by, abs_dir=ABSTRACT_DIR):
+def sign(b, by, abs_dir=ABSTRACT_DIR):
+    """Sign off: the reviewer records that every item was decided against the agreement."""
     ab, rec, h = load(b, abs_dir)
+    if rec["status"] == "signed_off":
+        raise SignoffError(f"already signed off by {rec['signed_by']}")
     its, open_, deferred, _ = summary(ab, rec)
     if open_ or deferred:
-        raise SignoffError(f"cannot verify: {len(open_)} unresolved, {len(deferred)} deferred")
+        raise SignoffError(f"cannot sign off: {len(open_)} unresolved, {len(deferred)} deferred")
     if any(r.get("step") == "schema" for r in ab["review"]):
-        raise SignoffError("cannot verify: schema errors")
-    rec["transitions"].append({"from": rec["status"], "to": "verified", "by": by, "date": date.today().isoformat()})
-    rec.update(status="verified", hash=h, verified_by=by)
-    save(b, ab, rec, abs_dir)
-
-
-def sign(b, by, abs_dir=ABSTRACT_DIR):
-    ab, rec, h = load(b, abs_dir)
-    if rec["status"] != "verified":
-        raise SignoffError(f"cannot sign: status is {rec['status']}")
-    if by == rec["verified_by"]:
-        raise SignoffError("cannot sign: sign-off must be by a different person than the verifier")
-    rec["transitions"].append({"from": "verified", "to": "signed_off", "by": by, "date": date.today().isoformat()})
-    rec.update(status="signed_off", signed_by=by)
+        raise SignoffError("cannot sign off: schema errors")
+    rec["transitions"].append({"from": rec["status"], "to": "signed_off", "by": by, "date": date.today().isoformat()})
+    rec.update(status="signed_off", hash=h, signed_by=by)
     save(b, ab, rec, abs_dir)
 
 
 def _do(a):
     if a.cmd == "resolve":
         resolve(a.borrower, a.key, a.decision, a.by, a.note, a.correction, a.abs_dir)
-    elif a.cmd == "verify":
-        verify(a.borrower, a.by, a.abs_dir)
     elif a.cmd == "sign":
         sign(a.borrower, a.by, a.abs_dir)
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["status", "resolve", "verify", "sign"])
+    ap.add_argument("cmd", choices=["status", "resolve", "sign"])
     ap.add_argument("borrower")
     ap.add_argument("key", nargs="?")
     ap.add_argument("decision", nargs="?")

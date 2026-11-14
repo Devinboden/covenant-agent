@@ -4,12 +4,12 @@
   COVENANT_USER="Reviewer 1" python -m covenant_engine.mcp_server --http     (streamable HTTP on :8000/mcp)
 
 Rules carried from the engine:
-- The model never decides anything a person must decide. resolve_item, verify and sign_off ask the PERSON through an
+- The model never decides anything a person must decide. resolve_item and sign_off ask the PERSON through an
   MCP elicitation form (the answer goes from the user to the server, not through the model); the model can only
   propose. Declined or cancelled forms change nothing.
 - Who is acting comes from the connection, never from a tool argument: the authenticated principal when the
   transport has auth (AgentCore Identity / OAuth at deployment), else the server's configured user (COVENANT_USER).
-  Four eyes (verifier != signer) is enforced by signoff.py on that identity.
+  The sign-off record names that identity.
 - Sign-off rules stay in signoff.py; this file only routes.
 """
 import argparse
@@ -84,7 +84,7 @@ def summarize(ab, rec, open_n):
     return {
         "borrower": ab["header"].get("borrower"), "status": rec["status"], "spec_version": ab.get("spec_version"),
         "source_file": ab["header"].get("source_file"), "built": ab["header"].get("built"),
-        "verified_by": rec.get("verified_by"), "signed_by": rec.get("signed_by"), "open_items": open_n,
+        "signed_by": rec.get("signed_by"), "open_items": open_n,
         "loan": {k: loan.get(k) for k in ("closing_date", "maturity_date", "facilities", "fiscal_year_end") if k in loan},
         "covenants": [{"id": c["id"], "ref": c["ref"], "metric": c["metric"], "direction": c["direction"],
                        "frequency": c["frequency"], "applies_during": c.get("applies_during", ""),
@@ -165,10 +165,10 @@ class Confirm(BaseModel):
     confirm: bool = Field(description="Tick to confirm")
 
 
-# View-only (public demo): anyone can open a deal's abstract and review screen; nothing can be changed, verified,
-# signed or started, so no model is ever called on a visitor's behalf.
-CHANGING_TOOLS = ("review_decide", "review_verify", "review_sign", "start_deal", "find_credit_agreements",
-                  "start_abstraction", "resolve_item", "verify", "sign_off")
+# View-only (public demo): anyone can open a deal's abstract and review screen; nothing can be changed, signed off
+# or started, so no model is ever called on a visitor's behalf.
+CHANGING_TOOLS = ("review_decide", "review_sign", "start_deal", "find_credit_agreements",
+                  "start_abstraction", "resolve_item", "sign_off")
 
 
 def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=None, edgar=None, view_only=False):
@@ -214,11 +214,11 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     @apps.tool(**VIEW, annotations=READ)
     def open_review(borrower: str, ctx: Context) -> dict[str, Any]:
         """Open the review screen for a deal: open items with their evidence, the covenant schedules, and the agreement
-        page with each quote highlighted. The person resolves items, verifies and signs off in the screen."""
+        page with each quote highlighted. The person resolves items and signs off in the screen."""
         b = need(borrower)
         p = _view(ctx, b)
         pkg = RV.package(b, who_or_none(ctx), abs_dir)
-        return {k: p[k] for k in ("borrower", "name", "status", "open", "total", "verified_by", "signed_by")} | \
+        return {k: p[k] for k in ("borrower", "name", "status", "open", "total", "signed_by")} | \
             {"summary": RV.brief(pkg), "screen": p, "view": ui_uri,
              "note": "The review screen shows this deal; decisions are made by the person in the screen."}
 
@@ -245,18 +245,8 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         return _view(ctx, b)
 
     @apps.tool(**VIEW, visibility=["app"], annotations=WRITE)
-    def review_verify(borrower: str, ctx: Context) -> dict[str, Any]:
-        """(screen only) Verify the abstract (first pair of eyes)."""
-        b = need(borrower)
-        try:
-            SO.verify(b, who(ctx), abs_dir)
-        except SO.SignoffError as e:
-            raise ToolError(str(e))
-        return _view(ctx, b)
-
-    @apps.tool(**VIEW, visibility=["app"], annotations=WRITE)
     def review_sign(borrower: str, ctx: Context) -> dict[str, Any]:
-        """(screen only) Sign off a verified abstract (second pair of eyes)."""
+        """(screen only) Sign off the abstract: every item decided, signed by the person in the screen."""
         b = need(borrower)
         try:
             SO.sign(b, who(ctx), abs_dir)
@@ -269,7 +259,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     # openai/ keys use the standard bridge; the view declares inline+fullscreen there and asks for fullscreen on load.
     meta = {"openai/ui": {"availableDisplayModes": UI_DISPLAY_MODES_OPENAI},
             "openai/widgetDescription": "Covenant review screen: open items with evidence, covenant schedules and "
-                                        "the agreement page. The person decides, verifies and signs off here."}
+                                        "the agreement page. The person decides and signs off here."}
     for uri in (ui_uri, UI_LEGACY_URI):   # current (hashed) + legacy alias serving the same, current HTML
         apps.add_resource(TextResource(uri=uri, name="Covenant review", title="Covenant review", text=html, meta=meta,
                                        description="Checker screen: open items, covenant schedules, highlighted source pages"))
@@ -279,14 +269,14 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         instructions=("Covenant abstraction: credit agreement PDF in, checked covenant abstract out, human sign-off. "
                       "Code builds and checks the abstract; you explain it and route the person to open items. "
                       "Never do covenant arithmetic yourself: every value and date comes from get_abstract. "
-                      "resolve_item, verify and sign_off ask the person directly with a form; you can propose a "
+                      "resolve_item and sign_off ask the person directly with a form; you can propose a "
                       "decision but only their answer counts. open_review shows the review screen. "
                       "To start a new company, start_abstraction takes its name or ticker, finds its credit agreement on SEC "
                       "EDGAR and starts the run; find_credit_agreements lists the options."
                       if not view_only else
                       "Covenant abstraction demo, view only: list_deals shows the deals; open_review shows a deal's review "
                       "screen (open items, evidence highlighted on the agreement, covenant schedules); get_abstract returns "
-                      "its contents. Nothing can be changed, verified, signed or started here. Never do covenant "
+                      "its contents. Nothing can be changed, signed off or started here. Never do covenant "
                       "arithmetic yourself: every value and date comes from get_abstract."),
         extensions=[apps])
 
@@ -347,7 +337,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
 
     @server.tool(annotations=READ)
     def list_review_items(borrower: str, open_only: bool = True) -> dict[str, Any]:
-        """The flags and review items a person must resolve before the abstract can be verified, with the evidence
+        """The flags and review items a person must resolve before the abstract can be signed off, with the evidence
         quote for each and any resolution already recorded. Use the 'key' with resolve_item."""
         b = need(borrower)
         d = review_data(b, abs_dir)
@@ -356,7 +346,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
 
     @server.tool(annotations=READ)
     def signoff_status(borrower: str) -> dict[str, Any]:
-        """Sign-off state: draft / verified / signed_off, who did what, and what still blocks verification."""
+        """Sign-off state: draft / signed_off, who signed, and what still blocks sign-off."""
         b = need(borrower)
         ab, rec, h = SO.load(b, abs_dir)
         its, open_, deferred, stale = SO.summary(ab, rec)
@@ -367,9 +357,8 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             blocks.append(f"{len(deferred)} deferred items")
         if any(r.get("step") == "schema" for r in ab.get("review", [])):
             blocks.append("schema errors")
-        return {"borrower": b, "status": rec["status"], "verified_by": rec.get("verified_by"),
-                "signed_by": rec.get("signed_by"), "items": len(its), "open": len(open_), "deferred": len(deferred),
-                "blocks_verify": blocks, "transitions": rec.get("transitions", [])[-10:]}
+        return {"borrower": b, "status": rec["status"], "signed_by": rec.get("signed_by"), "items": len(its), "open": len(open_), "deferred": len(deferred),
+                "blocks_signoff": blocks, "transitions": rec.get("transitions", [])[-10:]}
 
     @server.tool(annotations=READ)
     def run_status(job_id: str) -> dict[str, Any]:
@@ -384,7 +373,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
     def start_deal(borrower: str, pdf: str, run_ingest: bool = True, gpt_check: bool = False) -> dict[str, Any]:
         """Start abstracting a credit agreement in the background (ingest -> build -> checks -> review list). Takes
         minutes; poll run_status with the returned job_id. pdf is a path under data/pdf/<BORROWER>/. Nothing here
-        marks the abstract verified."""
+        marks the abstract signed off."""
         b = _ticker(borrower)
         base = (config.ROOT / "data" / "pdf" / b).resolve()
         p = (config.ROOT / pdf).resolve()
@@ -439,7 +428,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         chose a different one from find_credit_agreements), downloads it, renders it to PDF and starts the background
         abstraction (minutes; poll run_status, then open_review).
         A company already on file is not re-run: the job uses the abstract on file and finishes at once, so the flow
-        continues the same way (run_status -> open_review). Nothing here marks the abstract verified."""
+        continues the same way (run_status -> open_review). Nothing here marks the abstract signed off."""
         try:
             b, cik, name = edgar.resolve(company)
         except edgar.EdgarError as e:
@@ -498,7 +487,7 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             decision=(Literal["accept", "correct", "reject", "defer"],
                       Field(default=proposed_decision if proposed_decision in SO.DECISIONS else "accept",
                             description="accept = abstract is right; correct = give the right value; "
-                                        "reject = item is wrong; defer = decide later (blocks verify)")),
+                                        "reject = item is wrong; defer = decide later (blocks sign-off)")),
             note=(str, Field(default=note, description="Why (kept in the sign-off record)")),
             correction=(str, Field(default=correction, description="Corrected value (only for 'correct')")))
         return Elicit(f"{b} [{its[key]['kind']}] {its[key]['text']}\n\nYour decision:", Form)
@@ -520,39 +509,17 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             raise ToolError(str(e))
         return {"borrower": b, "key": key, "recorded": True, "decision": a.decision, "by": by}
 
-    async def ask_verify(borrower: str):
-        b = need(borrower)
-        ab, rec, h = SO.load(b, abs_dir)
-        its, open_, deferred, _ = SO.summary(ab, rec)
-        return Elicit(f"Verify the {b} abstract? {len(its)} items, {len(open_)} open, {len(deferred)} deferred. "
-                      f"Verifying records that you checked every item against the agreement.", Confirm)
-
-    @server.tool(annotations=WRITE)
-    async def verify(borrower: str, ctx: Context,
-                     answer: Annotated[ElicitationResult[Confirm], Resolve(ask_verify)]) -> dict[str, Any]:
-        """Mark an abstract verified (first pair of eyes). The person confirms in a form. Refused while any item is
-        open or deferred."""
-        b = need(borrower)
-        by = who(ctx)
-        if not (isinstance(answer, AcceptedElicitation) and answer.data.confirm):
-            return {"borrower": b, "verified": False, "why": "person did not confirm"}
-        try:
-            SO.verify(b, by, abs_dir)
-        except SO.SignoffError as e:
-            raise ToolError(str(e))
-        return {"borrower": b, "verified": True, "by": by, "status": "verified"}
-
     async def ask_sign(borrower: str):
         b = need(borrower)
         ab, rec, h = SO.load(b, abs_dir)
-        return Elicit(f"Sign off the {b} abstract (verified by {rec.get('verified_by')})? Sign-off must be by a "
-                      f"different person than the verifier.", Confirm)
+        its, open_, deferred, _ = SO.summary(ab, rec)
+        return Elicit(f"Sign off the {b} abstract? {len(its)} items, {len(open_)} open, {len(deferred)} deferred. "
+                      f"Signing off records that you checked every item against the agreement.", Confirm)
 
     @server.tool(annotations=WRITE)
     async def sign_off(borrower: str, ctx: Context,
                        answer: Annotated[ElicitationResult[Confirm], Resolve(ask_sign)]) -> dict[str, Any]:
-        """Sign off a verified abstract (second pair of eyes; must be a different person than the verifier). The
-        person confirms in a form."""
+        """Sign off an abstract. The person confirms in a form. Refused while any item is open or deferred."""
         b = need(borrower)
         by = who(ctx)
         if not (isinstance(answer, AcceptedElicitation) and answer.data.confirm):

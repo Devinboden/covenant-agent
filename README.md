@@ -26,8 +26,8 @@ redo only what failed. What can't be resolved goes to a person.
    cross-checked against the thresholds.
 5. **Second-model check** (optional): GPT verifies each claim against the agreement; only disagreements backed by a
    verbatim quote count.
-6. **Sign-off**: draft -> verified -> signed off. Every flag and review item must be decided, the signer must differ
-   from the verifier, and any later change drops the abstract back to draft.
+6. **Sign-off**: draft -> signed off, by the reviewer. Every flag and review item must be decided first, and any
+   later change drops the abstract back to draft.
 
 ## Results (spec v1.1, five development deals with answer keys)
 | | Score |
@@ -66,13 +66,13 @@ COVENANT_USER="Reviewer 1" covenant-mcp            # stdio; --http for streamabl
 | `list_deals`, `get_abstract`, `list_review_items`, `signoff_status` | read (abstract summary, any section, open items with evidence) |
 | `start_deal`, `run_status` | abstract a PDF under `data/pdf/<TICKER>/` in the background and follow progress |
 | `start_abstraction`, `find_credit_agreements` | "start the covenant abstraction for Cars.com": company name or ticker -> SEC EDGAR -> its credit agreements among the exhibits to its 8-K / 10-Q / 10-K filings (typed by code from the cover) -> code picks the newest full-text agreement -> download, render, background abstraction. `find_credit_agreements` lists the options. Needs `SEC_USER_AGENT`, Playwright (`.[render]`) and the model backend; a company already on file isn't re-run: the job uses the abstract on file, checks it against EDGAR and finishes at once, so the flow continues to open_review |
-| `resolve_item`, `verify`, `sign_off` | the person answers a form (MCP elicitation); the model can only propose |
+| `resolve_item`, `sign_off` | the person answers a form (MCP elicitation); the model can only propose |
 
 | `open_review` | shows the review screen (MCP App view): open items with evidence, covenant schedules, the agreement page with the quote highlighted |
-| `review_page`, `review_decide`, `review_verify`, `review_sign` | screen only (`_meta.ui.visibility: ["app"]`): the model never sees them, so a decision is a person's click |
+| `review_page`, `review_decide`, `review_sign` | screen only (`_meta.ui.visibility: ["app"]`): the model never sees them, so a decision is a person's click |
 
 Who is acting comes from the connection (the authenticated principal, or `COVENANT_USER` locally), never from a tool
-argument, so four eyes holds through the agent. With no person to answer (a headless client), the form is cancelled
+argument, so the sign-off record names the person who acted. With no person to answer (a headless client), the form is cancelled
 and nothing is recorded.
 
 ### Try the review screen locally
@@ -80,7 +80,6 @@ and nothing is recorded.
 pip install -e ".[mcp]"
 SEC_USER_AGENT="Your Name you@example.com" python scripts/fetch_filings.py MEC --no-ingest   # optional: PDF pages
 COVENANT_USER="Reviewer 1" covenant-mcp --http --dev-host                 # open http://127.0.0.1:8000/
-COVENANT_USER="Reviewer 2" covenant-mcp --http --dev-host --port 8001     # a second reviewer, for sign-off
 ```
 The dev host is a minimal MCP Apps host (`ui-src/dev_host.js`): it calls `open_review`, renders the screen in a sandboxed
 iframe and logs every call the screen makes. Without the PDF the screen works but shows no pages. The view is built
@@ -89,7 +88,7 @@ from `ui-src/` with `npm install && npm run build:ui`; the built files in `src/c
 ### Hosted demo (Fly)
 `covenant_engine.hosted` serves one MCP endpoint per reviewer at `https://<app>.fly.dev/r/<secret>/mcp`, for trying
 the review screen in claude.ai and ChatGPT as custom connectors. The secret in the URL is the access control and the
-identity (four eyes still applies); secrets are made on first boot in `/data/home/reviewers.json` and never logged.
+identity; secrets are made on first boot in `/data/home/reviewers.json` and never logged.
 `.github/workflows/fly.yml` runs the tests and deploys on push to main once the repo has a `FLY_API_TOKEN` secret
 (app-scoped deploy token); with an `SEC_USER_AGENT` secret it also renders each deal's agreement from EDGAR for the
 page images. Real sign-in (Entra / Cognito) replaces the URL secrets at the AgentCore step.

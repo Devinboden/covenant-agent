@@ -54,15 +54,15 @@ def test_refused_corrections_change_nothing(abs_dir):
     assert ab2 != ab and ab["terms"] == before["terms"]                 # apply works on a copy
 
 
-def test_correction_after_verify_drops_to_draft(abs_dir):
+def test_correction_after_signoff_drops_to_draft(abs_dir):
     ab, rs = rows(abs_dir, "CARS")
     for r in rs:
         SO.resolve("CARS", r["key"], "accept", "Reviewer 1", abs_dir=abs_dir)
-    SO.verify("CARS", "Reviewer 1", abs_dir=abs_dir)
+    SO.sign("CARS", "Reviewer 1", abs_dir=abs_dir)
     step_up = next(r for r in rs if r["kind"] == "flag")
     ceiling = next(f for f in C.fields(ab, step_up) if f["label"].startswith("Ceiling"))
     SO.resolve("CARS", step_up["key"], "correct", "Reviewer 2", abs_dir=abs_dir, changes=[{"path": ceiling["path"], "value": "4.25"}])
-    assert SO.load("CARS", abs_dir)[1]["status"] == "draft"             # content changed: needs verifying again
+    assert SO.load("CARS", abs_dir)[1]["status"] == "draft"             # content changed: needs signing off again
 
 
 def test_adding_a_cap_saves_and_validates():

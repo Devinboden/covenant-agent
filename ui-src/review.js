@@ -183,9 +183,7 @@ function render(p) {
 function pipeline() {
   const st = D.status;
   $("stDraft").className = "stage " + (st === "draft" ? "now" : "done");
-  $("stVer").className = "stage " + (st === "verified" ? "now" : st === "signed_off" ? "done" : "");
   $("stSign").className = "stage " + (st === "signed_off" ? "done" : "");
-  $("stVer").textContent = D.verified_by ? `Verified · ${D.verified_by}` : "Verified";
   $("stSign").textContent = D.signed_by ? `Signed off · ${D.signed_by}` : "Signed off";
 }
 // ---------- open items: grouped by review level ----------
@@ -209,7 +207,7 @@ function items() {
   const dec = `<section class="group"><h2>High priority <span class="count">${decide.length}</span></h2><p class="gsub">${decide.length ? "Compare what the abstract recorded with the agreement text, then confirm or change it." : "No high-priority items left."}</p>
       <div class="items">${decide.map(it => card(it, editable)).join("")}</div></section>`;
   // Acknowledgments: notes with nothing recorded to change and nothing missing (a typo, a reserved clause, a
-  // cross-reference that goes nowhere). The reviewer acknowledges each; the approver sees them in the summary.
+  // cross-reference that goes nowhere). The reviewer acknowledges each.
   const ack = acks.length ? `<section class="group confirm-group ack-group"><div class="ghead"><h2>Acknowledgments <span class="count">${acks.length}</span></h2><p class="gsub">Worth knowing; nothing in the abstract to change.</p>
       ${editable ? `<button class="primary" id="ackAll">Acknowledge all ${acks.length}</button>` : ""}</div>
       <ul class="clist">${acks.map(it => `<li class="crow" data-key="${it.key}" data-loc="item:${it.key}"><span class="ref">${esc(it.where_label || whereLabel(it))}</span>
@@ -217,7 +215,7 @@ function items() {
         <span class="cbtns">${editable ? `<button class="dbtn" data-d="accept">Acknowledge</button>` : ""}</span></li>`).join("")}</ul></section>` : "";
   const dn = done.length ? `<details class="group done-group" ${openGroups.done ? "open" : ""}><summary><h2>Done <span class="count">${done.length}</span></h2></summary>
       <div class="items">${done.map(it => card(it, editable)).join("")}</div></details>` : "";
-  $("view-items").innerHTML = (D.status === "verified" ? approverSummary() : "") + head + dec + conf + ack + dn;
+  $("view-items").innerHTML = (D.total && !D.open ? signoffSummary() : "") + head + dec + conf + ack + dn;
   const dg = $("view-items").querySelector(".done-group");
   if (dg) dg.ontoggle = () => { openGroups.done = dg.open; };
   wireCards(editable);
@@ -246,15 +244,16 @@ function items() {
     finally { busy = false; setBusy(false); if (last) { render(last); say(`Confirmed ${confirm.length} items.`, true); } }
   });
 }
-// For the approver (second pair of eyes): only what the reviewer changed or explained. Everything else was confirmed.
-function approverSummary() {
+// Once every item is decided: what the review changed or explained, so it can be checked before sign-off.
+// Everything else was confirmed as extracted.
+function signoffSummary() {
   const ch = D.items.filter(i => i.resolution && (i.resolution.changes || []).length);
   const nt = D.items.filter(i => i.resolution && i.resolution.note && !(i.resolution.changes || []).length);
   const n = D.items.filter(i => i.resolution).length;
   const row = i => { const r = i.resolution;
     return `<li><span class="ref">${esc(i.where_label || whereLabel(i))}</span> ${(r.changes || []).map(c => `<b>${esc(c.label)}</b> <s>${esc(c.before)}</s> → <b>${esc(c.after)}</b>`).join("; ")}
       ${r.note ? `<div class="donenote">Note: ${esc(r.note)}</div>` : ""}<small>${esc(r.by)} · ${esc(r.date)}</small></li>`; };
-  return `<section class="approver"><h2>For sign-off <em>${D.verified_by} reviewed ${n} item${n === 1 ? "" : "s"}: ${ch.length} changed, ${nt.length} with a note, the rest confirmed as extracted</em></h2>
+  return `<section class="approver"><h2>Review summary <em>${n} item${n === 1 ? "" : "s"} reviewed: ${ch.length} changed, ${nt.length} with a note, the rest confirmed as extracted</em></h2>
     ${ch.length || nt.length ? `<ul class="alist">${ch.map(row).join("")}${nt.map(row).join("")}</ul>` : `<p class="note">No changes or notes: every item was confirmed as extracted.</p>`}</section>`;
 }
 // The statement as plain text (fields filled in with their current values).
@@ -339,9 +338,9 @@ function card(it, editable) {
     </dl>
 
     ${on ? `<div class="act">
-        <button class="primary go" data-go="1">${it.action === "send" ? "Send to approver" : it.action === "add" ? "Nothing missing" : "Confirm"}</button>
+        <button class="primary go" data-go="1">${it.action === "send" ? "Note what's needed" : it.action === "add" ? "Nothing missing" : "Confirm"}</button>
         <span class="links"><a href="#" data-d="defer">Later</a><a href="#" data-note="1">${r.note ? "Edit note" : "Note"}</a></span></div>
-      <textarea class="note" id="note-${it.key}" ${r.note ? "" : "hidden"} placeholder="Note for the approver: why, or where a value came from">${esc(r.note || "")}</textarea>`
+      <textarea class="note" id="note-${it.key}" ${r.note ? "" : "hidden"} placeholder="Note: why, or where a value came from">${esc(r.note || "")}</textarea>`
     : `<div class="decide">${r.by ? `<span class="stamp ${r.decision}">${STAMP[r.decision] || esc(r.decision)} · ${esc(r.by)} · ${esc(r.date)}${r.note ? " · “" + esc(r.note) + "”" : ""}</span>` : ""}
       ${editable && r.decision ? `<a href="#" class="small-link" data-undo="1">Change</a>` : ""}</div>`}
     ${(r.changes || []).length ? `<ul class="changes">${r.changes.map(c => `<li><b>${esc(c.label)}</b> <s>${esc(c.before)}</s> → ${esc(c.after)} <small>${esc(c.group)}</small></li>`).join("")}</ul>` : ""}
@@ -365,7 +364,7 @@ function wireCards(editable) {
     const changed = () => [...pend].filter(([i, v]) => String(v).trim() !== String(it.fields[i].value)).map(([i, v]) => ({ i, v }));
     const refresh = () => {
       const n = changed();
-      const idle = it.action === "send" ? "Send to approver" : it.action === "add" ? "Nothing missing" : "Confirm";
+      const idle = it.action === "send" ? "Note what's needed" : it.action === "add" ? "Nothing missing" : "Confirm";
       if (go) { go.textContent = n.length ? (it.action === "add" ? "Add part" : `Save change${n.length > 1 ? "s" : ""}`) : idle; go.classList.toggle("saving", !!n.length); }
       card.classList.toggle("pending", !!n.length);
     };
@@ -380,12 +379,12 @@ function wireCards(editable) {
     const ta = card.querySelector("textarea.note");
     const send = () => {                                   // Confirm, or Save change when a value was edited
       const ch = changed();
-      if (!ch.length && it.action === "send" && !note().trim()) {   // the approver needs to know what to get
-        ta.hidden = false; ta.placeholder = "For the approver: what's needed (e.g. obtain Schedule 1.01(c) from the agent)"; ta.focus();
-        return say("Add a note for the approver first: what document is needed, or what you checked.");
+      if (!ch.length && it.action === "send" && !note().trim()) {   // the record says what to get
+        ta.hidden = false; ta.placeholder = "What's needed (e.g. obtain Schedule 1.01(c) from the agent)"; ta.focus();
+        return say("Add a note first: what document is needed, or what you checked.");
       }
       if (!ch.length) return act("review_decide", { borrower: D.borrower, key: it.key, decision: "accept",
-                                                     note: it.action === "send" ? "Sent to approver: " + note().trim() : note() });
+                                                     note: it.action === "send" ? "Document needed: " + note().trim() : note() });
       const changes = ch.map(({ i, v }) => ({ path: it.fields[i].path, value: v }));
       act("review_decide", { borrower: D.borrower, key: it.key, decision: "correct", note: note(), changes }, "Change saved to the abstract.");
     };
@@ -558,17 +557,12 @@ function progress() {
   const btn = $("mainBtn");
   btn.hidden = !!D.view_only;
   if (D.view_only) {
-    $("progText").textContent = `View-only demo: ${done} of ${n} items resolved. Decisions, verification and sign-off are turned off here.`;
+    $("progText").textContent = `View-only demo: ${done} of ${n} items resolved. Decisions and sign-off are turned off here.`;
   } else if (D.status === "draft") {
-    $("progText").textContent = `${done} of ${n} items resolved` + (D.deferred ? ` · ${D.deferred} deferred (blocks verify)` : "");
-    btn.textContent = "Verify abstract";
+    $("progText").textContent = `${done} of ${n} items resolved` + (D.deferred ? ` · ${D.deferred} deferred (blocks sign-off)` : "");
+    btn.textContent = "Sign off";
     btn.disabled = D.open > 0 || D.deferred > 0;
-    btn.onclick = () => ask(`Verify as ${D.viewer}: this records that you checked every item against the agreement.`, "Confirm verify",
-      () => act("review_verify", { borrower: D.borrower }, "Verified. A different reviewer must sign off."));
-  } else if (D.status === "verified") {
-    $("progText").textContent = `Verified by ${D.verified_by}. Waiting for a second reviewer to sign off.`;
-    btn.textContent = "Sign off"; btn.disabled = false;
-    btn.onclick = () => ask(`Sign off as ${D.viewer}. The verifier was ${D.verified_by}.`, "Confirm sign-off",
+    btn.onclick = () => ask(`Sign off as ${D.viewer}: this records that you checked every item against the agreement.`, "Confirm sign-off",
       () => act("review_sign", { borrower: D.borrower }, "Signed off."));
   } else {
     $("progText").textContent = `Signed off by ${D.signed_by}. Any change to the abstract returns it to draft.`;

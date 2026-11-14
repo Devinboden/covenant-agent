@@ -159,9 +159,8 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True):
     ws.column_dimensions["C"].width = 60
     t = ws.cell(row=1, column=1, value=f"{ln.get('borrower', b)} ({b}) covenant compliance workbook")
     t.font = Font(name=FONT, bold=True, size=14)
-    banner = {"draft": "DRAFT: not yet verified and signed off. Do not rely on it for compliance.",
-              "verified": "VERIFIED by one reviewer; awaiting a second reviewer's sign-off.",
-              "signed_off": "SIGNED OFF by two reviewers."}.get(status, status)
+    banner = {"draft": "DRAFT: not yet reviewed and signed off. Do not rely on it for compliance.",
+              "signed_off": f"SIGNED OFF by {rec.get('signed_by')}."}.get(status, status)
     bc = ws.cell(row=2, column=1, value=banner)
     bc.font = Font(name=FONT, bold=True, color="991B1B" if status != "signed_off" else "166534")
     bc.fill = RED_FILL if status != "signed_off" else GREEN_FILL
@@ -175,7 +174,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True):
              ("Test period", (ln.get("test_period") or {}).get("basis", "").replace("_", " ")),
              ("Source document", ab["header"].get("source_file", "")), ("Source SHA-256", ab["header"].get("sha256", "")),
              ("Abstract built", _d(ab["header"].get("built"))), ("Status", status.replace("_", " ").title()),
-             ("Verified by", rec.get("verified_by") or "—"), ("Signed off by", rec.get("signed_by") or "—"),
+             ("Signed off by", rec.get("signed_by") or "—"),
              ("Workbook generated", today or date.today())]
     r = 4
     for k, v in facts:

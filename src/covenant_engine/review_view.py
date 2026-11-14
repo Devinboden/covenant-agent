@@ -477,8 +477,8 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
         it["statement"] = BR.statement(ab, raw, it["fields"])
         it |= BR.level(raw, it["gpt"], comp.get((raw.get("term"), raw.get("clause"))))
         # Every card says what the reviewer can do if it's wrong. edit: change recorded values; add: record a part the
-        # abstract doesn't have; send: the answer needs a document not in the filing, so it goes to the approver with
-        # a note; ack: nothing recorded to change and nothing missing, an FYI acknowledged in one click.
+        # abstract doesn't have; send: the answer needs a document not in the filing, so the reviewer records
+        # what's needed; ack: nothing recorded to change and nothing missing, an FYI acknowledged in one click.
         missing_doc = bool(raw.get("outside")) or "not in the filed documents" in (it["check_detail"] or "")
         if it["fields"] and all(f["path"][0] == "add" for f in it["fields"]):
             it["action"] = "add"
@@ -493,7 +493,7 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
             if raw.get("clause") == "starts_from" and t and t.get("components"):
                 it["explain"] = (f"{t['name']} is a list of items ({', '.join(c['clause'] for c in t['components'][:2])} …), "
                                  f"not an amount with additions, so there's no starting amount to record.")
-            it |= {"level": "ack", "level_why": "Nothing recorded to change and nothing missing: noted for the approver."}
+            it |= {"level": "ack", "level_why": "Nothing recorded to change and nothing missing: noted in the record."}
     locs = locate(b, ab, rv, abs_dir)
     for it in items:                       # two quotes from the same sentence are one passage on screen
         seen, keep = {}, []
@@ -520,7 +520,7 @@ def payload(b, viewer, abs_dir=config.ABSTRACT_DIR):
     trail.sort(key=lambda t: t["date"] or "")
     return {
         "borrower": b, "name": loan.get("borrower") or b, "viewer": viewer,
-        "status": rec["status"], "verified_by": rec.get("verified_by"), "signed_by": rec.get("signed_by"),
+        "status": rec["status"], "signed_by": rec.get("signed_by"),
         "open": len(open_), "deferred": len(deferred), "total": len(its),
         "header": {"source_file": ab["header"].get("source_file"), "built": ab["header"].get("built"),
                    "spec": ab.get("spec_version"), "models": ab["header"].get("models", [])},
@@ -569,7 +569,7 @@ def package(b, viewer, abs_dir=config.ABSTRACT_DIR):
              *(f"- [{i['key']}] ({i['level']}) §{i['where'] or '—'}: {i['what'][:160]}"
                               for i in open_)]
     return {"borrower": b, "name": p["name"], "status": p["status"], "open": p["open"], "total": p["total"],
-            "verified_by": p["verified_by"], "signed_by": p["signed_by"], "summary": "\n".join(lines),
+            "signed_by": p["signed_by"], "summary": "\n".join(lines),
             "facts": p["facts"], "header": p["header"], "covenants": p["covs"], "regimes": p["regs"], "items": items,
             "definitions": p.get("terms", {}), "covenant_sheet": p["sheet"],
             "trail": p["trail"][-15:]}

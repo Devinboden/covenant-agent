@@ -5,7 +5,7 @@ The spec is the blank, rule-bearing form every covenant abstract fills in. One s
 ## Sections
 | # | Section | Library vs custom |
 |---|---|---|
-| 1 | Header: borrower, as-of, sources, status (draft > verified > signed_off) | Fixed form |
+| 1 | Header: borrower, as-of, sources, status (draft > signed_off) | Fixed form |
 | 2 | Loan: parties, dates, facilities, amendments, reporting deadlines, test period, cure, relief/election rules | Fixed form + small pattern library (relief, step-up, holiday, cure) |
 | 3 | Covenants: one block each; kind (ratio / level / incurrence), type, direction, thresholds by date, overlays, formula -> terms | Library (kinds + common types); values custom |
 | 4 | Terms: shared definitions (EBITDA, debt, cash netting, interest) as components with caps | Library parts (component categories, cap types), custom assembly; oddities = `custom` component with quote |

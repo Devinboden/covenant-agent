@@ -9,7 +9,7 @@ What the analyst sees for a check depends on two things:
    independently agrees, with a quote code finds verbatim in the agreement.
 
 High criticality or low agreement means the analyst decides. Low criticality and two models agreeing means it's a
-fast confirm in a batch. A person still clicks; no item is ever auto-resolved. Code verifies, and four eyes applies.
+fast confirm in a batch. A person still clicks; no item is ever auto-resolved. Code checks first; the reviewer signs off.
 
 ## Criticality tiers
 | Tier | What | Why |

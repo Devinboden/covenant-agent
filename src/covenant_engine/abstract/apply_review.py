@@ -1,12 +1,11 @@
 """Apply decisions made on the Covenant Abstract Review page to the sign-off record (signoff.py).
 
-The page writes decisions/<B>__<key> {decision, note, correction, by, at} and actions/<B> {verify_requested_by,
-sign_requested_by}. Claude exports them (ArtifactData list with out_dir) and runs:
+The page writes decisions/<B>__<key> {decision, note, correction, by, at} and actions/<B> {sign_requested_by}. Claude exports them (ArtifactData list with out_dir) and runs:
 
   python -m covenant_engine.abstract.apply_review <export dir>     (the dir holding decisions/ and actions/)
 
-Every decision goes through signoff.resolve; verify / sign go through signoff.verify / signoff.sign, so the same
-rules hold (all items resolved, none deferred, no schema errors; four eyes). Then the review files are refreshed.
+Every decision goes through signoff.resolve; sign-off goes through signoff.sign, so the same rules hold
+(all items resolved, none deferred, no schema errors). Then the review files are refreshed.
 """
 import json
 import sys
@@ -32,7 +31,7 @@ def main(export):
         a = json.loads(f.read_text())
         a = a.get("data", a)
         b = a["deal"]
-        for kind, fn in (("verify", S.verify), ("sign", S.sign)):
+        for kind, fn in (("sign", S.sign),):
             who = a.get(f"{kind}_requested_by")
             if not who:
                 continue

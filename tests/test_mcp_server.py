@@ -13,8 +13,8 @@ from covenant_engine import config
 from covenant_engine.mcp_server import UI_URI, create_server, view_uri
 
 TOOLS = {"list_deals", "get_abstract", "list_review_items", "signoff_status", "run_status", "start_deal",
-         "resolve_item", "verify", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "view_covenant_package", "review_page", "review_decide", "review_verify", "review_sign"}
-SCREEN_ONLY = {"review_page", "review_decide", "review_verify", "review_sign"}
+         "resolve_item", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "view_covenant_package", "review_page", "review_decide", "review_sign"}
+SCREEN_ONLY = {"review_page", "review_decide", "review_sign"}
 
 
 def person(action="accept", decision="accept", confirm=True, seen=None):
@@ -49,7 +49,7 @@ def test_tools_and_who_decides(abs_dir, tmp_path):
             return {t.name: t for t in (await c.list_tools()).tools}
     tools = asyncio.run(go())
     assert set(tools) == TOOLS
-    for name in ("resolve_item", "verify", "sign_off"):            # the model can't pass a decision or an identity
+    for name in ("resolve_item", "sign_off"):            # the model can't pass a decision or an identity
         props = set(tools[name].input_schema.get("properties", {}))
         assert not props & {"answer", "by", "decision", "confirm"}, (name, props)
     assert tools["get_abstract"].annotations.read_only_hint
@@ -91,10 +91,10 @@ def test_review_screen(abs_dir, tmp_path):
             html = (await c.read_resource(uri)).contents[0]
             return html
     html = asyncio.run(go())
-    assert html.mime_type == "text/html;profile=mcp-app" and "Verify abstract" in html.text
+    assert html.mime_type == "text/html;profile=mcp-app" and "Sign off" in html.text
     assert html.meta["openai/ui"]["availableDisplayModes"] == ["fullscreen"]          # ChatGPT opens it full screen
     assert '["inline","fullscreen"]' in html.text   # the view declares both modes in ui/initialize
-    s1, s2 = srv(abs_dir, tmp_path, user="Reviewer 1"), srv(abs_dir, tmp_path, user="Reviewer 2")
+    s1 = srv(abs_dir, tmp_path, user="Reviewer 1")
     p = call(s1, "open_review", {"borrower": "MEC"}).structured_content["screen"]
     assert p["viewer"] == "Reviewer 1" and p["status"] == "draft" and len(p["items"]) == p["open"] > 0
     assert p["covs"] and all("loc" in r for c in p["covs"] for r in c["rows"])
@@ -102,12 +102,9 @@ def test_review_screen(abs_dir, tmp_path):
         p = call(s1, "review_decide", {"borrower": "MEC", "key": it["key"], "decision": "accept", "note": "ok"}).structured_content
     assert p["open"] == 0 and all(i["resolution"]["by"] == "Reviewer 1" for i in p["items"])
     assert call(s1, "review_decide", {"borrower": "MEC", "key": "nope", "decision": "accept"}).is_error
-    assert call(s1, "review_verify", {"borrower": "MEC"}).structured_content["status"] == "verified"
-    r = call(s1, "review_sign", {"borrower": "MEC"})
-    assert r.is_error and "different person" in r.content[0].text
-    done = call(s2, "review_sign", {"borrower": "MEC"}).structured_content
-    assert (done["status"], done["signed_by"]) == ("signed_off", "Reviewer 2")
-    assert [t["what"] for t in done["trail"]][-2:] == ["draft → verified", "verified → signed_off"]
+    done = call(s1, "review_sign", {"borrower": "MEC"}).structured_content
+    assert (done["status"], done["signed_by"]) == ("signed_off", "Reviewer 1")
+    assert [t["what"] for t in done["trail"]][-1] == "draft → signed_off"
 
 
 def test_reads(abs_dir, tmp_path):
@@ -132,23 +129,20 @@ def test_declined_form_changes_nothing(abs_dir, tmp_path):
     assert call(s, "signoff_status", {"borrower": "CXT"}).structured_content["open"] == 8   # 6 review entries + 2 terms the covenants use that were not broken down
 
 
-def test_four_eyes_through_mcp(abs_dir, tmp_path):
-    r1, r2 = srv(abs_dir, tmp_path, user="Reviewer 1"), srv(abs_dir, tmp_path, user="Reviewer 2")
-    assert call(r1, "verify", {"borrower": "CXT"}).is_error                         # open items block verify
+def test_signoff_through_mcp(abs_dir, tmp_path):
+    r1 = srv(abs_dir, tmp_path, user="Reviewer 1")
+    assert call(r1, "sign_off", {"borrower": "CXT"}).is_error                       # open items block sign-off
     seen = []
     for it in call(r1, "list_review_items", {"borrower": "CXT"}).structured_content["items"]:
         r = call(r1, "resolve_item", {"borrower": "CXT", "key": it["key"], "proposed_decision": "reject"},
                  answer=person(decision="accept", seen=seen))
         assert r.structured_content["decision"] == "accept"                          # the person's answer wins
     assert len(seen) == 8 and all("CXT" in m for m in seen)
-    assert call(r1, "verify", {"borrower": "CXT"}, answer=person(confirm=False)).structured_content["verified"] is False
-    assert call(r1, "verify", {"borrower": "CXT"}).structured_content["verified"]
-    same = call(r1, "sign_off", {"borrower": "CXT"})
-    assert same.is_error and "different person" in same.content[0].text
-    ok = call(r2, "sign_off", {"borrower": "CXT"}).structured_content
-    assert ok["signed_off"] and ok["by"] == "Reviewer 2"
-    st = call(r2, "signoff_status", {"borrower": "CXT"}).structured_content
-    assert (st["status"], st["verified_by"], st["signed_by"]) == ("signed_off", "Reviewer 1", "Reviewer 2")
+    assert call(r1, "sign_off", {"borrower": "CXT"}, answer=person(confirm=False)).structured_content["signed_off"] is False
+    ok = call(r1, "sign_off", {"borrower": "CXT"}).structured_content
+    assert ok["signed_off"] and ok["by"] == "Reviewer 1"
+    st = call(r1, "signoff_status", {"borrower": "CXT"}).structured_content
+    assert (st["status"], st["signed_by"]) == ("signed_off", "Reviewer 1")
 
 
 def test_no_identity_no_decisions(abs_dir, tmp_path, monkeypatch):

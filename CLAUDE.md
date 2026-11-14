@@ -5,7 +5,7 @@ Built as an AWS AgentCore agent with an MCP App interface; the engine in `src/co
 
 ## Rules
 - Code decides anything deterministic and checks everything; the model only fills fixed structures. Never let the model do arithmetic.
-- Nothing is marked verified or signed off except by a person through the sign-off record (four eyes).
+- Nothing is marked signed off except by a person through the sign-off record (one reviewer: every item decided, then sign-off).
 - Every model call goes through `covenant_engine.model.call_model`. Bedrock is the last step: build and test locally on `claude -p` first.
 - Public data only (SEC EDGAR). No client data, work-org metadata or work code. Never commit credentials or large data (see .gitignore).
 - Check current vendor docs before relying on a platform API (AgentCore, MCP Apps, Entra); a doc citation informs, a probe decides.
