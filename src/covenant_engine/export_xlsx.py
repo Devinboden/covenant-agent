@@ -31,6 +31,7 @@ from . import config
 from .abstract import signoff as SO
 from .brief import GENERIC, cap_text, cat_label, title
 from .compliance_test import NOTE as NOTE_CATS, _snip, plan
+from .xlsx_layout import fit
 
 FONT = "Arial"
 HEAD = PatternFill("solid", fgColor="1F2937")
@@ -43,7 +44,7 @@ THIN = Side(style="thin", color="D1D5DB")
 BOX = Border(bottom=THIN)
 BLUE = "0000FF"                                       # hardcoded input (financial-model convention)
 GREEN = "008000"                                      # link to another sheet
-RATIO_FMT, USD_FMT, PCT_FMT, DATE_FMT = '0.00"x"', '$#,##0', '0.0%', "mmm d, yyyy"
+RATIO_FMT, USD_FMT, PCT_FMT, DATE_FMT = '0.00"x";[Red](0.00"x")', '$#,##0;[Red]($#,##0)', '0.0%;[Red](0.0%)', "mmm d, yyyy"
 WATCH = 0.10                                          # cushion below this is flagged for attention (an assumption)
 
 
@@ -161,11 +162,12 @@ SOURCE = {"income_statement": "Income statement", "cash_flow_statement": "Cash f
           "balance_sheet": "Balance sheet", "footnote": "Notes to the financials", "borrower_schedule": "Borrower's schedule",
           "agreement_fixed": "Fixed by the agreement"}
 SIGN = {"+": "+", "-": "−", "+/-": "±"}
-USD = '$#,##0;($#,##0);"-"'
+USD = '$#,##0;[Red]($#,##0);"-"'                    # deductions and shortfalls: red, in parentheses
 QFMT = "mmm yyyy"
 
 
 def _f(**k):
+    k.setdefault("size", 10)
     return Font(name=FONT, **k)
 
 
@@ -240,12 +242,7 @@ def _named(ws, r, c, name, quote, width, bold=False, cap=320):
         x.font = _f(bold=bold, size=10)
         quote = ""
     x.alignment = Alignment(wrap_text=True, vertical="top")
-    # row height from the text (Excel doesn't size rows itself here); errs high, since clipped text is worse than space
-    name_lines = -(-len(name or "") // max(20, int(width * 0.9)))
-    quote_lines = -(-len(quote) // max(20, int(width * 0.88))) if quote else 0
-    h = 4 + 13.5 * name_lines + 11.5 * quote_lines
-    ws.row_dimensions[r].height = max(ws.row_dimensions[r].height or 0, h)
-    return x
+    return x                                               # row heights: xlsx_layout.fit measures every row at the end
 
 
 # ---------------------------------------------------------------------------------------------------------- build
@@ -258,6 +255,8 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     tdate = test_date or default_test_date(ab, today)
     reliefs = [g for g in ab.get("regimes", []) if g["type"] == "relief_period"]
     wb = Workbook()
+    wb._named_styles["Normal"].font = Font(name=FONT, size=10)     # rich-text runs and blank cells draw in Arial too
+    wb.calculation.fullCalcOnLoad = True                  # a server-made file has no cached results: compute on open
     sm = wb.active
     sm.title = "Summary"
     cal = wb.create_sheet(CAL)
@@ -499,7 +498,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     def line_row(r, l, point):
         _named(ts, r, 1, l["label"], l["quote"], 62, cap=220)
         _put(ts, r, 2, l["clause"])
-        _put(ts, r, 3, SIGN.get(l["sign"], l["sign"]))
+        _put(ts, r, 3, SIGN.get(l["sign"], l["sign"]), color="DC2626" if l["sign"] == "-" else None, bold=l["sign"] == "-")
         if l["kind"] == "link":                       # the target total may be further down: filled in once all exist
             _put(ts, r, 8, None, USD, color=GREEN)
             links.append((r, l["ref"]))
@@ -720,6 +719,8 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
                                                      "Changes (before -> after)"], rows,
                [34, 12, 60, 12, 14, 12, 34, 40], wrap=(1, 3, 7, 8))
     for w in wb.worksheets:                               # prints landscape, one page wide
+        fit(w)                                            # every row tall enough to show all its text
+        w.sheet_view.showGridLines = False
         w.page_setup.orientation = "landscape"
         w.page_setup.fitToWidth, w.page_setup.fitToHeight = 1, 0
         w.sheet_properties.pageSetUpPr.fitToPage = True

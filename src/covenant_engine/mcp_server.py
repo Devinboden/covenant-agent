@@ -1,7 +1,7 @@
 """Covenant Agent MCP server (step 2): the engine's tools over MCP, local first.
 
-  COVENANT_USER="Reviewer 1" python -m covenant_engine.mcp_server            (stdio)
-  COVENANT_USER="Reviewer 1" python -m covenant_engine.mcp_server --http     (streamable HTTP on :8000/mcp)
+  COVENANT_USER="Credit Analyst" python -m covenant_engine.mcp_server            (stdio)
+  COVENANT_USER="Credit Analyst" python -m covenant_engine.mcp_server --http     (streamable HTTP on :8000/mcp)
 
 Rules carried from the engine:
 - The model never decides anything a person must decide. resolve_item and sign_off ask the PERSON through an
@@ -33,6 +33,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
 
 from . import config
+from . import exports as EX
 from .abstract import signoff as SO
 from .abstract.new_deal import review_data
 from .store import store
@@ -254,10 +255,22 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
             raise ToolError(str(e))
         return _view(ctx, b)
 
+    @apps.tool(**VIEW, visibility=["app"], annotations=READ)
+    def review_export(borrower: str) -> dict[str, Any]:
+        """(screen only) Build the covenant testing workbook (code only, no model call): the file itself for the host to
+        download, and a link to it when the server has a public address."""
+        import base64
+        b = need(borrower)
+        x = EX.make(b, abs_dir)
+        return {"borrower": b, "file_name": x["file_name"], "url": x["url"], "mime": x["mime"],
+                "blob": base64.b64encode(x["bytes"]).decode("ascii")}
+
     # Built by hand (add_html_resource can't carry extra _meta). "openai/ui".availableDisplayModes = ["fullscreen"]
     # tells ChatGPT to open the screen full screen straight away, with no inline loading state. Hosts that ignore the
     # openai/ keys use the standard bridge; the view declares inline+fullscreen there and asks for fullscreen on load.
+    public = os.environ.get("COVENANT_PUBLIC_URL", "").rstrip("/")
     meta = {"openai/ui": {"availableDisplayModes": UI_DISPLAY_MODES_OPENAI},
+            **({"openai/widgetCSP": {"redirect_domains": [public]}} if public else {}),
             "openai/widgetDescription": "Covenant review screen: open items with evidence, covenant schedules and "
                                         "the agreement page. The person decides and signs off here."}
     for uri in (ui_uri, UI_LEGACY_URI):   # current (hashed) + legacy alias serving the same, current HTML
@@ -536,6 +549,17 @@ def create_server(abs_dir=config.ABSTRACT_DIR, user=None, runner=None, job_dir=N
         except SO.SignoffError as e:
             raise ToolError(str(e))
         return {"borrower": b, "signed_off": True, "by": by, "status": "signed_off"}
+
+    @server.tool(annotations=READ)
+    def export_workbook(borrower: str) -> dict[str, Any]:
+        """Build the deal's covenant testing workbook (Excel; code only, no model call) and return its download link.
+        Give the person the link. The workbook says DRAFT until the abstract is signed off."""
+        b = need(borrower)
+        x = EX.make(b, abs_dir)
+        rec = SO.load(b, abs_dir)[1]
+        return {"borrower": b, "file_name": x["file_name"], "url": x["url"], "status": rec["status"],
+                "note": None if x["url"] else "this server has no public address, so there is no link: run "
+                                              f"`python -m covenant_engine.export_xlsx {b}` locally"}
 
     server.jobs = jobs
     if view_only:

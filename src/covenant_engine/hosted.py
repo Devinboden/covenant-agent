@@ -1,7 +1,7 @@
 """Hosted demo server (Fly): one MCP endpoint per reviewer, so claude.ai / ChatGPT custom connectors can use it.
 
   COVENANT_HOME=/data/home  uvicorn covenant_engine.hosted:app --host 0.0.0.0 --port 8080
-  (reviewer secrets: COVENANT_REVIEWERS='{"<secret>": "Reviewer 1", ...}' or <COVENANT_HOME>/reviewers.json, made on first boot)
+  (reviewer secrets: COVENANT_REVIEWERS='{"<secret>": "Credit Analyst", ...}' or <COVENANT_HOME>/reviewers.json, made on first boot)
 
 Each reviewer connects to https://<host>/r/<secret>/mcp. Hosts' custom connectors can't send a fixed API key, so the
 secret in the URL is the access control, and which URL you connected with is who you are (the sign-off
@@ -23,21 +23,26 @@ from mcp.server.transport_security import TransportSecuritySettings
 from .mcp_server import create_server
 
 SECRET = re.compile(r"^[A-Za-z0-9_-]{32,}$")
+ROLES = ("Credit Analyst", "Portfolio Manager")       # who each first-boot reviewer URL signs in as
 
 
 def reviewers():
     """Reviewer URLs: COVENANT_REVIEWERS if set, else <COVENANT_HOME>/reviewers.json, created on first boot with two
-    random secrets (read them with: fly ssh console -C "cat /data/home/reviewers.json"). Never logged."""
+    random secrets (Credit Analyst, Portfolio Manager) (read them with: fly ssh console -C "cat /data/home/reviewers.json"). Never logged."""
     raw = os.environ.get("COVENANT_REVIEWERS", "")
     if not raw:
         from . import config
         f = config.ROOT / "reviewers.json"
         if not f.exists():
             import secrets
-            f.write_text(json.dumps({secrets.token_urlsafe(32): "Reviewer 1", secrets.token_urlsafe(32): "Reviewer 2"},
+            f.write_text(json.dumps({secrets.token_urlsafe(32): ROLES[0], secrets.token_urlsafe(32): ROLES[1]},
                                     indent=1), encoding="utf-8")
             os.chmod(f, 0o600)
         raw = f.read_text(encoding="utf-8")
+        old = json.loads(raw) if raw else {}
+        if sorted(old.values()) == ["Reviewer 1", "Reviewer 2"]:     # first-boot names from before: name the roles
+            raw = json.dumps({k: ROLES[0] if v == "Reviewer 1" else ROLES[1] for k, v in old.items()}, indent=1)
+            f.write_text(raw, encoding="utf-8")
     try:
         m = json.loads(raw) if raw else {}
     except json.JSONDecodeError:
@@ -81,6 +86,14 @@ def build(reviewer_map=None, allowed_hosts=None):
                 await stack.enter_async_context(sub.router.lifespan_context(sub))
             yield
 
+    async def files(request):                        # workbooks made by export_workbook / review_export
+        from starlette.responses import FileResponse
+        from . import exports
+        p = exports.find(request.path_params["token"], request.path_params["name"])
+        if not p:
+            return PlainTextResponse("not found", status_code=404)
+        return FileResponse(p, media_type=exports.MIME, filename=p.name)
+
     async def health(request):
         return JSONResponse({"ok": True, "reviewers": len(subs)})
 
@@ -91,7 +104,7 @@ def build(reviewer_map=None, allowed_hosts=None):
                                  + "Reviewers connect to their own URL.")
 
     logging.getLogger("uvicorn.access").addFilter(_Redact())
-    return Starlette(routes=[Route("/health", health), Route("/", root)] +
+    return Starlette(routes=[Route("/health", health), Route("/", root), Route("/files/{token}/{name}", files)] +
                      [Mount("/view" if secret == "__view__" else f"/r/{secret}", app=sub) for secret, sub in subs],
                      lifespan=lifespan)
 

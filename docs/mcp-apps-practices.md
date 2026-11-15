@@ -26,6 +26,11 @@ informs, a probe decides); **[open]** = not yet tested in a real host.
   Sign-off rules live in code, not in the prompt. [probed: test_tools_and_who_decides]
 - Model-callable decision tools ask the person with an MCP elicitation form; the model can only pre-fill. Headless
   clients cancel forms, so nothing is recorded. [probed] Which hosts render forms: [open]
+- **Handing a file to the person** (the Excel workbook): the server builds it and serves it at an unguessable link
+  (`/files/<token>/<name>`, keyed on what it's made from). The screen then tries, in order: `ui/message` with the link
+  (the chat presents it), `ui/download-file` with the file embedded, `ui/open-link`; each falls through to the next if
+  the host lacks it or refuses. A model-callable tool returns the same link. [probed: local host, test_files_route]
+  Which of these ChatGPT honours: [open]. ChatGPT needs the link's domain in `openai/widgetCSP.redirect_domains`.
 - Long work returns a `job_id` at once and the model polls `run_status`; never block a tool call for minutes. [probed]
 - Already-done work isn't refused: report "already on file" and continue the same flow (job finishes at once). [probed]
 

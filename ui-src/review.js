@@ -555,19 +555,50 @@ function progress() {
   $("meter").style.width = (n ? done / n * 100 : 100) + "%";
   $("confirm").hidden = true;
   const btn = $("mainBtn");
-  btn.hidden = !!D.view_only;
+  btn.hidden = false;
   if (D.view_only) {
     $("progText").textContent = `View-only demo: ${done} of ${n} items resolved. Decisions and sign-off are turned off here.`;
+    btn.textContent = "Create Excel"; btn.disabled = false;
+    btn.onclick = () => exportWorkbook(false);
   } else if (D.status === "draft") {
     $("progText").textContent = `${done} of ${n} items resolved` + (D.deferred ? ` · ${D.deferred} deferred (blocks sign-off)` : "");
-    btn.textContent = "Sign off";
+    btn.textContent = "Sign off and create Excel";
     btn.disabled = D.open > 0 || D.deferred > 0;
-    btn.onclick = () => ask(`Sign off as ${D.viewer}: this records that you checked every item against the agreement.`, "Confirm sign-off",
-      () => act("review_sign", { borrower: D.borrower }, "Signed off."));
+    btn.onclick = () => ask(`Sign off as ${D.viewer}: this records that you checked every item against the agreement. ` +
+                            `Then the covenant testing workbook is created.`, "Sign off and create Excel",
+      async () => { await act("review_sign", { borrower: D.borrower }, "Signed off."); if (D.status === "signed_off") exportWorkbook(true); });
   } else {
     $("progText").textContent = `Signed off by ${D.signed_by}. Any change to the abstract returns it to draft.`;
-    btn.textContent = "Signed off"; btn.disabled = true;
+    btn.textContent = "Create Excel"; btn.disabled = false;
+    btn.onclick = () => exportWorkbook(false);
   }
+}
+// The workbook is built by the server (code only). The chat presents it: the screen posts a message with the link and
+// the assistant replies with it. Hosts that can't take a message get the file directly (ui/download-file), or the link
+// opens (ui/open-link); whichever the host supports, with the next one as the fallback.
+async function exportWorkbook(justSigned) {
+  if (busy) return;
+  busy = true; setBusy(true); say("Creating the workbook…", true);
+  try {
+    const x = await call("review_export", { borrower: D.borrower });
+    const caps = app.getHostCapabilities() || {};
+    const what = `${D.name || D.borrower} covenant testing workbook`;
+    const tryIt = async (ok, fn) => { if (!ok) return false; try { const r = await fn(); return !(r && r.isError); } catch (e) { return false; } };
+    if (await tryIt(x.url && caps.message, () => app.sendMessage({ role: "user", content: [{ type: "text", text:
+        (justSigned ? `I signed off the ${D.borrower} covenant abstract. ` : "") +
+        `Here is the ${what} (Excel): ${x.url} — please give me the download link.` }] }))) {
+      say("Workbook created. The link is in the chat.", true); return;
+    }
+    if (await tryIt(caps.downloadFile, () => app.downloadFile({ contents: [{ type: "resource",
+        resource: { uri: `file:///${x.file_name}`, mimeType: x.mime, blob: x.blob } }] }))) {
+      say(`Workbook created: ${x.file_name}.`, true); return;
+    }
+    if (await tryIt(x.url && caps.openLinks, () => app.openLink({ url: x.url }))) {
+      say("Workbook created. It opened in your browser.", true); return;
+    }
+    say(x.url ? `Workbook created: ${x.url}` : `Workbook created, but this host can't hand files over. Ask the chat to export the ${D.borrower} workbook.`, true);
+  } catch (e) { say(e.message); }
+  finally { busy = false; setBusy(false); }
 }
 function ask(text, ok, fn) {
   const c = $("confirm");

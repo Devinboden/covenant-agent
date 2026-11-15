@@ -9,8 +9,8 @@ next to it (<B>.signoff.json) so rebuilding the abstract never overwrites a pers
 - Any change to the abstract's content after sign-off drops the status back to draft (transition logged).
 
   python -m covenant_engine.abstract.signoff status WEST
-  python -m covenant_engine.abstract.signoff resolve WEST <key> accept --by "Reviewer 1" --note "..."
-  python -m covenant_engine.abstract.signoff sign WEST --by "Reviewer 1"
+  python -m covenant_engine.abstract.signoff resolve WEST <key> accept --by "Credit Analyst" --note "..."
+  python -m covenant_engine.abstract.signoff sign WEST --by "Credit Analyst"
 """
 import argparse
 import hashlib

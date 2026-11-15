@@ -10,6 +10,7 @@ primary_region = "iad"
   COVENANT_ALLOWED_HOSTS = "covenant-agent-demo.fly.dev"
   # Public demo: /view/mcp is a view-only MCP app (no decide / verify / sign / start), and no model is ever called here.
   COVENANT_PUBLIC_VIEW = "1"
+  COVENANT_PUBLIC_URL = "https://covenant-agent-demo.fly.dev"
   COVENANT_MODEL_CALLS = "off"
 
 [[mounts]]

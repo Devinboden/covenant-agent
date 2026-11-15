@@ -48,7 +48,7 @@ async function openReview() {
   f.id = "frame"; f.title = "Covenant review"; f.setAttribute("sandbox", "allow-scripts");
   $("stage").appendChild(f);
   // client = null: this host answers the view's requests itself (below), so every call is checked and logged
-  bridge = new AppBridge(null, INFO, { serverTools: {}, openLinks: {}, logging: {} }, { hostContext: ctx() });
+  bridge = new AppBridge(null, INFO, { serverTools: {}, openLinks: {}, logging: {}, message: {}, downloadFile: {} }, { hostContext: ctx() });
   bridge.oninitialized = () => { log("view initialized"); bridge.sendToolInput({ arguments: { borrower } }); bridge.sendToolResult(result); };
   bridge.oncalltool = async (params) => {
     const app = tools.find(t => t.name === params.name);
@@ -62,7 +62,9 @@ async function openReview() {
   };
   bridge.onrequestdisplaymode = async ({ mode: m }) => { setMode(m); log(`screen asked for ${m}`); return { mode: m }; };
   bridge.onsizechange = ({ height }) => { if (mode === "inline" && height) f.style.height = Math.min(height, 900) + "px"; };
-  bridge.onmessage = async ({ content }) => { log("screen → chat: " + JSON.stringify(content).slice(0, 120)); return {}; };
+  bridge.onmessage = async ({ content }) => { log("screen → chat: " + JSON.stringify(content).slice(0, 160)); return {}; };
+  bridge.onopenlink = async ({ url }) => { log("screen → open link: " + url); return {}; };
+  bridge.ondownloadfile = async ({ contents }) => { log("screen → download: " + contents.map(c => (c.resource || c).uri).join(", ")); return {}; };
   await bridge.connect(new PostMessageTransport(f.contentWindow, f.contentWindow));
   f.srcdoc = html;
 }

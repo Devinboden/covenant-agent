@@ -65,17 +65,18 @@ Model calls use the local `claude -p` CLI today (`covenant_engine/model.py`); Be
 The engine's tools over MCP (Python SDK 2.x), local first:
 ```bash
 pip install -e ".[mcp]"
-COVENANT_USER="Reviewer 1" covenant-mcp            # stdio; --http for streamable HTTP on 127.0.0.1:8000/mcp
+COVENANT_USER="Credit Analyst" covenant-mcp            # stdio; --http for streamable HTTP on 127.0.0.1:8000/mcp
 ```
 | Tool | Does |
 |---|---|
 | `list_deals`, `get_abstract`, `list_review_items`, `signoff_status` | read (abstract summary, any section, open items with evidence) |
+| `export_workbook` | builds the covenant testing workbook (code only) and returns its download link |
 | `start_deal`, `run_status` | abstract a PDF under `data/pdf/<TICKER>/` in the background and follow progress |
 | `start_abstraction`, `find_credit_agreements` | "start the covenant abstraction for Cars.com": company name or ticker -> SEC EDGAR -> its credit agreements among the exhibits to its 8-K / 10-Q / 10-K filings (typed by code from the cover) -> code picks the newest full-text agreement -> download, render, background abstraction. `find_credit_agreements` lists the options. Needs `SEC_USER_AGENT`, Playwright (`.[render]`) and the model backend; a company already on file isn't re-run: the job uses the abstract on file, checks it against EDGAR and finishes at once, so the flow continues to open_review |
 | `resolve_item`, `sign_off` | the person answers a form (MCP elicitation); the model can only propose |
 
 | `open_review` | shows the review screen (MCP App view): open items with evidence, covenant schedules, the agreement page with the quote highlighted |
-| `review_page`, `review_decide`, `review_sign` | screen only (`_meta.ui.visibility: ["app"]`): the model never sees them, so a decision is a person's click |
+| `review_page`, `review_decide`, `review_sign`, `review_export` | screen only (`_meta.ui.visibility: ["app"]`): the model never sees them, so a decision is a person's click |
 
 Who is acting comes from the connection (the authenticated principal, or `COVENANT_USER` locally), never from a tool
 argument, so the sign-off record names the person who acted. With no person to answer (a headless client), the form is cancelled
@@ -85,7 +86,7 @@ and nothing is recorded.
 ```bash
 pip install -e ".[mcp]"
 SEC_USER_AGENT="Your Name you@example.com" python scripts/fetch_filings.py MEC --no-ingest   # optional: PDF pages
-COVENANT_USER="Reviewer 1" covenant-mcp --http --dev-host                 # open http://127.0.0.1:8000/
+COVENANT_USER="Credit Analyst" covenant-mcp --http --dev-host                 # open http://127.0.0.1:8000/
 ```
 The dev host is a minimal MCP Apps host (`ui-src/dev_host.js`): it calls `open_review`, renders the screen in a sandboxed
 iframe and logs every call the screen makes. Without the PDF the screen works but shows no pages. The view is built

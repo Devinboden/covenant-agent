@@ -13,8 +13,9 @@ from covenant_engine import config
 from covenant_engine.mcp_server import UI_URI, create_server, view_uri
 
 TOOLS = {"list_deals", "get_abstract", "list_review_items", "signoff_status", "run_status", "start_deal",
-         "resolve_item", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "view_covenant_package", "review_page", "review_decide", "review_sign"}
-SCREEN_ONLY = {"review_page", "review_decide", "review_sign"}
+         "resolve_item", "sign_off", "open_review", "find_credit_agreements", "start_abstraction", "view_covenant_package", "review_page", "review_decide", "review_sign",
+         "review_export", "export_workbook"}
+SCREEN_ONLY = {"review_page", "review_decide", "review_sign", "review_export"}
 
 
 def person(action="accept", decision="accept", confirm=True, seen=None):
@@ -198,10 +199,25 @@ def test_view_only_server_shows_and_changes_nothing():
     srv = create_server(user="Visitor", view_only=True)
     names = {t.name for t in asyncio.run(srv.list_tools())}
     assert names and not names & set(CHANGING_TOOLS)
-    assert {"open_review", "list_deals", "get_abstract"} <= names
+    assert {"open_review", "list_deals", "get_abstract", "export_workbook", "review_export"} <= names   # read-only
     old, config.MODEL_CALLS = config.MODEL_CALLS, "off"
     try:
         r = model.call_model("s", "u", {})
         assert r["ok"] is False and "off" in r["error"]
     finally:
         config.MODEL_CALLS = old
+
+
+def test_workbook_export_makes_a_link(abs_dir, tmp_path, monkeypatch):
+    """The workbook is code only; the link serves exactly that file, and bad tokens or names are refused."""
+    import base64
+    from covenant_engine import exports
+    monkeypatch.setattr(config, "ROOT", tmp_path)
+    monkeypatch.setenv("COVENANT_PUBLIC_URL", "https://demo.example")
+    r = call(srv(abs_dir, tmp_path), "review_export", {"borrower": "MEC"}).structured_content
+    assert r["file_name"] == "MEC_covenant_testing.xlsx" and r["url"].startswith("https://demo.example/files/")
+    token = r["url"].split("/")[-2]
+    assert exports.find(token, r["file_name"]).read_bytes() == base64.b64decode(r["blob"])
+    assert exports.find("../" + token, r["file_name"]) is None and exports.find(token, "../x.xlsx") is None
+    again = call(srv(abs_dir, tmp_path), "export_workbook", {"borrower": "MEC"}).structured_content
+    assert again["url"] == r["url"]                       # same workbook, same link
