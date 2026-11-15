@@ -2,6 +2,8 @@
 FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 COVENANT_HOME=/data/home
 WORKDIR /app
+# Arial-metric fonts: the workbook export measures text to size rows (xlsx_layout)
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-liberation && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml README.md ./
 COPY src ./src
 RUN pip install --no-cache-dir ".[mcp,xlsx]" "uvicorn>=0.30"
