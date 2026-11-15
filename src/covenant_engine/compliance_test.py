@@ -18,6 +18,8 @@ plan(ab) -> {"blocks": [block, ...] in dependency order, "tests": [test, ...]}
 """
 import re
 
+from .brief import GENERIC, title
+
 NOTE = {"measurement_period", "scope_entities", "calculation_rule", "location_or_account_requirement"}
 POINT = {"debt", "cash"}                    # balance-sheet terms: one figure at the test date
 PCT_OF = re.compile(r"(\d+(?:\.\d+)?)\s*%\s+of\b", re.I)
@@ -145,7 +147,7 @@ def _line(T, p, block, c=None, regimes=None, pool_ok=False):
         m = PCT_OF.search(p.get("quote", ""))
         mult = float(m.group(1)) / 100 if m else None
     return {"clause": p.get("clause", ""), "sign": p.get("sign", "+"), "category": p["category"],
-            "label": _snip(p.get("quote")) if p.get("quote") else p["category"].replace("_", " ").capitalize(),
+            "label": _snip(p.get("quote")) if p["category"] in GENERIC and p.get("quote") else title(p["category"]),
             "kind": "input", "ref": ref["name"] if ref else None, "mult": mult, "point": None, "caps": form, "pool": pool,
             "checks": checks, "source": p.get("source", ""), "quote": p.get("quote", ""), "note": p.get("note", "")}
 

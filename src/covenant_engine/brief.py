@@ -26,11 +26,49 @@ CAT = {"taxes": "income taxes", "interest": "interest expense", "depreciation_am
        "numerator_less_term": "amount netted against debt", "numerator_less_amount": "amount netted against debt",
        "denominator_term": "bottom of the ratio", "term_reference": "another defined term", "cap_on_total": "overall limit",
        "calculation_rule": "calculation rule", "unrestricted_cash": "unrestricted cash", "excluded_debt": "debt excluded", "fx_gains": "FX gains", "transition_closure_costs": "closure costs",
-       "public_company_costs": "public company costs", "sponsor_management_fees": "sponsor fees", "custom": "other (non-standard)"}
+       "public_company_costs": "public company costs", "sponsor_management_fees": "sponsor fees", "custom": "other (non-standard)",
+       # debt, cash and interest parts
+       "borrowed_money": "borrowed money", "notes_bonds": "notes and bonds",
+       "interest_bearing_catch_all": "other interest-bearing obligations", "conditional_sale": "conditional sale / title retention",
+       "deferred_purchase_price": "deferred purchase price", "others_debt_secured_by_own_assets": "others' debt secured by the borrower's assets",
+       "guarantees": "guarantees of others' debt", "capital_finance_leases": "finance (capital) leases",
+       "synthetic_leases": "synthetic leases", "letters_of_credit_undrawn": "letters of credit (face amount)",
+       "letters_of_credit_drawn": "drawn letters of credit", "bankers_acceptances_guaranties": "bankers' acceptances",
+       "disqualified_equity": "disqualified (redeemable) equity", "hedge_obligations": "hedging obligations",
+       "partnership_jv_debt": "partnership / JV debt", "purchase_money_debt": "purchase money debt",
+       "convertible_notes": "convertible notes", "earnouts": "earn-outs", "off_balance_sheet": "off-balance-sheet obligations",
+       "receivables_financing": "receivables financing", "secured_only_filter": "secured debt only",
+       "cash_equivalents": "cash equivalents", "permitted_investments": "permitted investments",
+       "excluded_restricted_cash": "restricted cash (excluded)", "excluded_cash_subject_to_liens": "cash subject to liens (excluded)",
+       "excluded_earmarked_proceeds": "cash earmarked from new borrowing (excluded)",
+       "location_or_account_requirement": "where the cash must be held", "interest_expense_gaap": "interest expense",
+       "interest_income": "interest income", "capital_lease_interest": "interest on finance leases",
+       "capitalized_interest": "capitalized interest", "cash_interest_expense": "cash interest expense",
+       "hedge_net_costs": "net hedging costs", "letter_of_credit_fees": "letter of credit fees",
+       "oid_pik_interest": "OID and PIK interest", "excluded_non_cash_interest": "non-cash interest (excluded)",
+       "excluded_financing_cost_amortization": "amortized financing costs (excluded)",
+       "excluded_hedge_breakage_and_costs": "hedge breakage and costs (excluded)",
+       "excluded_hedge_mark_to_market": "hedge mark-to-market (excluded)", "receivables_financing_costs": "receivables financing costs",
+       "prior_period_cash_payments": "cash paid on earlier non-cash charges", "preferred_dividends": "preferred dividends",
+       # earnings and capex parts
+       "earnouts_contingent_consideration": "earn-out fair value changes", "receivables_facility_losses": "receivables facility losses",
+       "nci_income": "minority interest income", "nci_losses": "minority interest losses", "pension_amortization": "pension amortization",
+       "quality_of_earnings_adjustments": "quality-of-earnings adjustments",
+       "cash_receipts_from_prior_non_cash_gains": "cash received on earlier non-cash gains",
+       "ppe_additions": "PP&E additions", "capital_lease_additions": "assets added under finance leases",
+       "excluded_insurance_funded": "insurance-funded replacements (excluded)", "excluded_other": "other exclusion",
+       "measurement_period": "measurement period", "scope_entities": "which entities count"}
+GENERIC = {"custom", "excluded_other", "other", "calculation_rule", "term_reference"}   # the clause says more than the name
 
 
 def cat_label(c):
     return CAT.get(c) or c.replace("_", " ")
+
+
+def title(c):
+    """A category as a line name: 'Borrowed money', 'EBITDA of acquired businesses'."""
+    s = cat_label(c)
+    return s[:1].upper() + s[1:]
 
 
 def money(v):

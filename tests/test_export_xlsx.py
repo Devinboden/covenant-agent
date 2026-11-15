@@ -21,7 +21,7 @@ def _test_rows(ws):
         if ws.cell(r, 2).value == "Clause":
             block = ws.cell(r, 1).value
         elif block and ws.cell(r, 1).value:
-            out.setdefault((block, ws.cell(r, 2).value or "", ws.cell(r, 1).value), r)
+            out.setdefault((block, ws.cell(r, 2).value or "", str(ws.cell(r, 1).value)), r)
     return out
 
 

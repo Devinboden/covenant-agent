@@ -19,6 +19,8 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from openpyxl import Workbook
+from openpyxl.cell.rich_text import CellRichText, TextBlock
+from openpyxl.cell.text import InlineFont
 from openpyxl.comments import Comment
 from openpyxl.formatting.rule import CellIsRule, FormulaRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
@@ -27,8 +29,8 @@ from openpyxl.worksheet.datavalidation import DataValidation
 
 from . import config
 from .abstract import signoff as SO
-from .brief import cap_text, cat_label
-from .compliance_test import plan
+from .brief import GENERIC, cap_text, cat_label, title
+from .compliance_test import NOTE as NOTE_CATS, _snip, plan
 
 FONT = "Arial"
 HEAD = PatternFill("solid", fgColor="1F2937")
@@ -223,6 +225,27 @@ def _cov_name(c):
 
 def _wrap(x):
     x.alignment = Alignment(wrap_text=True, vertical="top")
+
+
+def _named(ws, r, c, name, quote, width, bold=False, cap=320):
+    """A line as the review screen shows it: a plain name, the agreement's own words underneath in small grey."""
+    quote = " ".join((quote or "").split())
+    quote = quote if len(quote) <= cap else quote[:cap].rsplit(" ", 1)[0] + "…"
+    x = ws.cell(row=r, column=c)
+    if quote and quote.lower() != (name or "").lower():
+        x.value = CellRichText(TextBlock(InlineFont(rFont=FONT, sz=10, b=bold), name),
+                               TextBlock(InlineFont(rFont=FONT, sz=8, color="6B7280"), "\n" + quote))
+    else:
+        x.value = name
+        x.font = _f(bold=bold, size=10)
+        quote = ""
+    x.alignment = Alignment(wrap_text=True, vertical="top")
+    # row height from the text (Excel doesn't size rows itself here); errs high, since clipped text is worse than space
+    name_lines = -(-len(name or "") // max(20, int(width * 0.9)))
+    quote_lines = -(-len(quote) // max(20, int(width * 0.88))) if quote else 0
+    h = 4 + 13.5 * name_lines + 11.5 * quote_lines
+    ws.row_dimensions[r].height = max(ws.row_dimensions[r].height or 0, h)
+    return x
 
 
 # ---------------------------------------------------------------------------------------------------------- build
@@ -437,7 +460,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
                 f'SUMIFS({rng("G")},{rng("A")},{name},{rng("D")},{date_cell}))')
 
     # ------------------------------------------------------------ Covenant Test
-    for i, w in enumerate([50, 13, 5, 13, 13, 13, 13, 15, 28, 15, 15, 13, 22, 70], 1):
+    for i, w in enumerate([62, 13, 5, 13, 13, 13, 13, 15, 28, 15, 15, 13, 22], 1):
         ts.column_dimensions[get_column_letter(i)].width = w
     _put(ts, 1, 1, f"Covenant test: {ln.get('borrower', b)}", bold=True, size=14)
     _put(ts, 3, 1, "Test date (quarter end)", bold=True)
@@ -448,7 +471,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
                     "signed amount). Income-statement items: the four quarters ending on the test date. Debt and cash: the "
                     "balance at the test date. The Borrower column is optional: the borrower's compliance certificate "
                     "figure, same sign as Counts."), italic=True, color="374151")
-    ts.merge_cells("A4:N4")
+    ts.merge_cells("A4:M4")
     _wrap(ts["A4"])
     ts.row_dimensions[4].height = 30
     _put(ts, 6, 1, "Results", bold=True, size=12)
@@ -462,21 +485,19 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     r = 7 + len(P["tests"]) + 3
     total = {}                                             # term name -> its total row on this sheet
     links = []                                             # (row, term name) cells that show another block's total
-    quote_font = dict(color="6B7280", size=9)
 
     def head(r, title, point_note=None):
         vals = {1: title, 2: "Clause", 3: "±", 4: f"=EOMONTH({TD},-9)", 5: f"=EOMONTH({TD},-6)", 6: f"=EOMONTH({TD},-3)",
                 7: f"={TD}", 8: point_note or "4 quarters", 9: "Limit", 10: "Counts", 11: "Borrower", 12: "Difference",
-                13: "Where to find it", 14: "Agreement text"}
+                13: "Where to find it"}
         for k, v in vals.items():
             x = _put(ts, r, k, v, QFMT if k in (4, 5, 6, 7) else None, bold=True, color="FFFFFF")
             x.fill = HEAD
-            x.alignment = Alignment(wrap_text=True, vertical="center", horizontal="left" if k in (1, 2, 3, 9, 13, 14) else "right")
+            x.alignment = Alignment(wrap_text=True, vertical="center", horizontal="left" if k in (1, 2, 3, 9, 13) else "right")
         ts.row_dimensions[r].height = 30
 
     def line_row(r, l, point):
-        _put(ts, r, 1, l["label"])
-        _wrap(ts.cell(row=r, column=1))
+        _named(ts, r, 1, l["label"], l["quote"], 62, cap=220)
         _put(ts, r, 2, l["clause"])
         _put(ts, r, 3, SIGN.get(l["sign"], l["sign"]))
         if l["kind"] == "link":                       # the target total may be further down: filled in once all exist
@@ -506,18 +527,17 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
         k.fill = PatternFill("solid", fgColor="FFFBEB")
         _put(ts, r, 12, f'=IF(K{r}="","",J{r}-K{r})', USD)
         _put(ts, r, 13, SOURCE.get(l["source"], "") or None, size=9)
-        _put(ts, r, 14, l["quote"][:400] or None, **quote_font)
-        for c_ in range(1, 15):
+        for c_ in range(1, 14):
             x = ts.cell(row=r, column=c_)
             x.border = BOX
-            x.alignment = Alignment(vertical="top", wrap_text=c_ in (1, 9, 14))
+            x.alignment = Alignment(vertical="top", wrap_text=c_ in (1, 9))
 
     def total_row(r, label, first, last, extra_rows=()):
         _put(ts, r, 1, label, bold=True)
         _put(ts, r, 10, f"=SUM(J{first}:J{last})", USD, bold=True)
         _put(ts, r, 11, f'=IF(COUNT(K{first}:K{last})=0,"",SUM(K{first}:K{last}))', USD, bold=True)
         _put(ts, r, 12, f'=IF(K{r}="","",J{r}-K{r})', USD, bold=True)
-        for c_ in range(1, 15):
+        for c_ in range(1, 14):
             ts.cell(row=r, column=c_).fill = BAND
             ts.cell(row=r, column=c_).border = Border(top=THIN, bottom=THIN)
 
@@ -539,17 +559,14 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
             base = f"(SUM(J{first}:J{r - 1})-({'+'.join(f'J{x}' for x in pooled)}))"
             pct = pool["pct"]
             allowed = f"{_n(pct)}*{base}" if pool["basis"] != "after_capped_items" else f"{_n(pct / (1 - pct))}*{base}"
-            _put(ts, r, 1, f"Limit: {', '.join(pool['clauses'])} together at most {pct:.0%} of EBITDA "
-                           + ("(after these add-backs)" if pool["basis"] == "after_capped_items" else
-                              "(before these add-backs)" if pool["basis"] == "before_capped_items" else
-                              "(basis not stated: computed before these add-backs)"), italic=True)
-            _wrap(ts.cell(row=r, column=1))
+            _named(ts, r, 1, f"Limit: {', '.join(pool['clauses'])} together at most {pct:.0%} of EBITDA "
+                             + ("(after these add-backs)" if pool["basis"] == "after_capped_items" else
+                                "(before these add-backs)" if pool["basis"] == "before_capped_items" else
+                                "(basis not stated: computed before these add-backs)"), pool["quote"], 62)
             _put(ts, r, 3, "−")
             _wrap(_put(ts, r, 9, f"{pct:.0%} of EBITDA, shared", size=9))
             _put(ts, r, 10, f"=-MAX(0,({P_})-MAX(0,{allowed}))", USD)
-            q = _put(ts, r, 14, pool["quote"][:400], **quote_font)
-            _wrap(q)
-            for c_ in range(1, 15):
+            for c_ in range(1, 14):
                 ts.cell(row=r, column=c_).border = BOX
             r += 1
         total_row(r, f"{bl['name']}", first, r - 1)
@@ -557,7 +574,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
         r += 1
         for n_ in bl["notes"]:
             x = _put(ts, r, 1, "Rule " + n_, italic=True, color="6B7280", size=9)
-            ts.merge_cells(start_row=r, start_column=1, end_row=r, end_column=14)
+            ts.merge_cells(start_row=r, start_column=1, end_row=r, end_column=13)
             _wrap(x)
             ts.row_dimensions[r].height = 26
             r += 1
@@ -603,7 +620,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
                     _wrap(ts.cell(row=r, column=1))
                     _wrap(_put(ts, r, 9, caps_words(g["caps"], regs), size=9))
                     _put(ts, r, 10, f"={sg}(({e})-({hs}))", USD)
-                    for c_ in range(1, 15):
+                    for c_ in range(1, 14):
                         ts.cell(row=r, column=c_).border = BOX
                     r += 1
                 total_row(r, label, first, r - 1)
@@ -646,7 +663,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
                 rr["cp"] = r
                 r += 1
         for key in rr:
-            for c_ in range(1, 15):
+            for c_ in range(1, 14):
                 ts.cell(row=rr[key], column=c_).border = BOX
         results.append((c, fmt, rr))
         r += 1
@@ -718,21 +735,16 @@ def _status_colors(ws, rng):
 
 
 EFFECT = {"+": "Adds", "-": "Deducts", "+/-": "Adds or deducts"}
-ACRONYM = {"ppe": "PP&E", "jv": "JV", "ebitda": "EBITDA", "gaap": "GAAP", "oid": "OID", "pik": "PIK", "fx": "FX"}
-
-
-def _what(category):
-    words = [ACRONYM.get(w.lower(), w) for w in cat_label(category).split()]
-    s = " ".join(words)
-    return s[:1].upper() + s[1:]
+WHAT_W = 92
 
 
 def _definitions(ws, ab, P):
-    """Each defined term in plain words: what it starts from, what it adds and deducts, the limits; agreement text last."""
-    for i, w in enumerate([18, 16, 44, 34, 90], 1):
+    """Each defined term as the review screen shows it: clause, effect, a plain name with the agreement's own words
+    underneath, and the limit."""
+    for i, w in enumerate([20, 16, WHAT_W, 40], 1):
         ws.column_dimensions[get_column_letter(i)].width = w
     _put(ws, 1, 1, "Definitions: how this agreement defines the numbers the covenants use", bold=True, size=14)
-    _put(ws, 2, 1, "Plain-English summary first; the agreement's own words on the right. The agreement governs.",
+    _put(ws, 2, 1, "Each line: a plain name, with the agreement's own words underneath. The agreement governs.",
          italic=True, color="6B7280")
     names = {c["id"]: _cov_name(c) for c in ab["covenants"]}
     order = [bl["name"] for bl in P["blocks"]]
@@ -740,10 +752,10 @@ def _definitions(ws, ab, P):
                                                        order.index(t["name"]) if t["name"] in order else 0))
     r = 4
 
-    def section(title):
+    def section(text):
         nonlocal r
-        x = _put(ws, r, 1, title, bold=True, size=12, color="FFFFFF")
-        for k in range(1, 6):
+        _put(ws, r, 1, text, bold=True, size=12, color="FFFFFF")
+        for k in range(1, 5):
             ws.cell(row=r, column=k).fill = HEAD
         r += 1
 
@@ -752,6 +764,16 @@ def _definitions(ws, ab, P):
         for i, h in enumerate(cols, 1):
             _put(ws, r, i, h, bold=True)
             ws.cell(row=r, column=i).border = Border(bottom=THIN)
+        r += 1
+
+    def row(a, b_, name, quote, d="", fmt=None):
+        nonlocal r
+        for i, v in ((1, a), (2, b_), (4, d)):
+            x = _put(ws, r, i, v, fmt if i == 2 else None)
+            _wrap(x)
+        _named(ws, r, 3, name, quote, WHAT_W, cap=600)
+        for i in range(1, 5):
+            ws.cell(row=r, column=i).border = BOX
         r += 1
 
     section("Defined terms")
@@ -766,28 +788,27 @@ def _definitions(ws, ab, P):
         else:
             what = ("Starts from " + t["starts_from"] + "." if t.get("starts_from") and len(t["starts_from"]) <= 60 else "")
         used = ", ".join(names.get(x, x) for x in t.get("used_by", []))
-        x = _put(ws, r, 1, t["name"], bold=True, size=11)
-        for k in range(1, 6):
+        n_add = sum(p["sign"] == "+" for p in t["components"] if p["category"] not in NOTE_CATS)
+        n_sub = sum(p["sign"] == "-" for p in t["components"] if p["category"] not in NOTE_CATS)
+        n_cap = sum(bool(p.get("caps")) for p in t["components"])
+        counts = f"{n_add} added, {n_sub} subtracted" + (f", {n_cap} with a limit" if n_cap else "")
+        _put(ws, r, 1, f"{t['name']}: {counts}", bold=True, size=11)
+        for k in range(1, 5):
             ws.cell(row=r, column=k).fill = BAND
         r += 1
         line = " ".join(s for s in [what, f"Used by: {used}." if used else ""] if s)
         if line:
-            x = _put(ws, r, 1, line, italic=True, color="374151")
-            ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=5)
+            _put(ws, r, 1, line, italic=True, color="374151")
+            ws.merge_cells(start_row=r, start_column=1, end_row=r, end_column=4)
             r += 1
         if t["components"]:
-            header(["Clause", "Effect", "What it is", "Limit", "Agreement text"])
+            header(["Clause", "Effect", "What it is", "Limit"])
         for p in t["components"]:
-            note = p["category"] in ("measurement_period", "scope_entities", "calculation_rule", "location_or_account_requirement")
             structural = p["category"] == "term_reference" or p["category"].startswith(("numerator", "denominator"))
-            what = f"{p['ref_term']} (defined term)" if structural and p.get("ref_term") else _what(p["category"])
-            vals = [p.get("clause", ""), "Rule" if note else EFFECT.get(p["sign"], p["sign"]), what,
-                    "; ".join(cap_text(k) for k in p.get("caps", [])) or "", p.get("quote", "")]
-            for i, v in enumerate(vals, 1):
-                x = _put(ws, r, i, v, **({"color": "6B7280", "size": 9} if i == 5 else {}))
-                _wrap(x)
-                x.border = BOX
-            r += 1
+            name = (f"{p['ref_term']} (defined term)" if structural and p.get("ref_term") else
+                    _snip(p.get("quote")) if p["category"] in GENERIC and p.get("quote") else title(p["category"]))
+            row(p.get("clause", ""), "Rule" if p["category"] in NOTE_CATS else EFFECT.get(p["sign"], p["sign"]), name,
+                p.get("quote", ""), "; ".join(cap_text(k) for k in p.get("caps", [])))
         r += 1
     if ab.get("terms_pending"):
         for name in ab["terms_pending"]:
@@ -796,57 +817,39 @@ def _definitions(ws, ab, P):
             r += 1
         r += 1
     section("Covenant levels as written")
-    header(["Section", "From", "Covenant", "Level", "Agreement text"])
+    header(["Section", "Level", "Covenant and period", ""])
     for c in ab["covenants"]:
-        for s in c["schedule"]:
-            frm = _d(s["start"].get("date")) or s["start"].get("kind")
-            to = _d(s["end"].get("date")) or ("thereafter" if s["end"].get("kind") == "open" else s["end"].get("kind"))
-            vals = [c["ref"], f"{frm:%b %d, %Y}" if isinstance(frm, date) else frm,
-                    f"{_cov_name(c)} ({'max' if c['direction'] == 'max' else 'min'}), to " +
-                    (f"{to:%b %d, %Y}" if isinstance(to, date) else str(to)), _num(s["value"]), s.get("quote", "")]
-            for i, v in enumerate(vals, 1):
-                x = _put(ws, r, i, v, _fmt_level(c) if i == 4 else None, **({"color": "6B7280", "size": 9} if i == 5 else {}))
-                _wrap(x)
-                x.border = BOX
-            r += 1
+        for s_ in c["schedule"]:
+            frm = _d(s_["start"].get("date")) or s_["start"].get("kind")
+            to = _d(s_["end"].get("date")) or ("thereafter" if s_["end"].get("kind") == "open" else s_["end"].get("kind"))
+            when = (f"{frm:%b %d, %Y}" if isinstance(frm, date) else str(frm)) + " to " + \
+                   (f"{to:%b %d, %Y}" if isinstance(to, date) else str(to))
+            row(c["ref"], _num(s_["value"]), f"{_cov_name(c)} ({'max' if c['direction'] == 'max' else 'min'}), {when}",
+                s_.get("quote", ""), fmt=_fmt_level(c))
     r += 1
     if ab.get("regimes"):
         section("Relief periods and step-ups as written")
-        header(["", "Type", "Name", "", "Agreement text"])
+        header(["", "Type", "What it is", ""])
         for g in ab["regimes"]:
-            for lab, q in (("", g.get("quote", "")), ("Ending early", (g.get("early_exit") or {}).get("quote", ""))):
-                if not q:
-                    continue
-                vals = ["", g["type"].replace("_", " "), g["name"] + (f": {lab.lower()}" if lab else ""), "", q]
-                for i, v in enumerate(vals, 1):
-                    x = _put(ws, r, i, v, **({"color": "6B7280", "size": 9} if i == 5 else {}))
-                    _wrap(x)
-                    x.border = BOX
-                r += 1
+            for lab, q in (("", g.get("quote", "")), ("how it can end early", (g.get("early_exit") or {}).get("quote", ""))):
+                if q:
+                    row("", g["type"].replace("_", " "), g["name"] + (f": {lab}" if lab else ""), q)
         r += 1
     if ab.get("calculation_rules"):
         section("Rules for the whole calculation")
-        header(["Section", "Rule", "What it means", "", "Agreement text"])
+        header(["Section", "Rule", "What it means", ""])
         for k in ab["calculation_rules"]:
-            vals = [k.get("section", ""), k.get("type", "").replace("_", " ").capitalize(), k.get("summary", ""), "",
-                    k.get("quote", "")]
-            for i, v in enumerate(vals, 1):
-                x = _put(ws, r, i, v, **({"color": "6B7280", "size": 9} if i == 5 else {}))
-                _wrap(x)
-                x.border = BOX
-            r += 1
+            row(k.get("section", ""), k.get("type", "").replace("_", " ").capitalize(), k.get("summary", ""), k.get("quote", ""))
         r += 1
     if ab.get("deemed_values"):
         section("Values the agreement fixes")
-        header(["Period end", "Term", "Applies to", "Value", "Agreement text"])
+        header(["Period end", "Value", "What it is", ""])
         for k in ab["deemed_values"]:
-            vals = [_d(k.get("period_end")), k.get("term", ""), k.get("entity", ""), _num(k.get("value")), k.get("quote", "")]
-            for i, v in enumerate(vals, 1):
-                x = _put(ws, r, i, v, DATE_FMT if i == 1 else USD if i == 4 else None,
-                         **({"color": "6B7280", "size": 9} if i == 5 else {}))
-                _wrap(x)
-                x.border = BOX
-            r += 1
+            row(_d(k.get("period_end")), _num(k.get("value")), f"{k.get('term', '')} of {k.get('entity', '')}",
+                k.get("quote", ""), fmt=USD)
+        for x in ws.iter_rows(min_row=4, max_row=r, min_col=1, max_col=1):
+            if isinstance(x[0].value, date):
+                x[0].number_format = DATE_FMT
 
 
 def export(b, out=None, abs_dir=config.ABSTRACT_DIR, today=None, test_date=None):
