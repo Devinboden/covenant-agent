@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 COVENANT_HOME=/data/home
 WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --no-cache-dir ".[mcp]" "uvicorn>=0.30"
+RUN pip install --no-cache-dir ".[mcp,xlsx]" "uvicorn>=0.30"
 COPY data ./data
 COPY deploy/entrypoint.sh /entrypoint.sh
 COPY deploy/sync_abstracts.py /app/deploy/sync_abstracts.py
