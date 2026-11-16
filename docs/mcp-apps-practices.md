@@ -30,7 +30,11 @@ informs, a probe decides); **[open]** = not yet tested in a real host.
   (`/files/<token>/<name>`, keyed on what it's made from). The screen then tries, in order: `ui/message` with the link
   (the chat presents it), `ui/download-file` with the file embedded, `ui/open-link`; each falls through to the next if
   the host lacks it or refuses. A model-callable tool returns the same link. [probed: local host, test_files_route]
-  Which of these ChatGPT honours: [open]. ChatGPT needs the link's domain in `openai/widgetCSP.redirect_domains`.
+  ChatGPT honours `ui/message`: the link lands in the chat and the assistant presents a download. [probed in ChatGPT,
+  2026-11-15] ChatGPT needs the link's domain in `openai/widgetCSP.redirect_domains` for `ui/open-link`.
+- **A new tool needs Refresh tools in ChatGPT** (connector settings), then a new chat. ChatGPT runs the screen's tool
+  calls against the tool list it took at the last refresh, so a screen calling a tool added since gets "unknown tool".
+  [probed in ChatGPT, 2026-11-15]
 - Long work returns a `job_id` at once and the model polls `run_status`; never block a tool call for minutes. [probed]
 - Already-done work isn't refused: report "already on file" and continue the same flow (job finishes at once). [probed]
 
