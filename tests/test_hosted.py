@@ -51,3 +51,22 @@ def test_files_route_serves_made_workbooks(abs_dir, monkeypatch, tmp_path):
         assert r.status_code == 200 and r.content == x["bytes"] and "spreadsheetml" in r.headers["content-type"]
         assert c.get(f"/files/{'0' * 32}/{x['file_name']}").status_code == 404
         assert c.get(f"/files/{x['token']}/..%2Freviewers.json").status_code == 404
+
+
+def test_public_demo_serves_the_landing_page(abs_dir, monkeypatch, tmp_path):
+    """With the public view on, / is the landing page, its images are served, and /sample/<deal> hands out a workbook."""
+    from covenant_engine import exports
+    monkeypatch.setattr(config, "ROOT", tmp_path)
+    monkeypatch.setenv("COVENANT_PUBLIC_VIEW", "1")
+    monkeypatch.setenv("COVENANT_PUBLIC_URL", "https://demo.example.com")
+    monkeypatch.setattr(exports, "make", lambda b, abs_dir_=None: {"url": f"https://demo.example.com/files/{'a' * 32}/{b}.xlsx"}
+                        if b == "MEC" else (_ for _ in ()).throw(FileNotFoundError()))
+    app = hosted.build({S1: "Credit Analyst"}, allowed_hosts=["demo.example.com"])
+    with TestClient(app, base_url="https://demo.example.com") as c:
+        r = c.get("/")
+        assert r.status_code == 200 and "Try the demo" in r.text and "/view/mcp" in r.text
+        assert c.get("/site/img/architecture.webp").status_code == 200
+        r = c.get("/sample/MEC", follow_redirects=False)
+        assert r.status_code == 302 and r.headers["location"].endswith("/MEC.xlsx")
+        assert c.get("/sample/NOPE", follow_redirects=False).status_code == 404
+        assert c.get("/sample/../x", follow_redirects=False).status_code == 404

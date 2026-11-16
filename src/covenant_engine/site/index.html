@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Covenant Agent</title>
+<meta name="description" content="A credit agreement in; a checked covenant abstract and an Excel covenant testing workbook out, signed off by a person. Live read-only demo.">
+<meta property="og:title" content="Covenant Agent">
+<meta property="og:description" content="The model reads the agreement once. Code checks everything. A person signs off.">
+<meta property="og:image" content="/site/img/architecture.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#ffffff; --panel:#f8fafc; --ink:#0f172a; --soft:#475569; --rule:#e2e8f0; --code:#2563eb; --model:#7c3aed;
+          --person:#059669; --accent:#0f172a; --btn-ink:#ffffff; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0b1120; --panel:#111a2e; --ink:#e2e8f0;
+          --soft:#94a3b8; --rule:#1e293b; --accent:#e2e8f0; --btn-ink:#0b1120; } }
+  :root[data-theme="dark"] { --bg:#0b1120; --panel:#111a2e; --ink:#e2e8f0; --soft:#94a3b8; --rule:#1e293b; --accent:#e2e8f0; --btn-ink:#0b1120; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--ink); font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+         font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 24px; }
+  header { padding:72px 0 40px; }
+  .kicker { font-size:13px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--soft); }
+  h1 { font-size:clamp(34px, 5.4vw, 56px); line-height:1.08; letter-spacing:-.02em; font-weight:700; margin:14px 0 18px; }
+  h1 span { color:var(--soft); }
+  .lead { font-size:19px; color:var(--soft); max-width:720px; }
+  .cta { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:12px 18px; border-radius:10px; font-weight:600; font-size:15.5px;
+         text-decoration:none; border:1px solid var(--rule); color:var(--ink); background:var(--bg); }
+  .btn.primary { background:var(--accent); color:var(--btn-ink); border-color:var(--accent); }
+  .shot { margin:8px 0 0; border:1px solid var(--rule); border-radius:14px; overflow:hidden; background:var(--panel); }
+  .shot img { display:block; width:100%; height:auto; }
+  figcaption { font-size:14.5px; color:var(--soft); padding:12px 16px; border-top:1px solid var(--rule); }
+  section { padding:56px 0; border-top:1px solid var(--rule); }
+  h2 { font-size:30px; letter-spacing:-.01em; line-height:1.2; margin-bottom:10px; }
+  .sub { color:var(--soft); max-width:720px; margin-bottom:28px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .how { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:40px; align-items:start; }
+  .steps { list-style:none; counter-reset:s; }
+  .steps li { counter-increment:s; position:relative; padding:0 0 18px 44px; }
+  .steps li::before { content:counter(s); position:absolute; left:0; top:1px; width:28px; height:28px; border-radius:50%;
+         display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; background:var(--code); }
+  .steps li.m::before { background:var(--model); } .steps li.p::before { background:var(--person); }
+  .steps b { display:block; }
+  .steps span { color:var(--soft); font-size:15.5px; }
+  .stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:8px; }
+  .stat { background:var(--panel); border:1px solid var(--rule); border-radius:12px; padding:18px; }
+  .stat b { display:block; font-size:28px; letter-spacing:-.01em; }
+  .stat span { color:var(--soft); font-size:14.5px; }
+  .note { font-size:14px; color:var(--soft); margin-top:14px; }
+  .try { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .card { background:var(--panel); border:1px solid var(--rule); border-radius:14px; padding:24px; }
+  .card h3 { font-size:19px; margin-bottom:10px; }
+  .card ol { padding-left:20px; color:var(--ink); }
+  .card li { margin-bottom:6px; font-size:15.5px; }
+  .url { display:flex; gap:8px; margin:20px 0 6px; }
+  .url code { flex:1; min-width:0; overflow-x:auto; white-space:nowrap; font:14.5px ui-monospace, SFMono-Regular, Menlo, monospace;
+         background:var(--panel); border:1px solid var(--rule); border-radius:10px; padding:12px 14px; }
+  .url button { flex:none; padding:0 18px; border-radius:10px; border:1px solid var(--accent); background:var(--accent);
+         color:var(--btn-ink); font-weight:600; font-size:15px; cursor:pointer; }
+  .prompt { font:14.5px ui-monospace, SFMono-Regular, Menlo, monospace; background:var(--bg); border:1px solid var(--rule);
+         border-radius:8px; padding:8px 10px; margin-top:8px; display:block; }
+  footer { padding:40px 0 64px; border-top:1px solid var(--rule); color:var(--soft); font-size:14.5px; }
+  footer a { color:var(--ink); }
+  @media (max-width:820px) { .grid2, .how, .try { grid-template-columns:1fr; } .stats { grid-template-columns:1fr 1fr; }
+         header { padding-top:48px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Covenant Agent · live demo</div>
+    <h1>The model reads the agreement once.<br><span>Code checks everything. A person signs off.</span></h1>
+    <p class="lead">A commercial credit agreement goes in. A checked covenant abstract comes out, every value traced to the sentence it
+      came from, then the Excel workbook an analyst tests the covenants with. Built on public SEC filings.</p>
+    <div class="cta">
+      <a class="btn primary" href="#try">Try the demo</a>
+      <a class="btn" href="/sample/MEC">Download a sample workbook (.xlsx)</a>
+      <a class="btn" href="https://github.com/Devinboden/covenant-agent">Code on GitHub</a>
+    </div>
+  </header>
+
+  <figure class="shot"><img src="/site/img/review.webp" alt="The review screen: an open item for Mayville Engineering's leverage covenant on the left, with the covenant table highlighted on page 202 of the credit agreement on the right." width="1600" height="1194">
+    <figcaption>The review screen, an MCP App that runs inside ChatGPT or Claude. Each item sits next to the clause it came from, highlighted on the agreement page.</figcaption></figure>
+
+  <section>
+    <h2>How it works</h2>
+    <p class="sub">The model only fills fixed structures. Code decides anything deterministic and checks everything. What code can't confirm goes to a person.</p>
+    <div class="how">
+      <ol class="steps">
+        <li><b>Read the document</b><span>Live text from the PDF with struck redline words removed; every section, definition and cross-reference the covenants depend on.</span></li>
+        <li class="m"><b>Extract into fixed structures</b><span>Claude records covenant levels by test date, relief periods and step-ups, and every add-back and deduction with its cap and exact quote. GPT answers the same questions without seeing Claude's answers.</span></li>
+        <li><b>Check everything</b><span>Every quote is verbatim in the agreement, every number appears in its quote, every clause is covered, the two models are compared, each quote is found on its page.</span></li>
+        <li class="p"><b>Review and sign off</b><span>The analyst works only the items code couldn't confirm: confirm, change the value, or note the document that's needed. Then signs off.</span></li>
+        <li><b>Testing workbook</b><span>One click builds the Excel: a test calendar to maturity, plain-English definitions, and a test sheet where the agreement's caps apply by formula. No model after sign-off.</span></li>
+      </ol>
+      <figure class="shot"><img src="/site/img/architecture.webp" alt="Architecture: public SEC filings, then code reads the document, Claude extracts into fixed structures while GPT answers blind, code checks everything, the analyst reviews and signs off, and code builds the covenant testing workbook." width="1200" height="1500" loading="lazy"></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the bank gets</h2>
+    <p class="sub">The agreement is read once. After sign-off, every quarterly test runs off structured data with no model and no re-reading, and every number traces back to its sentence.</p>
+    <div class="stats">
+      <div class="stat"><b>6 to 10</b><span>items to review per deal, instead of a 250 to 330 page agreement</span></div>
+      <div class="stat"><b>$1 to $2</b><span>in model calls per agreement, once</span></div>
+      <div class="stat"><b>350 / 351</b><span>covenant test dates right on the development deals</span></div>
+      <div class="stat"><b>0</b><span>model calls when the covenants are tested</span></div>
+    </div>
+    <p class="note">Scores are on the deals the rules were developed against, not a holdout. Review counts are from the three demo deals.</p>
+    <div class="grid2" style="margin-top:28px">
+      <figure class="shot"><img src="/site/img/calendar.webp" alt="Excel test calendar for Mayville Engineering: every test date with the standard level, the relief level, the level that applies, when financials are due, and the June 2026 results from the 10-Q marked Met." width="1600" height="830" loading="lazy">
+        <figcaption>Test calendar: every test date to maturity, relief levels applied by formula, the 10-Q results marked Met.</figcaption></figure>
+      <figure class="shot"><img src="/site/img/test-sheet.webp" alt="Excel covenant test sheet with illustrative inputs: leverage and interest coverage calculated from the agreement's own definitions, with the cash netting cap applied and Met status." width="1600" height="963" loading="lazy">
+        <figcaption>Covenant test sheet, built from the agreement's own definitions. Illustrative inputs.</figcaption></figure>
+    </div>
+    <div class="grid2" style="margin-top:24px">
+      <figure class="shot"><img src="/site/img/definition.webp" alt="The covenant package for Cars.com: the definition of Indebtedness broken into clauses, with clause (a) highlighted on page 57 of the agreement." width="1600" height="1194" loading="lazy">
+        <figcaption>Definitions in plain words, each clause highlighted where it sits in the agreement.</figcaption></figure>
+      <figure class="shot"><img src="/site/img/chatgpt.webp" alt="ChatGPT with the Cars.com review open and a Download Excel Workbook link in the chat after clicking Create Excel." width="800" height="1013" loading="lazy">
+        <figcaption>Inside ChatGPT: Create Excel puts the workbook in the chat.</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="try">
+    <h2>Try the demo</h2>
+    <p class="sub">Read-only: open the three deals (Cars.com, Mayville Engineering, TriMas), look through every item and its evidence, and create the Excel workbook. No login, nothing you do changes anything, and no model is called.</p>
+    <div class="url"><code id="mcp">https://covenant-agent-demo.fly.dev/view/mcp</code><button id="copy" type="button">Copy</button></div>
+    <p class="note" style="margin:0 0 24px">Add this address as a connector, then ask for a review.</p>
+    <div class="try">
+      <div class="card"><h3>In Claude</h3>
+        <ol><li>Go to <b>Customize › Connectors</b> and click <b>Add custom connector</b>.</li>
+          <li>Paste the address above and click <b>Add</b>. No sign-in is needed.</li>
+          <li>In a new chat, ask: <code class="prompt">Use Covenant Agent to open the MEC covenant review</code></li></ol>
+        <p class="note">Works on every plan, including Free (one custom connector).</p></div>
+      <div class="card"><h3>In ChatGPT</h3>
+        <ol><li>Turn on <b>Developer mode</b> in settings (a beta on paid plans).</li>
+          <li>Add a new app with the address above. No authentication is needed.</li>
+          <li>In a new chat, pick the app and ask: <code class="prompt">Use Covenant Agent to open the CARS covenant review</code></li></ol>
+        <p class="note">Menu names change often; OpenAI's help pages have the current steps.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Built by Devin Boden with Claude, GPT, MCP Apps and Python. Every input is a public SEC EDGAR filing. Next: running as an AWS AgentCore agent.</p>
+    <p style="margin-top:8px">A demonstration, not legal or credit advice; the agreement governs. · <a href="https://github.com/Devinboden/covenant-agent">GitHub</a></p>
+  </footer>
+</div>
+<script>
+  document.getElementById('copy').addEventListener('click', async (e) => {
+    const t = document.getElementById('mcp').textContent;
+    try { await navigator.clipboard.writeText(t); e.target.textContent = 'Copied'; }
+    catch (_) { const r = document.createRange(); r.selectNodeContents(document.getElementById('mcp'));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r); e.target.textContent = 'Press ⌘C'; }
+    setTimeout(() => { e.target.textContent = 'Copy'; }, 1800);
+  });
+</script>
+</body>
+</html>

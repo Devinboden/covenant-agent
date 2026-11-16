@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import re
+from pathlib import Path
 
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse, PlainTextResponse
@@ -97,14 +98,34 @@ def build(reviewer_map=None, allowed_hosts=None):
     async def health(request):
         return JSONResponse({"ok": True, "reviewers": len(subs)})
 
+    site = Path(__file__).parent / "site"
+
+    async def sample(request):                       # /sample/MEC: the deal's testing workbook, built now (code only)
+        from starlette.responses import RedirectResponse
+        from . import exports
+        b = request.path_params["deal"].upper()
+        if not re.fullmatch(r"[A-Z0-9]{1,10}", b) or not os.environ.get("COVENANT_PUBLIC_URL"):
+            return PlainTextResponse("not found", status_code=404)
+        try:
+            x = exports.make(b)
+        except FileNotFoundError:
+            return PlainTextResponse("not found", status_code=404)
+        return RedirectResponse(x["url"], status_code=302)
+
     async def root(request):
         view = os.environ.get("COVENANT_PUBLIC_VIEW") == "1"
+        if view and (site / "index.html").exists():   # the public demo's landing page
+            from starlette.responses import FileResponse
+            return FileResponse(site / "index.html", media_type="text/html")
         return PlainTextResponse("covenant-agent demo. " + (f"View-only MCP app: add {request.base_url}view/mcp as a "
                                  "custom connector in ChatGPT or Claude. " if view else "")
                                  + "Reviewers connect to their own URL.")
 
     logging.getLogger("uvicorn.access").addFilter(_Redact())
-    return Starlette(routes=[Route("/health", health), Route("/", root), Route("/files/{token}/{name}", files)] +
+    from starlette.staticfiles import StaticFiles
+    pages = [Route("/sample/{deal}", sample), Mount("/site", app=StaticFiles(directory=site), name="site")] \
+        if os.environ.get("COVENANT_PUBLIC_VIEW") == "1" and site.exists() else []
+    return Starlette(routes=[Route("/health", health), Route("/", root), Route("/files/{token}/{name}", files)] + pages +
                      [Mount("/view" if secret == "__view__" else f"/r/{secret}", app=sub) for secret, sub in subs],
                      lifespan=lifespan)
 
