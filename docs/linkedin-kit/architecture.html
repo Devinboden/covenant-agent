@@ -1,0 +1,81 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Covenant Agent architecture</title>
+<style>
+  :root { --code:#2563EB; --code-bg:#EFF4FF; --model:#7C3AED; --model-bg:#F5F0FF; --person:#059669; --person-bg:#ECFDF5;
+          --ink:#0F172A; --soft:#475569; --rule:#E2E8F0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { width:1200px; height:1500px; background:#fff; font-family:Inter, sans-serif; color:var(--ink);
+         padding:56px 64px 40px; display:flex; flex-direction:column; }
+  .kicker { font-size:17px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--soft); }
+  h1 { font-family:'Inter Display', Inter, sans-serif; font-size:44px; line-height:1.12; font-weight:700; margin-top:10px; letter-spacing:-.01em; }
+  h1 span { color:var(--soft); font-weight:600; }
+  .legend { display:flex; gap:22px; margin-top:22px; font-size:17px; color:var(--soft); }
+  .legend i { display:inline-block; width:14px; height:14px; border-radius:4px; margin-right:8px; vertical-align:-1px; }
+  .flow { margin-top:30px; display:flex; flex-direction:column; flex:1; }
+  .row { display:flex; gap:16px; flex:none; }
+  .row > .card { flex:1; }
+  .card { flex:none; border-radius:14px; padding:22px 26px 22px 26px; border-left:6px solid; position:relative; }
+  .card.code { background:var(--code-bg); border-color:var(--code); }
+  .card.model { background:var(--model-bg); border-color:var(--model); }
+  .card.person { background:var(--person-bg); border-color:var(--person); }
+  .card.src { background:#F8FAFC; border-color:#94A3B8; }
+  .head { display:flex; align-items:baseline; gap:12px; }
+  .n { font-size:15px; font-weight:700; color:#fff; width:26px; height:26px; border-radius:50%; display:inline-flex;
+       align-items:center; justify-content:center; flex:none; transform:translateY(-2px); }
+  .code .n { background:var(--code); } .model .n { background:var(--model); } .person .n { background:var(--person); } .src .n { background:#94A3B8; }
+  .t { font-size:25px; font-weight:700; }
+  .who { margin-left:auto; font-size:14px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
+  .code .who { color:var(--code); } .model .who { color:var(--model); } .person .who { color:var(--person); } .src .who { color:#64748B; }
+  p { font-size:19.5px; line-height:1.42; color:#1E293B; margin-top:7px; }
+  p b { font-weight:600; }
+  .arrow { flex:1; min-height:26px; display:flex; justify-content:center; align-items:center; }
+  .arrow svg { display:block; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .chip { font-size:16px; font-weight:500; padding:4px 10px; border-radius:999px; background:#fff; border:1px solid var(--rule); color:#334155; }
+  .loop { font-size:16px; color:var(--model); font-weight:600; margin-top:8px; }
+  .foot { margin-top:22px; padding-top:16px; border-top:1px solid var(--rule); display:flex; justify-content:space-between;
+          font-size:15.5px; color:var(--soft); }
+  .foot b { color:var(--ink); font-weight:600; }
+</style></head>
+<body>
+  <div class="kicker">Covenant Agent · how it works</div>
+  <h1>The model reads the agreement once.<br><span>Code checks everything. A person signs off.</span></h1>
+  <div class="legend"><span><i style="background:var(--code)"></i>Code: deterministic, tested</span>
+    <span><i style="background:var(--model)"></i>Model: fills fixed structures</span>
+    <span><i style="background:var(--person)"></i>Person: decides and signs off</span></div>
+
+  <div class="flow">
+    <div class="card src"><div class="head"><span class="n">1</span><span class="t">Public filings from SEC EDGAR</span><span class="who">Input</span></div>
+      <p>The credit agreement and its amendments (about 250 to 330 pages), plus the 10-Q and 10-K for reported ratios.</p></div>
+    <div class="arrow"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2v15M4 11l7 7 7-7" fill="none" stroke="#94A3B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="card code"><div class="head"><span class="n">2</span><span class="t">Read the document</span><span class="who">Code</span></div>
+      <p>Live text with struck redline words removed. Every section, definition and cross-reference, packed into the covenant sections and each definition they depend on.</p></div>
+    <div class="arrow"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2v15M4 11l7 7 7-7" fill="none" stroke="#94A3B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="row">
+      <div class="card model" style="flex:1.45"><div class="head"><span class="n">3</span><span class="t">Extract into fixed structures</span><span class="who">Claude</span></div>
+        <p>Covenant levels by test date, relief periods and step-ups, and every add-back and deduction in EBITDA, debt and interest, each with its cap and exact quote.</p>
+        <div class="loop">↺ Code rejects what fails a check and asks for a redo</div></div>
+      <div class="card model"><div class="head"><span class="t">Blind second read</span><span class="who">GPT</span></div>
+        <p>Answers the same questions without seeing Claude's answers.</p></div>
+    </div>
+    <div class="arrow"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2v15M4 11l7 7 7-7" fill="none" stroke="#94A3B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="card code"><div class="head"><span class="n">4</span><span class="t">Check everything</span><span class="who">Code</span></div>
+      <div class="chips"><span class="chip">Every quote is verbatim in the agreement</span><span class="chip">Every number appears in its quote</span>
+        <span class="chip">Every clause covered</span><span class="chip">Dates and overlaps</span><span class="chip">Claude vs GPT compared</span>
+        <span class="chip">Each quote found on its page</span></div>
+      <p>What code can't confirm becomes a review card, ranked high or low priority.</p></div>
+    <div class="arrow"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2v15M4 11l7 7 7-7" fill="none" stroke="#94A3B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="card person"><div class="head"><span class="n">5</span><span class="t">Review and sign off</span><span class="who">Analyst</span></div>
+      <p>An MCP App inside ChatGPT or Claude. Each card sits next to the clause, highlighted on the agreement page. Confirm it, change the value, or note the document that's needed. Then sign off: <b>6 to 10 cards per deal</b>, not 300 pages.</p></div>
+    <div class="arrow"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 2v15M4 11l7 7 7-7" fill="none" stroke="#94A3B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+    <div class="card code"><div class="head"><span class="n">6</span><span class="t">Covenant testing workbook</span><span class="who">Code, no model</span></div>
+      <p>One click builds the Excel the analyst tests with: a calendar of every test date and level to maturity, plain-English definitions, and a test sheet where the agreement's caps apply by formula. Every quarter after that runs without a model.</p></div>
+  </div>
+
+  <div class="foot"><span><b>Built as</b> an AWS AgentCore agent with an MCP App interface</span><span><b>Demo</b> on Fly.io: read-only, model calls off</span></div>
+</body></html>
