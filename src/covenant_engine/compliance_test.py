@@ -147,7 +147,9 @@ def _line(T, p, block, c=None, regimes=None, pool_ok=False):
         m = PCT_OF.search(p.get("quote", ""))
         mult = float(m.group(1)) / 100 if m else None
     return {"clause": p.get("clause", ""), "sign": p.get("sign", "+"), "category": p["category"],
-            "label": _snip(p.get("quote")) if p["category"] in GENERIC and p.get("quote") else title(p["category"]),
+            # a generic category, or a ratio's own numerator / denominator amount: the clause's words name it better
+            "label": _snip(p.get("quote")) if p.get("quote") and (p["category"] in GENERIC or p["category"].startswith(
+                ("numerator", "denominator"))) else title(p["category"]),
             "kind": "input", "ref": ref["name"] if ref else None, "mult": mult, "point": None, "caps": form, "pool": pool,
             "checks": checks, "source": p.get("source", ""), "quote": p.get("quote", ""), "note": p.get("note", "")}
 
