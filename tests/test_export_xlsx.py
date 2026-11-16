@@ -69,7 +69,7 @@ def test_cap_expression():
 # ------------------------------------------------------------------------------------------------ the workbook
 def test_mec_workbook_tests_from_the_lines():
     wb = build("MEC", today=TODAY, review=False)
-    assert wb.sheetnames == ["Summary", "Calendar & Levels", "Definitions", "Covenant Test"]
+    assert wb.sheetnames == ["Summary", "Calendar & Levels", "Covenant Test", "Definitions"]
     assert "DRAFT" in wb["Summary"]["B5"].value
     ts = wb["Covenant Test"]                                   # the covenant in words, at the top of the test sheet
     box = {ts.cell(r, 1).value.split("  §")[0]: ts.cell(r, 2).value for r in range(7, 10)}

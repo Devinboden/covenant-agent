@@ -4,10 +4,10 @@ The tool an analyst tests the covenants with once a borrower's financial stateme
 - Summary: the deal, sign-off status, this test date's results, and the inputs the formulas use.
 - Calendar & Levels: relief periods and step-ups, then every test date to maturity with the level that applies and
   when the financials are due.
-- Definitions: each defined term the covenants use, in plain words, with the agreement text beside it.
 - Covenant Test: enter four quarters (flow items) or the test-date balance (debt, cash) for each line of the
   agreement's own definitions; caps apply by formula; the ratios, headroom, status and EBITDA cushion calculate, and the
   borrower's certificate figures can be entered beside the bank's to show the differences.
+- Definitions: each defined term the covenants use, in plain words, with the agreement text beside it.
 - Review Trail: who checked what in the abstract.
 Every level, date, line and cap comes from the checked abstract (compliance_test.plan decides the lines); every result
 is an Excel formula, so the workbook recalculates as numbers are entered.
@@ -311,8 +311,8 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     sm = wb.active
     sm.title = "Summary"
     cal = wb.create_sheet(CAL)
-    dfs = wb.create_sheet("Definitions")
     ts = wb.create_sheet(TEST)
+    dfs = wb.create_sheet("Definitions")
 
     # ------------------------------------------------------------ Summary: a one-page cover
     # Column A is a gutter; content runs B..H. Deal facts sit in a two-column grid, the results table and the settings
