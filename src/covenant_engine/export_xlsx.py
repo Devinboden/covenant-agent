@@ -323,6 +323,8 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
         _wrap(s)
         cell[key] = f"Summary!$B${r}"
         r += 1
+    if not reliefs:                                       # Excel refuses an empty <dataValidations/> and repairs the sheet
+        sm.data_validations.dataValidation.remove(yn)
     regime_cell = {g["id"]: cell[f"relief_{g['id']}"] for g in reliefs}
     r += 1
     howto = ["How to use: 1. On Covenant Test, set the test date and enter the borrower's numbers in the yellow cells "

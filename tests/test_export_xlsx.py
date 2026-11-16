@@ -87,3 +87,19 @@ def test_mec_workbook_tests_from_the_lines():
     assert ts.cell(res, 10).value.startswith('=IF(N(J') and ts.cell(res, 11).value == 2.91   # borrower's 10-Q figure
     lvl = ts.cell(res + 1, 10).value
     assert "COUNTIFS('Calendar & Levels'!" in lvl and "$D$3" in lvl
+
+
+def test_files_open_in_excel_without_repair(tmp_path):
+    """Excel repairs (and may discard) a sheet with an empty container element that LibreOffice accepts: an empty
+    <dataValidations/> (a deal with no relief period has no Yes/No switch), <conditionalFormatting/> or <mergeCells/>."""
+    import re
+    import zipfile
+    for deal in ("CARS", "MEC", "TRS"):
+        out = tmp_path / f"{deal}.xlsx"
+        build(deal, today=TODAY).save(out)
+        with zipfile.ZipFile(out) as z:
+            for name in z.namelist():
+                if name.startswith("xl/worksheets/sheet"):
+                    xml = z.read(name).decode()
+                    empty = re.findall(r'<(dataValidations|conditionalFormatting|mergeCells|hyperlinks)\b[^>]*count="0"[^>]*/>', xml)
+                    assert not empty, f"{deal} {name}: empty {empty}"
