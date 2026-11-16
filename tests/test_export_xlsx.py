@@ -70,7 +70,13 @@ def test_cap_expression():
 def test_mec_workbook_tests_from_the_lines():
     wb = build("MEC", today=TODAY, review=False)
     assert wb.sheetnames == ["Summary", "Calendar & Levels", "Definitions", "Covenant Test"]
-    assert "DRAFT" in wb["Summary"]["A2"].value
+    assert "DRAFT" in wb["Summary"]["B5"].value
+    ts = wb["Covenant Test"]                                   # the covenant in words, at the top of the test sheet
+    box = {ts.cell(r, 1).value.split("  §")[0]: ts.cell(r, 2).value for r in range(7, 10)}
+    assert box["Consolidated Total Leverage Ratio"].startswith("Consolidated Total Leverage Ratio = (Consolidated Total "
+                                                                "Indebtedness − Unrestricted Cash")
+    assert "÷ Consolidated EBITDA, which must not exceed" in box["Consolidated Total Leverage Ratio"]
+    assert "× 50%" in box["Consolidated Interest Coverage Ratio"]
     cal = _calendar(wb["Calendar & Levels"])
     r = cal[("Consolidated Total Leverage Ratio", date(2026, 6, 30))]
     assert r[4].value == 3.5 and r[5].value == 5.25 and "Summary!" in r[6].value   # relief level on a switch

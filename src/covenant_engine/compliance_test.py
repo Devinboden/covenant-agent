@@ -246,6 +246,9 @@ def plan(ab):
                 ln["kind"] = "link"
                 ln["label"] = ln["ref"] + (f" × {ln['mult']:.0%}" if ln["mult"] else "")
                 ln["point"] = T[ln["ref"].lower()].get("family") in POINT
+            elif p["category"].endswith("less_amount") and p.get("source") == "balance_sheet" \
+                    and re.search(r"\bcash\b", p.get("quote", "") + " " + p.get("note", ""), re.I):  # cash netted: say so
+                ln["label"] = "Unrestricted cash netted"
             elif (p.get("ref_term") or "").strip():           # a defined term the abstract doesn't break down: by name
                 ln["label"] = p["ref_term"].strip() + (f" × {ln['mult']:.0%}" if ln["mult"] else "")
             sides["num" if p["category"].startswith("numerator") else "den"].append(ln)

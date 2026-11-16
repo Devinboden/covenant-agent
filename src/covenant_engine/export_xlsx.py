@@ -214,6 +214,57 @@ def caps_words(caps, regimes):
     return "; ".join(out)
 
 
+def _short(label, n=46):
+    return label if len(label) <= n else label[:n].rsplit(" ", 1)[0] + "…"
+
+
+def side_words(lines, groups, regs):
+    """One side of a ratio in words: 'Indebtedness − Unrestricted Cash (max $25,000,000)'."""
+    out = []
+    for l in sorted(lines, key=lambda l: l["sign"] == "-"):         # what's added first, then what's taken off
+        op = {"-": "−", "+/-": "±"}.get(l["sign"], "+")
+        cap = caps_words(l["caps"], regs)
+        out.append(f"{op} {_short(l['label'])}" + (f" ({cap})" if cap else ""))
+    txt = " ".join(out)
+    txt = txt[2:] if txt.startswith("+ ") else txt
+    for g in groups:
+        txt += f" [combined limit: {caps_words(g['caps'], regs)}]"
+    return txt
+
+
+def formula_words(t, regs):
+    """The covenant in one line of words, from the same plan the sheet's formulas come from."""
+    c = t["covenant"]
+    must = "must not exceed" if c["direction"] == "max" else "must be at least"
+    if t["kind"] == "level":
+        when = "tested at fiscal year end" if c.get("frequency") == "annual" else "tested each quarter"
+        return f"{t['term']} over the four quarters ending on the test date {must} the level that applies ({when})"
+    num, den = side_words(t["num"], [g for g in t["groups"] if g["side"] == "num"], regs), \
+        side_words(t["den"], [g for g in t["groups"] if g["side"] == "den"], regs)
+    wrap = lambda x, n: f"({x})" if n > 1 else x
+    return f"{_cov_name(c)} = {wrap(num, len(t['num']))} ÷ {wrap(den, len(t['den']))}, which {must} the level that applies"
+
+
+def block_words(bl):
+    """A defined term in one line: 'Consolidated EBITDA = Consolidated Net Income + 13 add-backs − 3 deductions; …'.
+    None for a term with a single line (the line says it all)."""
+    lines = [l for l in bl["lines"] if l["category"] != "start"]
+    if len(lines) < 2:
+        return None
+    n = lambda sign: sum(l["sign"] == sign for l in lines)
+    word = lambda k, one, many: f"{k} {one if k == 1 else many}"
+    if bl["family"] == "ebitda":
+        parts = [word(n("+"), "add-back", "add-backs"), n("-") and "− " + word(n("-"), "deduction", "deductions")]
+    else:
+        parts = [word(n("+"), "item added", "items added"), n("-") and "− " + word(n("-"), "item excluded", "items excluded")]
+    if n("+/-"):
+        parts.append("± " + word(n("+/-"), "item that can go either way", "items that can go either way"))
+    text = f"{bl['name']} = " + (f"{bl['start']} + " if bl.get("start") else "") + " ".join(x for x in parts if x)
+    for pool in bl["pools"].values():
+        text += f"; {', '.join(pool['clauses'])} share a cap of {pool['pct']:.0%} of EBITDA"
+    return text + (", at the test date" if bl["point"] else ", over the four quarters ending on the test date")
+
+
 def default_test_date(ab, today=None):
     today = today or date.today()
     rep = sorted({_d(x["period_end"]) for x in ab.get("reported", []) if _d(x.get("period_end"))})
@@ -263,84 +314,124 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     dfs = wb.create_sheet("Definitions")
     ts = wb.create_sheet(TEST)
 
-    # ------------------------------------------------------------ Summary: deal, results (filled later), inputs
-    for col, w in zip("ABCDEFG", (58, 16, 16, 14, 22, 20, 60)):
+    # ------------------------------------------------------------ Summary: a one-page cover
+    # Column A is a gutter; content runs B..H. Deal facts sit in a two-column grid, the results table and the settings
+    # line up on the same columns, and long agreement quotes live in cell notes so every row stays one line.
+    for col, w in zip("ABCDEFGH", (3, 38, 14, 14, 15, 15, 14, 22)):
         sm.column_dimensions[col].width = w
-    _put(sm, 1, 1, f"{ln.get('borrower', b)} ({b}): covenant testing workbook", bold=True, size=14)
-    banner = {"draft": "DRAFT: abstract not yet reviewed and signed off. Do not rely on it for compliance.",
-              "signed_off": f"Abstract SIGNED OFF by {rec.get('signed_by')}."}.get(status, status)
-    bc = _put(sm, 2, 1, banner, bold=True, color="991B1B" if status != "signed_off" else "166534")
-    bc.fill = RED_FILL if status != "signed_off" else GREEN_FILL
-    sm.merge_cells("A2:G2")
+    _put(sm, 2, 2, f"{ln.get('borrower', b)}", bold=True, size=18)
+    _put(sm, 3, 2, f"Covenant testing workbook · {b} · generated {(today or date.today()):%B %-d, %Y} from the checked "
+                   "covenant abstract", color="6B7280")
+    banner = {"draft": "DRAFT  ·  The abstract is not yet reviewed and signed off. Do not rely on it for compliance.",
+              "signed_off": f"SIGNED OFF  ·  Abstract reviewed and signed off by {rec.get('signed_by')}."}.get(status, status)
+    bc = _put(sm, 5, 2, banner, bold=True, color="991B1B" if status != "signed_off" else "166534")
+    for k in range(2, 9):
+        sm.cell(row=5, column=k).fill = RED_FILL if status != "signed_off" else GREEN_FILL
+    bc.alignment = Alignment(vertical="center", indent=1)
+    sm.merge_cells("B5:H5")
+    sm.row_dimensions[5].height = 26
+
+    def section(r, title):
+        _put(sm, r, 2, title, bold=True, size=12)
+        for k in range(2, 9):
+            sm.cell(row=r, column=k).border = Border(bottom=Side(style="medium", color="1F2937"))
+        sm.row_dimensions[r].height = 22
+
     fac = (ln.get("facilities") or [{}])[0]
-    facts = [("Borrower", ln.get("borrower", "")), ("Administrative agent", ln.get("agent", "")),
-             ("Facility", f"${_num(fac.get('commitment')) or 0:,.0f} {fac.get('type', '')}".strip()),
-             ("Maturity", _d(fac.get("maturity"))), ("Agreement date", _d((ln.get("agreement_date") or {}).get("value"))),
-             ("Latest amendment", _d((ln.get("latest_amendment_date") or {}).get("value"))),
-             ("Source document", ab["header"].get("source_file", "")), ("Abstract status", status.replace("_", " ").title()),
-             ("Workbook generated", today or date.today())]
-    r = 4
-    for k, v in facts:
-        _put(sm, r, 1, k, bold=True)
-        x = _put(sm, r, 2, v, DATE_FMT if isinstance(v, date) else None)
+    grid = [(("Borrower", ln.get("borrower", "")), ("Facility", f"${_num(fac.get('commitment')) or 0:,.0f} {fac.get('type', '')}".strip())),
+            (("Administrative agent", ln.get("agent", "")), ("Maturity", _d(fac.get("maturity")))),
+            (("Agreement date", _d((ln.get("agreement_date") or {}).get("value"))),
+             ("Last amended", _d((ln.get("latest_amendment_date") or {}).get("value"))))]
+    section(7, "Deal")
+    r = 8
+    for (k1, v1), (k2, v2) in grid:
+        _put(sm, r, 2, k1, color="6B7280")
+        x = _put(sm, r, 3, v1, DATE_FMT if isinstance(v1, date) else None, bold=True)
         x.alignment = Alignment(horizontal="left")
+        sm.merge_cells(start_row=r, start_column=3, end_row=r, end_column=5)
+        _put(sm, r, 6, k2, color="6B7280")
+        x = _put(sm, r, 7, v2, DATE_FMT if isinstance(v2, date) else None, bold=True)
+        x.alignment = Alignment(horizontal="left")
+        sm.merge_cells(start_row=r, start_column=7, end_row=r, end_column=8)
         r += 1
-    r += 1
-    _put(sm, r, 1, "Results for the test date", bold=True, size=12)
+    _put(sm, r, 2, "Source document", color="6B7280")
+    _put(sm, r, 3, ab["header"].get("source_file", ""))
+    sm.merge_cells(start_row=r, start_column=3, end_row=r, end_column=8)
+    r += 2
+    section(r, "Results")
     res_title = r
     r += 1
     sum_res_head = r
     r += 1 + len(P["tests"]) + 1
 
-    _put(sm, r, 1, "Inputs the formulas use", bold=True, size=12)
+    section(r, "Settings the formulas use")
     r += 1
     rp = ln.get("reporting") or {}
     fy = (ln.get("fiscal_year_end") or {}).get("value", "12-31")
     fm, fd = (int(x) for x in (fy.split("-") if "-" in fy else ("12", "31")))
-    inputs = [("quarterly_days", "Quarterly financials due (days after quarter end)", _num(rp.get("quarterly_days")),
+    inputs = [("quarterly_days", "Quarterly financials due (days)", _num(rp.get("quarterly_days")),
                rp.get("quote_quarterly", "")),
-              ("annual_days", "Annual financials due (days after fiscal year end)", _num(rp.get("annual_days")),
-               rp.get("quote_annual", "")),
+              ("annual_days", "Annual financials due (days)", _num(rp.get("annual_days")), rp.get("quote_annual", "")),
               ("fye_month", "Fiscal year end: month", fm, (ln.get("fiscal_year_end") or {}).get("quote", "")),
               ("fye_day", "Fiscal year end: day", fd, (ln.get("fiscal_year_end") or {}).get("quote", "")),
-              ("watch", "Watch if cushion is below", WATCH, "Assumption: a common early-warning threshold; change it")]
+              ("watch", "Flag a cushion below", WATCH, "")]
     for g in reliefs:
-        inputs.append((f"relief_{g['id']}", f"{g['name']} still in effect? (Yes / No)", "Yes",
-                       "Set to No if it ended early: the calendar and the test then use the standard terms"))
+        inputs.append((f"relief_{g['id']}", f"{g['name']} in effect?", "Yes", ""))
+    notes = {"watch": "Your early-warning level: cushions under it turn amber on the calendar.",
+             **{f"relief_{g['id']}": "Set to No if it ended early; the calendar and the test then use the standard levels"
+                for g in reliefs}}
     cell = {}
     yn = DataValidation(type="list", formula1='"Yes,No"', allow_blank=False)
     sm.add_data_validation(yn)
     for key, label, val, src in inputs:
-        _put(sm, r, 1, label)
-        x = _put(sm, r, 2, val, PCT_FMT if key == "watch" else None, color=BLUE)
+        _put(sm, r, 2, label)
+        x = _put(sm, r, 3, val, PCT_FMT if key == "watch" else None, color=BLUE, bold=True)
         x.fill = INPUT
-        x.alignment = Alignment(horizontal="left")
+        x.alignment = Alignment(horizontal="center")
         if key.startswith("relief_"):
             yn.add(x)
-        s = _put(sm, r, 3, ("Source: " + src[:300]) if src and not src.startswith(("Assumption", "Set to")) else src,
-                 italic=True, color="6B7280")
-        sm.merge_cells(start_row=r, start_column=3, end_row=r, end_column=7)
-        _wrap(s)
-        cell[key] = f"Summary!$B${r}"
+        if src:                                            # the agreement's words, whole, in a note on the input
+            x.comment = Comment(f"From the agreement: \"{src[:900]}\"", "covenant-agent", width=420, height=160)
+        bare = " ".join(src.split()).strip("\"“”' ")
+        quiet = notes.get(key) or (f"From the agreement: “{_short(bare, 78)}”" if bare else "")
+        _put(sm, r, 4, quiet, italic=True, color="6B7280", size=9)
+        sm.merge_cells(start_row=r, start_column=4, end_row=r, end_column=8)
+        cell[key] = f"Summary!$C${r}"
         r += 1
     if not reliefs:                                       # Excel refuses an empty <dataValidations/> and repairs the sheet
         sm.data_validations.dataValidation.remove(yn)
     regime_cell = {g["id"]: cell[f"relief_{g['id']}"] for g in reliefs}
     r += 1
-    howto = ["How to use: 1. On Covenant Test, set the test date and enter the borrower's numbers in the yellow cells "
-             "(four quarters for income-statement items, the test-date balance for debt and cash). 2. Caps, the ratios, "
-             "headroom and status calculate. 3. Optionally enter the borrower's compliance certificate figures in the "
-             "Borrower column to see differences. 4. Record the result on Calendar & Levels.",
-             "Blue text on yellow = inputs. Black = formulas. Green = links to another line or sheet. Every line, level, "
-             "date and limit comes from the checked abstract; the agreement text is beside each line and on Definitions.",
-             "Limits marked 'check' need facts the workbook doesn't have (per acquisition, lifetime use): confirm by hand. "
-             "Step-ups are borrower elections: shown, not applied. Not legal advice; the agreement governs."]
-    for line in howto:
-        x = _put(sm, r, 1, line, color="374151")
-        _wrap(x)
-        sm.merge_cells(start_row=r, start_column=1, end_row=r, end_column=7)
-        sm.row_dimensions[r].height = 44
+    section(r, "How to use it")
+    r += 1
+    steps = ["1.  On Covenant Test, set the test date and type the borrower's figures into the yellow cells.",
+             "2.  Income-statement lines take four quarters; debt and cash take the balance at the test date.",
+             "3.  The agreement's caps, the ratios, headroom and Met / Breached calculate on their own.",
+             "4.  Optional: type the borrower's certificate figures in the Borrower column to see differences.",
+             "5.  Record each tested result on Calendar & Levels."]
+    for line in steps:
+        _put(sm, r, 2, line)
+        sm.merge_cells(start_row=r, start_column=2, end_row=r, end_column=8)
         r += 1
+    r += 1
+    key = [("Input", dict(color=BLUE, bold=True), INPUT), ("Formula", {}, None), ("Link to another line", dict(color=GREEN), None)]
+    _put(sm, r, 2, "Colour key", color="6B7280")
+    for k, (word, font, fill) in enumerate(key):
+        x = _put(sm, r, 3 + k, word, **font)
+        x.alignment = Alignment(horizontal="center")
+        x.border = BOX
+        if fill:
+            x.fill = fill
+    r += 2
+    for line in ["Limits marked \"check\" need facts the workbook doesn't have (per acquisition, lifetime use): confirm them "
+                 "by hand. Step-ups are borrower elections: shown, never applied.",
+                 "Every line, level, date and limit comes from the checked abstract, with the agreement's words beside it "
+                 "and on Definitions. Not legal advice; the agreement governs."]:
+        _put(sm, r, 2, line, color="6B7280", size=9)
+        sm.merge_cells(start_row=r, start_column=2, end_row=r, end_column=8)
+        _wrap(sm.cell(row=r, column=2))
+        r += 1
+    sm.sheet_view.zoom_scale = 110
 
     # ------------------------------------------------------------ Calendar & Levels
     widths = [38, 10, 7, 13, 13, 11, 13, 14, 12, 22, 11, 9, 11, 34, 30]
@@ -475,15 +566,30 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     ts.merge_cells("A4:M4")
     _wrap(ts["A4"])
     ts.row_dimensions[4].height = 30
-    _put(ts, 6, 1, "Results", bold=True, size=12)
+    # How each covenant is calculated: the formula in words, from the same plan the cells come from
+    _put(ts, 6, 1, "How each covenant is calculated", bold=True, size=12)
+    r = 7
+    for t in P["tests"]:
+        x = _put(ts, r, 1, _cov_name(t["covenant"]) + f"  §{t['covenant']['ref']}", bold=True)
+        x.alignment = Alignment(vertical="top", wrap_text=True)
+        f = _put(ts, r, 2, formula_words(t, regs))
+        f.alignment = Alignment(vertical="top", wrap_text=True)
+        ts.merge_cells(start_row=r, start_column=2, end_row=r, end_column=13)
+        for k in range(1, 14):
+            ts.cell(row=r, column=k).fill = PatternFill("solid", fgColor="EEF2FF")
+            ts.cell(row=r, column=k).border = Border(bottom=Side(style="thin", color="FFFFFF"))
+        r += 1
+    r += 1
+    _put(ts, r, 1, "Results", bold=True, size=12)
+    res_head = r + 1
     res_cols = ["Covenant", "Section", "", "Result", "Level that applies", "Headroom", "Status", "EBITDA could fall by",
                 "As % of EBITDA", "Borrower's figure", "Difference"]
     for i, h in enumerate(res_cols, 1):
-        x = _put(ts, 7, i, h, bold=True, color="FFFFFF")
+        x = _put(ts, res_head, i, h, bold=True, color="FFFFFF")
         x.fill = HEAD
         _wrap(x)
-    ts.row_dimensions[7].height = 30
-    r = 7 + len(P["tests"]) + 3
+    res_first = res_head + 1
+    r = res_first + len(P["tests"]) + 2
     total = {}                                             # term name -> its total row on this sheet
     links = []                                             # (row, term name) cells that show another block's total
 
@@ -544,9 +650,19 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
 
     _put(ts, r, 1, "Defined terms the covenants use", bold=True, size=12)
     r += 2
+    def note_row(r, text):
+        x = _put(ts, r, 1, text, italic=True, color="1E3A8A")
+        x.alignment = Alignment(vertical="top", wrap_text=True)
+        ts.merge_cells(start_row=r, start_column=1, end_row=r, end_column=13)
+        for k in range(1, 14):
+            ts.cell(row=r, column=k).fill = PatternFill("solid", fgColor="EEF2FF")
+
     for bl in P["blocks"]:
         head(r, bl["name"], "At test date" if bl["point"] else None)
         r += 1
+        if block_words(bl):
+            note_row(r, block_words(bl))
+            r += 1
         first = r
         rows = {}
         for i, l in enumerate(bl["lines"]):
@@ -584,7 +700,6 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     _put(ts, r, 1, "Covenant tests", bold=True, size=12)
     r += 2
     results = []
-    T_ = {t["name"]: t for t in ab.get("terms", [])}
     ebitda_total = next((total[bl["name"]] for bl in P["blocks"] if bl["family"] == "ebitda"), None)
     for t in P["tests"]:
         c = t["covenant"]
@@ -593,6 +708,8 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
         side_rows = {}
         if t["kind"] == "level":
             head(r, title)
+            r += 1
+            note_row(r, formula_words(t, regs))
             r += 1
             l = {"label": f"{t['term']}", "clause": "", "sign": "+", "kind": "link", "ref": t["term"], "caps": [],
                  "checks": [], "source": "", "quote": "", "mult": None}
@@ -603,8 +720,9 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
             result_expr = f"J{res_cell}"
             num_r = den_r = None
         else:
-            point = any(x["point"] for x in t["num"]) and not any(not x["point"] for x in t["num"])
             head(r, title)
+            r += 1
+            note_row(r, formula_words(t, regs))
             r += 1
             for side, label in (("num", "Numerator"), ("den", "Denominator")):
                 first = r
@@ -646,7 +764,7 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
         J, L = f"J{rr['res']}", f"J{rr['lvl']}"
         sign = f"{L}-{J}" if c["direction"] == "max" else f"{J}-{L}"
         _put(ts, rr["hd"], 10, f'=IF(OR({J}="",{L}=""),"",{sign})', fmt)
-        _put(ts, rr["st"], 10, f'=IF({L}="","Not tested on this date",IF({J}="","",IF(J{rr["hd"]}>=0,"Met","Breached")))', bold=True)
+        _put(ts, rr["st"], 10, f'=IF({L}="","Not tested",IF({J}="","",IF(J{rr["hd"]}>=0,"Met","Breached")))', bold=True)
         _status_colors(ts, f"J{rr['st']}")
         cush = None
         if t["kind"] == "ratio" and t["ebitda_side"] == "den" and c["direction"] == "max":
@@ -672,10 +790,9 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
     for row_, ref in links:
         if ref in total:
             ts.cell(row=row_, column=8).value = f"=J{total[ref]}"
-    ts.freeze_panes = "B8"
     for i, (c, fmt, rr) in enumerate(results):
-        R = 8 + i
-        vals = {1: _cov_name(c), 2: c["ref"], 4: f"=J{rr['res']}", 5: f"=J{rr['lvl']}", 6: f"=J{rr['hd']}",
+        R = res_first + i
+        vals = {1: _cov_name(c), 2: c["ref"], 4: f'=IF(J{rr["lvl"]}="","",J{rr["res"]})', 5: f"=J{rr['lvl']}", 6: f"=J{rr['hd']}",
                 7: f"=J{rr['st']}", 8: f"=J{rr['cu']}" if "cu" in rr else None, 9: f"=J{rr['cp']}" if "cp" in rr else None,
                 10: f"=K{rr['res']}", 11: f"=L{rr['res']}"}
         for k, v in vals.items():
@@ -684,23 +801,28 @@ def build(b, abs_dir=config.ABSTRACT_DIR, today=None, review=True, test_date=Non
             x.border = BOX
         ts.cell(row=R, column=10).value = f'=IF(K{rr["res"]}="","",K{rr["res"]})'
         ts.cell(row=R, column=11).value = f'=IF(L{rr["res"]}="","",L{rr["res"]})'
-    _status_colors(ts, f"G8:G{7 + len(results)}")
+    _status_colors(ts, f"G{res_first}:G{res_first + len(results) - 1}")
 
     # Summary results (links to the test sheet)
-    cols = ["Covenant", "Result", "Level that applies", "Headroom", "Status", "EBITDA could fall by"]
-    _put(sm, res_title, 2, f"={TESTQ}!$D$3", DATE_FMT, bold=True, color=GREEN).alignment = Alignment(horizontal="left")
-    for i, h in enumerate(cols, 1):
-        x = _put(sm, sum_res_head, i, h, bold=True, color="FFFFFF")
+    x = _put(sm, res_title, 3, f"={TESTQ}!$D$3", "\"at \"mmm d, yyyy", bold=True, color=GREEN, size=12)
+    x.alignment = Alignment(horizontal="left")
+    sm.merge_cells(start_row=res_title, start_column=3, end_row=res_title, end_column=5)
+    cols = ["Covenant", "Section", "Result", "Level that applies", "Headroom", "Status", "EBITDA could fall by"]
+    for i, h in enumerate(cols):
+        x = _put(sm, sum_res_head, 2 + i, h, bold=True, color="FFFFFF")
         x.fill = HEAD
-        _wrap(x)
+        x.alignment = Alignment(wrap_text=True, vertical="center", horizontal="left" if i < 2 else "right")
     for i, (c, fmt, rr) in enumerate(results):
         R = sum_res_head + 1 + i
-        _put(sm, R, 1, f"{_cov_name(c)} (§{c['ref']})")
-        for k, (col, f_) in enumerate((("D", fmt), ("E", fmt), ("F", fmt), ("G", None), ("H", USD)), 2):
-            _put(sm, R, k, f"={TESTQ}!{col}{8 + i}", f_, color=GREEN)
-        for k in range(1, 7):
+        _put(sm, R, 2, _cov_name(c))
+        _put(sm, R, 3, f"§{c['ref']}", color="6B7280")
+        for k, (col, f_) in enumerate((("D", fmt), ("E", fmt), ("F", fmt), ("G", None), ("H", USD)), 4):
+            ref = f"{TESTQ}!{col}{res_first + i}"
+            x = _put(sm, R, k, f'=IF({ref}="","",{ref})', f_, color=GREEN, bold=col in ("D", "G"))
+            x.alignment = Alignment(horizontal="right" if col != "G" else "center")
+        for k in range(2, 9):
             sm.cell(row=R, column=k).border = BOX
-    _status_colors(sm, f"E{sum_res_head + 1}:E{sum_res_head + len(results)}")
+    _status_colors(sm, f"G{sum_res_head + 1}:G{sum_res_head + len(results)}")
 
     # ------------------------------------------------------------ Definitions (human-readable)
     _definitions(dfs, ab, P)
@@ -733,7 +855,7 @@ def _status_colors(ws, rng):
     ws.conditional_formatting.add(rng, CellIsRule(operator="equal", formula=['"Breached"'], fill=RED_FILL,
                                                   font=Font(name=FONT, bold=True, color="991B1B")))
     ws.conditional_formatting.add(rng, CellIsRule(operator="equal", formula=['"Met"'], fill=GREEN_FILL))
-    ws.conditional_formatting.add(rng, CellIsRule(operator="equal", formula=['"Not tested on this date"'],
+    ws.conditional_formatting.add(rng, CellIsRule(operator="equal", formula=['"Not tested"'],
                                                   font=Font(name=FONT, color="6B7280")))
 
 
